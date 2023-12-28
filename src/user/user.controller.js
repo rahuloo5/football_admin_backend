@@ -1,5 +1,7 @@
 const User = require("../../db/config/user.model");
-const { GeneratesSignature } = require("../utility/password_hash");
+const {
+  GeneratesSignature,
+} = require("../middleware/authorization.middleware");
 
 const userSignup = async (req, resp) => {
   try {

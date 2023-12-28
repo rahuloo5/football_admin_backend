@@ -1,11 +1,11 @@
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
-function generateToken(payload) {
+function GeneratesSignature(payload) {
   const secretKey = process.env?.SECRET_KEY || "secure-living";
-  const expiresIn = "1d";
+  const expiresIn = "10d";
 
-  const token = jwt.sign(payload, secretKey, { expiresIn: "8h" });
+  const token = jwt.sign(payload, secretKey, { expiresIn });
   console.log("token taken", token);
 
   return token;
@@ -33,4 +33,4 @@ function authMiddleware(req, res, next) {
   );
 }
 
-module.exports = { generateToken, authMiddleware };
+module.exports = { GeneratesSignature, authMiddleware };

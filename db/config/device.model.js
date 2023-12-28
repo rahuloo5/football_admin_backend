@@ -2,10 +2,30 @@ const mongoose = require("mongoose");
 
 const deviceSchema = new mongoose.Schema(
   {
-    title: {
+    device_name: {
       type: String,
     },
-    description: {
+    Image: {
+      type: [String],
+    },
+    video_url: {
+      type: [String],
+    },
+    policy_url: {
+      type: [String],
+    },
+
+    categorie: { type: mongoose.Schema.Types.ObjectId, ref: "categories" },
+
+    sub_categorie: { type: mongoose.Schema.Types.ObjectId, ref: "Subcategory" },
+
+    secuirty_overview: {
+      type: String,
+    },
+    privacy_overview: {
+      type: String,
+    },
+    other_information: {
       type: String,
     },
   },
