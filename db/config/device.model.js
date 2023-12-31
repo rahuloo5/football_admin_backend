@@ -5,17 +5,23 @@ const deviceSchema = new mongoose.Schema(
     device_name: {
       type: String,
     },
-    Image: {
-      type: [String],
-    },
-    video_url: {
-      type: [String],
-    },
-    policy_url: {
-      type: [String],
-    },
+    Images: [
+      {
+        type: String,
+      },
+    ],
+    video_url: [
+      {
+        type: String,
+      },
+    ],
+    policy_url: [
+      {
+        type: String,
+      },
+    ],
 
-    categorie: { type: mongoose.Schema.Types.ObjectId, ref: "categories" },
+    categorie: { type: mongoose.Schema.Types.ObjectId, ref: "Category" },
 
     sub_categorie: { type: mongoose.Schema.Types.ObjectId, ref: "Subcategory" },
 
@@ -33,6 +39,6 @@ const deviceSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Device = mongoose.model("device", deviceSchema);
+const Device = mongoose.model("Device", deviceSchema);
 
 module.exports = Device;

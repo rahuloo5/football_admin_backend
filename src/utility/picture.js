@@ -1,6 +1,5 @@
 const fs = require("fs");
 const multer = require("multer");
-const Content = require("../../db/config/content.model");
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -14,3 +13,4 @@ const storage = multer.diskStorage({
 });
 
 exports.contentImage = multer({ storage }).single("image");
+exports.deviceImage = multer({ storage }).array("Images");

@@ -4,15 +4,10 @@ const Content = require("../../db/config/content.model");
 const getaddcontent = async (req, res) => {
   try {
     const { title, description, heading } = req.body;
-    // console.log("multer", req.body);
 
-    // Use req.file directly to get the uploaded file
     const image = req.file ? req?.file?.filename : null;
-    // console.log("<getaddcontent> file path name", req?.file);
 
     const newContent = new Content({ title, description, image, heading });
-
-    // console.log("multer wertyasdf", newContent);
 
     await newContent.save();
 

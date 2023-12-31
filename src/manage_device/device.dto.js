@@ -1,0 +1,14 @@
+const Joi = require("joi");
+
+const deviceSchema = Joi.object({
+  device_name: Joi.string().required(),
+  categorie: Joi.string().required(),
+  sub_categorie: Joi.string().required(),
+  Images: Joi.string().required(),
+  video_url: Joi.string().url().required(),
+  policy_url: Joi.string().url().required(),
+  secuirty_overview: Joi.string().required(),
+  privacy_overview: Joi.string().required(),
+  other_information: Joi.string().required(),
+});
+module.exports = deviceSchema;
