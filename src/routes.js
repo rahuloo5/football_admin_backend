@@ -3,6 +3,7 @@ const contentrouter = require("./content/content.route");
 const categoryrouter = require("./categories/categories.route");
 const devicerouter = require("./manage_device/device.route");
 const screenrouter = require("./screen/screen.route");
+const articlerouter = require("./manage_Article/article.route");
 
 exports.registerRoutes = (app) => {
   app.use(userrouter);
@@ -10,4 +11,5 @@ exports.registerRoutes = (app) => {
   app.use(categoryrouter);
   app.use(devicerouter);
   app.use(screenrouter);
+  app.use(articlerouter);
 };
