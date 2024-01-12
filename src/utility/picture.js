@@ -16,3 +16,4 @@ exports.contentImage = multer({ storage }).single("image");
 exports.screenImage = multer({ storage }).single("screen_image");
 exports.deviceImage = multer({ storage }).array("Images");
 exports.articleImage = multer({ storage }).single("Images");
+exports.categoriesImage = multer({ storage }).single("icon");

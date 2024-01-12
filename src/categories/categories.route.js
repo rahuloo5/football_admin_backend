@@ -13,6 +13,7 @@ const {
   getallsubcategory,
   deletesubcategory,
 } = require("./categories-sub.controller");
+const { categoriesImage } = require("../utility/picture");
 
 const router = express.Router();
 

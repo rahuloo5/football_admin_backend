@@ -117,6 +117,18 @@ const updateuser = async (req, res) => {
   }
 };
 
+// Create a new user
+const user = async (req, res) => {
+  try {
+    const newUser = new User(req.body);
+    const savedUser = await newUser.save();
+    res.status(201).json(savedUser);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 const getUserById = async (req, res) => {
   const { id } = req.params;
 
@@ -138,6 +150,7 @@ module.exports = {
   userSignup,
   userlogin,
   getalluser,
+  user,
   deleteduser,
   updateuser,
   getUserById,

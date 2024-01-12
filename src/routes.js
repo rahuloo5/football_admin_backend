@@ -5,8 +5,10 @@ const devicerouter = require("./manage_device/device.route");
 const screenrouter = require("./screen/screen.route");
 const articlerouter = require("./manage_Article/article.route");
 const feedbackrouter = require("./feedback/feedback.route");
+const authrouter = require("./auth/auth.route");
 
 exports.registerRoutes = (app) => {
+  app.use(authrouter);
   app.use(userrouter);
   app.use(contentrouter);
   app.use(categoryrouter);

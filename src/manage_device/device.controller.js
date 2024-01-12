@@ -76,8 +76,6 @@ const createDevice = async (req, res) => {
 const getAllDevices = async (req, res) => {
   try {
     const devices = await Device.find().populate("categorie sub_categorie");
-
-    // Calculate the total number of images and include video_url for each device
     const devicesWithImageAndVideo = devices.map((device) => ({
       ...device.toObject(),
       totalImages: device.Images ? device.Images.length : 0,

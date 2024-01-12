@@ -28,9 +28,25 @@ const getaddArticle = async (req, res) => {
 // Get all article
 const getAllArticle = async (req, res) => {
   try {
-    const allArticles = await Article.find();
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = parseInt(req.query.pageSize) || 10;
 
-    res.status(200).json(allArticles);
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = page * pageSize;
+
+    const totalArticles = await Article.countDocuments();
+    const totalPages = Math.ceil(totalArticles / pageSize);
+
+    const articles = await Article.find().skip(startIndex).limit(pageSize);
+
+    const paginationInfo = {
+      currentPage: page,
+      totalPages: totalPages,
+      pageSize: pageSize,
+      totalArticles: totalArticles,
+    };
+
+    res.status(200).json({ articles, paginationInfo });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });

@@ -6,6 +6,7 @@ const {
   deleteduser,
   updateuser,
   getUserById,
+  user,
 } = require("./user.controller");
 const { authMiddleware } = require("../middleware/authorization.middleware");
 
@@ -17,6 +18,7 @@ router.post("/login", userlogin);
 
 //user API
 router.get("/user", getalluser);
+router.post("/user", authMiddleware, user);
 router.delete("/user/:id", authMiddleware, deleteduser);
 router.patch("/user/:id", authMiddleware, updateuser);
 router.get("/user/:id", authMiddleware, getUserById);
