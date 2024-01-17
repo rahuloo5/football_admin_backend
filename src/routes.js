@@ -6,6 +6,7 @@ const screenrouter = require("./screen/screen.route");
 const articlerouter = require("./manage_Article/article.route");
 const feedbackrouter = require("./feedback/feedback.route");
 const authrouter = require("./auth/auth.route");
+const subscriptionrouter = require("./Subscription/subscription.route");
 
 exports.registerRoutes = (app) => {
   app.use(authrouter);
@@ -16,4 +17,5 @@ exports.registerRoutes = (app) => {
   app.use(screenrouter);
   app.use(articlerouter);
   app.use(feedbackrouter);
+  app.use(subscriptionrouter);
 };

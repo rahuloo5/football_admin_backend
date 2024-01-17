@@ -3,11 +3,12 @@ const Content = require("../../db/config/content.model");
 // add content
 const getaddcontent = async (req, res) => {
   try {
-    const { title, description, heading } = req.body;
+    const { description } = req.body;
 
-    const image = req.file ? req?.file?.filename : null;
+    // const image = req.file ? req?.file?.filename : null;
+    const image = req.files ? req.files.map((file) => file.filename) : null;
 
-    const newContent = new Content({ title, description, image, heading });
+    const newContent = new Content({ description, image });
 
     await newContent.save();
 
@@ -80,8 +81,25 @@ const getContentById = async (req, res) => {
 
 const getAllContent = async (req, res) => {
   try {
-    const allContent = await Content.find();
-    res.status(200).json(allContent);
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = parseInt(req.query.pageSize) || 10;
+
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = page * pageSize;
+
+    const totalContent = await Content.countDocuments();
+    const totalPages = Math.ceil(totalContent / pageSize);
+
+    const content = await Content.find().skip(startIndex).limit(pageSize);
+
+    const paginationInfo = {
+      currentPage: page,
+      totalPages: totalPages,
+      pageSize: pageSize,
+      totalContent: totalContent,
+    };
+
+    res.status(200).json({ content, paginationInfo });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });

@@ -6,8 +6,9 @@ const {
   getContentById,
   getAllContent,
 } = require("./content.controller");
-const { contentImage } = require("../utility/picture");
+
 const { authMiddleware } = require("../middleware/authorization.middleware");
+const { contentImage } = require("../utility/picture");
 
 const router = express.Router();
 

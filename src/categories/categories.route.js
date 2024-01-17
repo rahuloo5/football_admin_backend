@@ -13,25 +13,39 @@ const {
   getallsubcategory,
   deletesubcategory,
 } = require("./categories-sub.controller");
-const { categoriesImage } = require("../utility/picture");
+const { categoriesImage, subcategoriesImage } = require("../utility/picture");
 
 const router = express.Router();
 
 //categories API
 
-router.post("/categories", authMiddleware, createCategory);
+router.post("/categories", authMiddleware, categoriesImage, createCategory);
 
 router.get("/categories", authMiddleware, getAllCategories);
 
-router.get("/categories/:id", authMiddleware, getCategoryById);
+router.get("/categories/:categoryId", authMiddleware, getCategoryById);
 
-router.patch("/categories/:id", authMiddleware, updateCategory);
+router.patch(
+  "/categories/:categoryId",
+  authMiddleware,
+  categoriesImage,
+  updateCategory
+);
 
-router.delete("/categories/:id", authMiddleware, deleteCategory);
+router.delete("/categories/:categoryId", authMiddleware, deleteCategory);
 
 //sub_categories API
-router.post("/subcategories", authMiddleware, createSubCategory);
+router.post(
+  "/subcategories",
+  authMiddleware,
+  subcategoriesImage,
+  createSubCategory
+);
 router.get("/subcategories", getallsubcategory);
-router.delete("/subcategories/:id", authMiddleware, deletesubcategory);
+router.delete(
+  "/subcategories/:subcategoryId",
+  authMiddleware,
+  deletesubcategory
+);
 
 module.exports = router;

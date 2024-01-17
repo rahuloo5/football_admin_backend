@@ -7,9 +7,11 @@ const categorySchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Subcategory",
     },
-    icon: {
-      type: String,
-    },
+    icon: [
+      {
+        type: String,
+      },
+    ],
   },
   { timestamps: true }
 );
