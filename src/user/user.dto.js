@@ -8,7 +8,7 @@ const userSchema = Joi.object({
     .length(10)
     .pattern(/^[0-9]+$/)
     .required(),
-  payment_plan: Joi.string().required(),
+  // payment_plan: Joi.string().required(),
 });
 
 module.exports = userSchema;

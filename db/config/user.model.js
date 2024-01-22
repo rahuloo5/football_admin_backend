@@ -1,49 +1,25 @@
 const mongoose = require("mongoose");
 
-const userschema = new mongoose.Schema(
+const userSchema = new mongoose.Schema(
   {
     firstName: {
       type: String,
     },
-
     lastName: {
       type: String,
     },
-    email_id: {
+    email: {
       type: String,
     },
-
-    phone_number: {
+    number: {
       type: Number,
+      required: true,
     },
-
-    payment_plan: {
+    countryCode: {
       type: String,
     },
-
-    reg_date: {
+    country: {
       type: String,
-      default: Date.now(),
-    },
-
-    otp: {
-      type: String,
-    },
-    otp_created_at: {
-      type: Date,
-    },
-    password: {
-      type: String,
-    },
-
-    role: {
-      type: [String],
-      enum: ["Admin", "User"],
-      default: ["User"],
-    },
-    token: {
-      type: String,
-      default: "",
     },
   },
   {
@@ -51,5 +27,13 @@ const userschema = new mongoose.Schema(
   }
 );
 
-const User = mongoose.model("User", userschema);
+// // Combine countrycode and number to form the phone_number
+// userSchema.pre("save", function (next) {
+//   if (this.countrycode && this.phone_number) {
+//     this.phone_number = `${this.countrycode}${this.phone_number}`;
+//   }
+//   next();
+// });
+
+const User = mongoose.model("User", userSchema);
 module.exports = User;

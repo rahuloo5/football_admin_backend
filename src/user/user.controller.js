@@ -5,10 +5,9 @@ const {
 
 const userSignup = async (req, resp) => {
   try {
-    const { firstName, lastName, email_id, phone_number, password } = req.body;
+    const { firstName, lastName, email, number, password } = req.body;
     console.log(req.body, "checking body is here");
-    // Check if user with the given email already exists
-    const existingUser = await User.findOne({ email_id });
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
       return resp
         .status(400)
@@ -19,8 +18,8 @@ const userSignup = async (req, resp) => {
     const newUser = new User({
       firstName,
       lastName,
-      email_id,
-      phone_number,
+      email,
+      number,
       password,
     });
 
@@ -34,28 +33,61 @@ const userSignup = async (req, resp) => {
   }
 };
 
+// const userlogin = async (req, res) => {
+
+//   try {
+//     const { email, password } = req.body;
+
+//     console.log(req.body, "checking buy here only");
+
+//     const user = await User.findOne({ email });
+//     if (!user) {
+//       return res.status(401).json({ message: "Invalid credentials" });
+//     }
+//     console.log(user);
+//     if (user.password === password) {
+//       let signature = await GeneratesSignature({
+//         _id: user?._id,
+//         email: user?.email,
+//       });
+//       return res.status(200).json({
+//         token: signature,
+//       });
+//     }
+//     return res.status(200).json({
+//       message: "invalid credential",
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ message: "Internal server error" });
+//   }
+// };
+
 const userlogin = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    console.log(req.body, "checking buy here only");
+    console.log(req.body, "checking login here only");
 
-    const user = await User.findOne({ email_id: email });
+    const user = await User.findOne({ email });
+
     if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
-    console.log(user);
+
     if (user.password === password) {
       let signature = await GeneratesSignature({
-        _id: user?._id,
-        email: user?.email,
+        _id: user._id,
+        email: user.email,
       });
+
       return res.status(200).json({
         token: signature,
       });
     }
-    return res.status(200).json({
-      message: "invalid credential",
+
+    return res.status(401).json({
+      message: "Invalid credentials",
     });
   } catch (error) {
     console.error(error);
@@ -63,94 +95,74 @@ const userlogin = async (req, res) => {
   }
 };
 
-//get all usres
-const getalluser = async (req, res) => {
-  const { page = 1, limit = 10 } = req.query;
-
-  try {
-    const users = await User.find()
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .exec();
-
-    res.json(users);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-};
-
-//delete users by id
-const deleteduser = async (req, res) => {
-  const { id } = req.params;
-  try {
-    const user = await User.findByIdAndDelete(id);
-
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    res.json({ message: "User deleted successfully" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-};
-
-//update users by id
-const updateuser = async (req, res) => {
-  const { id } = req.params;
-
-  try {
-    const user = await User.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
-
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    res.json({ message: "User updated successfully" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-};
-
 // Create a new user
-const user = async (req, res) => {
+const createuser = async (req, res) => {
   try {
     const newUser = new User(req.body);
     const savedUser = await newUser.save();
     res.status(201).json(savedUser);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(400).json({ error: error.message });
   }
 };
 
-const getUserById = async (req, res) => {
-  const { id } = req.params;
-
+// Get all users
+const getalluser = async (req, res) => {
   try {
-    const user = await User.findById(id);
+    const users = await User.find();
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
+// Get a specific user by ID
+const getUserById = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
-
-    res.json(user);
+    res.status(200).json(user);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Update a user by ID
+const updateuser = async (req, res) => {
+  try {
+    const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
+    if (!updatedUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+// Delete a user by ID
+const deleteduser = async (req, res) => {
+  try {
+    const deletedUser = await User.findByIdAndDelete(req.params.id);
+    if (!deletedUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    res.status(200).json({ message: "User deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
 
 module.exports = {
   userSignup,
   userlogin,
+
   getalluser,
-  user,
+  createuser,
   deleteduser,
   updateuser,
   getUserById,

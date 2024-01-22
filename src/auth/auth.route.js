@@ -1,17 +1,8 @@
-const router = new require("express").Router();
-const authController = require("./auth.controller");
+const express = require("express");
+const { registerUser, verifyOTP } = require("./auth.controller");
+const router = express.Router();
 
-// router.post(
-//   "/register",
-//   // [validateMiddleware.validateRegisterData],
-//   authController.createUser
-// );
+router.post("/register", registerUser);
+router.post("/verify", verifyOTP);
 
-// router.post("/verify-otp", authController);
-
-// router.post("/resend-otp", authController);
-
-// router.post("/login-admin", authController);
-
-// router.post("/forget-password", authController, forgetPassword);
 module.exports = router;

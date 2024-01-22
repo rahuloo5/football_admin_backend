@@ -5,6 +5,10 @@ const SubscriptionSchema = new mongoose.Schema(
     plan_name: {
       type: String,
     },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
 
     number_search: {
       type: Number,
@@ -33,7 +37,7 @@ const SubscriptionSchema = new mongoose.Schema(
     },
 
     plan_description: {
-      type: Number,
+      type: String,
     },
   },
 

@@ -4,21 +4,30 @@ const Subscription = require("../../db/config/subscription.model");
 // Create a new subscription
 const createsubscription = async (req, res) => {
   try {
-    const newSubscription = new Subscription(req.body);
-    const savedSubscription = await newSubscription.save();
-    res.status(201).json(savedSubscription);
+    const subscription = new Subscription(req.body);
+    console.log("subscription plan ", req.body);
+    await subscription.save();
+    res.status(201).json(subscription);
   } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
+    console.error("Error creating subscription:", error);
+    res
+      .status(500)
+      .json({ error: "Internal Server Error", details: error.message });
   }
 };
 
 // Get all subscriptions
-const getAllsubscription = async (req, res) => {
+
+const getAllSubscriptions = async (req, res) => {
   try {
-    const subscriptions = await Subscription.find();
-    res.json(subscriptions);
+    const subscriptions = await Subscription.find().populate("userId");
+
+    res.status(200).json(subscriptions);
   } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
+    console.error("Error retrieving subscriptions:", error);
+    res
+      .status(500)
+      .json({ error: "Internal Server Error", details: error.message });
   }
 };
 
@@ -43,6 +52,7 @@ const updateSubscription = async (req, res) => {
       req.body,
       { new: true }
     );
+    console.log("sdfghjkasdfg", req.body);
     if (!updatedSubscription) {
       return res.status(404).json({ error: "Subscription not found" });
     }
@@ -53,23 +63,39 @@ const updateSubscription = async (req, res) => {
 };
 
 // Delete a subscription by ID
+
 const deleteSubscription = async (req, res) => {
   try {
-    const deletedSubscription = await Subscription.findByIdAndRemove(
-      req.params.id
+    const subscriptionId = req.params.id;
+
+    // Validate ObjectId
+    if (!mongoose.Types.ObjectId.isValid(subscriptionId)) {
+      return res.status(400).json({ error: "Invalid Subscription ID format" });
+    }
+
+    const deletedSubscription = await Subscription.findByIdAndDelete(
+      subscriptionId
     );
+
     if (!deletedSubscription) {
+      console.log(`Subscription with ID ${subscriptionId} not found`);
       return res.status(404).json({ error: "Subscription not found" });
     }
-    res.json(deletedSubscription);
+
+    res
+      .status(200)
+      .json({ success: true, message: "Subscription deleted successfully" });
   } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
+    console.error("Error deleting subscription:", error);
+    res
+      .status(500)
+      .json({ error: "Internal Server Error", details: error.message });
   }
 };
 
 module.exports = {
   createsubscription,
-  getAllsubscription,
+  getAllSubscriptions,
   getsubscriptionById,
   updateSubscription,
   deleteSubscription,
