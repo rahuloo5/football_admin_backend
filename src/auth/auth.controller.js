@@ -17,6 +17,7 @@ function generateOTP() {
 const registerUser = async (req, res) => {
   try {
     const { number } = req.body;
+    console.log("hello java", req.body);
 
     const existingUser = await User.findOne({ number });
 
