@@ -12,11 +12,9 @@ const mongoose = require("mongoose");
 require("dotenv").config();
 const MONGODB_URI = process.env.MONGO_URI;
 
-mongoose
-  .connect(MONGODB_URI)
-  .then(() => console.log("Connected to MongoDB"))
-  .catch((err) => console.error("MongoDB connection error:", err.message));
-
-const db = mongoose.connection;
-
-module.exports = db;
+exports.connect = () => {
+  mongoose
+    .connect(MONGODB_URI)
+    .then(() => console.log("Connected to MongoDB"))
+    .catch((err) => console.error("MongoDB connection error:", err.message));
+};

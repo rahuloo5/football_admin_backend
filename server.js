@@ -1,5 +1,6 @@
 require("dotenv").config();
 const express = require("express");
+const { connect } = require("./db/config/config");
 const { registerRoutes } = require("./src/routes");
 const bodyParser = require("body-parser");
 const app = express();
@@ -10,12 +11,9 @@ app.use(express.json());
 
 registerRoutes(app);
 
-app.get("/", async (req, res) => {
-  console.log("<Home > ");
-  res.json({ msg: "Server is running" });
-});
+connect();
 const PORT = process.env.PORT;
 
-app.listen(process.env.PORT, () => {
-  console.log("server is listining on port number", process.env.PORT);
+app.listen(PORT, () => {
+  console.log("server is listining on port number", PORT);
 });
