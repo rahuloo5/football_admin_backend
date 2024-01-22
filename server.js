@@ -7,7 +7,14 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
+app.use(express.json());
+
 registerRoutes(app);
+
+app.get("/", async (req, res) => {
+  console.log("<Home > ");
+  res.json({ msg: "Server is running" });
+});
 
 //Connecting the Database
 connectDB();
