@@ -2,28 +2,20 @@ const mongoose = require("mongoose");
 const Subscription = require("../../db/config/subscription.model");
 
 // Create a new subscription
-// const createsubscription = async (req, res) => {
-//   try {
-//     const subscription = new Subscription(req.body);
-//     console.log("subscription plan ", req.body);
-//     await subscription.save();
-//     res.status(201).json(subscription);
-//   } catch (error) {
-//     console.error("Error creating subscription:", error);
-//     res
-//       .status(500)
-//       .json({ error: "Internal Server Error", details: error.message });
-//   }
-// };
-
 const createsubscription = async (req, res) => {
   try {
-    const subscriptions = await Subscription.find().populate("User");
-    res.json(subscriptions);
+    const subscription = new Subscription(req.body);
+    console.log("subscription plan ", req.body);
+    await subscription.save();
+    res.status(201).json(subscription);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error creating subscription:", error);
+    res
+      .status(500)
+      .json({ error: "Internal Server Error", details: error.message });
   }
 };
+
 // Get all subscriptions
 
 const getAllSubscriptions = async (req, res) => {

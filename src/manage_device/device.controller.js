@@ -15,12 +15,17 @@ const createDevice = async (req, res) => {
       other_information,
     } = req.body;
 
-    console.log("device data", req.body);
+    // Ensure that Category and Subcategory are properly imported
+    const Category = require("./path/to/categoryModel");
+    const Subcategory = require("./path/to/subcategoryModel");
 
-    // const Images = req.file ? req.file.filename : null;
     const Images = req.files ? req.files.map((file) => file.filename) : null;
+    const Icons = req.files ? req.files.map((file) => file.filename) : null;
+
+    console.log("device data", req.body);
     console.log("device-Images ", Images);
 
+    // Ensure that you have imported Category and Subcategory models
     const categorie = await Category.findById(categorieId);
     const sub_categorie = await Subcategory.findById(sub_categorieId);
 
@@ -30,6 +35,7 @@ const createDevice = async (req, res) => {
       sub_categorie,
       video_url,
       Images,
+      Icons,
       policy_url,
       secuirty_overview,
       privacy_overview,
@@ -40,38 +46,12 @@ const createDevice = async (req, res) => {
 
     res.status(201).json(devicedata);
   } catch (error) {
-    console.error(error); // Log the actual error
+    console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
 // / Get all devices
-// const getAllDevices = async (req, res) => {
-//   try {
-//     const devices = await Device.find().populate("categorie sub_categorie");
-//     res.status(200).json(devices);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ error: "Internal Server Error" });
-//   }
-// };
-// const getAllDevices = async (req, res) => {
-//   try {
-//     const devices = await Device.find().populate("categorie sub_categorie");
-
-//     // Calculate the total number of images for each device
-//     const devicesWithImageAndVideo = devices.map((device) => ({
-//       ...device.toObject(),
-//       totalImages: device.Images ? device.Images.length : 0,
-//       video_url: device.video_url || null,
-//     }));
-
-//     res.status(200).json(devicesWithImageAndVideo);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ error: "Internal Server Error" });
-//   }
-// };
 
 const getAllDevices = async (req, res) => {
   try {

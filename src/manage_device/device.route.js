@@ -1,6 +1,6 @@
 const express = require("express");
 const { authMiddleware } = require("../middleware/authorization.middleware");
-const { deviceImage } = require("../utility/picture");
+const { deviceImage, categoriesIcon } = require("../utility/picture");
 const {
   createDevice,
   getAllDevices,
@@ -12,10 +12,22 @@ const {
 const router = express.Router();
 
 // device API
-router.post("/devices", deviceImage, authMiddleware, createDevice);
+router.post(
+  "/devices",
+  deviceImage,
+  categoriesIcon,
+  authMiddleware,
+  createDevice
+);
 router.get("/devices", authMiddleware, getAllDevices);
 router.get("/devices/:id", authMiddleware, getDeviceById);
-router.patch("/devices/:id", authMiddleware, deviceImage, updateDevice);
+router.patch(
+  "/devices/:id",
+  authMiddleware,
+  deviceImage,
+  categoriesIcon,
+  updateDevice
+);
 router.delete("/devices/:id", authMiddleware, deleteDevice);
 
 module.exports = router;

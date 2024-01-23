@@ -10,6 +10,11 @@ const deviceSchema = new mongoose.Schema(
         type: String,
       },
     ],
+    Icons: [
+      {
+        type: String,
+      },
+    ],
     video_url: [
       {
         type: String,
