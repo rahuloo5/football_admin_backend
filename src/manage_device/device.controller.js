@@ -15,17 +15,12 @@ const createDevice = async (req, res) => {
       other_information,
     } = req.body;
 
-    // Ensure that Category and Subcategory are properly imported
-    const Category = require("./path/to/categoryModel");
-    const Subcategory = require("./path/to/subcategoryModel");
-
     const Images = req.files ? req.files.map((file) => file.filename) : null;
     const Icons = req.files ? req.files.map((file) => file.filename) : null;
 
     console.log("device data", req.body);
     console.log("device-Images ", Images);
 
-    // Ensure that you have imported Category and Subcategory models
     const categorie = await Category.findById(categorieId);
     const sub_categorie = await Subcategory.findById(sub_categorieId);
 
@@ -44,7 +39,7 @@ const createDevice = async (req, res) => {
 
     await devicedata.save();
 
-    res.status(201).json(devicedata);
+    res.status(200).json(devicedata);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });

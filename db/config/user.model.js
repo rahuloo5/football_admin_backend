@@ -21,6 +21,13 @@ const userSchema = new mongoose.Schema(
     country: {
       type: String,
     },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    verifiedAt: {
+      type: Date,
+    },
   },
   {
     timestamps: true,

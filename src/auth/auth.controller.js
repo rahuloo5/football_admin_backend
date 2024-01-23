@@ -43,8 +43,10 @@ const registerUser = async (req, res) => {
 
     res.status(200).json({ message: "User registered successfully" });
   } catch (error) {
-    console.error("Error registering user:", error);
-    res.status(500).json({ error: "Internal Server Error", details: error });
+    console.error("Error registering user:", message);
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", details: message });
   }
 };
 

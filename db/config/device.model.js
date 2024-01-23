@@ -2,48 +2,19 @@ const mongoose = require("mongoose");
 
 const deviceSchema = new mongoose.Schema(
   {
-    device_name: {
-      type: String,
-    },
-    Images: [
-      {
-        type: String,
-      },
-    ],
-    Icons: [
-      {
-        type: String,
-      },
-    ],
-    video_url: [
-      {
-        type: String,
-      },
-    ],
-    policy_url: [
-      {
-        type: String,
-      },
-    ],
-
+    device_name: String,
+    Images: [String],
+    Icons: [String],
+    video_url: [String],
+    policy_url: [String],
     categorie: { type: mongoose.Schema.Types.ObjectId, ref: "Category" },
-
     sub_categorie: { type: mongoose.Schema.Types.ObjectId, ref: "Subcategory" },
-
-    secuirty_overview: {
-      type: String,
-    },
-    privacy_overview: {
-      type: String,
-    },
-    other_information: {
-      type: String,
-    },
+    secuirty_overview: String,
+    privacy_overview: String,
+    other_information: String,
   },
-
   { timestamps: true }
 );
 
 const Device = mongoose.model("Device", deviceSchema);
-
 module.exports = Device;
