@@ -31,7 +31,7 @@ const registerUser = async (req, res) => {
 
     // Create OTP
     const otp = generateOTP();
-    const expiredAt = new Date(Date.now() + 5 * 60 * 1000); // OTP expires in 5 minutes
+    const expiredAt = new Date(Date.now() + 5 * 60 * 1000);
 
     const newOTP = new OTP({
       userId: newUser._id,
@@ -43,30 +43,56 @@ const registerUser = async (req, res) => {
 
     res.status(200).json({ message: "User registered successfully" });
   } catch (error) {
-    console.error("Error registering user:", message);
-    res
-      .status(500)
-      .json({ message: "Internal Server Error", details: message });
+    console.error("Error registering user:", error);
+    res.status(500).json({ error: "Internal Server Error", details: error });
   }
 };
 
 // Endpoint: /auth/verify
+// const verifyOTP = async (req, res) => {
+//   const { phone, otp: EnterOtp } = req.body;
+//   try {
+//     if (parseInt(EnterOtp) === 1234) {
+//       const user = await User.findOne({ phone });
+//       const token = GeneratesSignature({
+//         id: user?._id,
+//       });
+
+//       return res.status(200).send({
+//         message: "Verification code verified successfully",
+//         token,
+//       });
+//     }
+//   } catch (error) {
+//     res.status(500).send({ msg: "Internal Server Error", error });
+//   }
+// };
 const verifyOTP = async (req, res) => {
-  const { phone, otp: EnterOtp } = req.body;
+  const { phone, otp: enteredOTP } = req.body;
   try {
-    if (parseInt(EnterOtp) === 1234) {
+    if (parseInt(enteredOTP) === 1234) {
       const user = await User.findOne({ phone });
+
+      if (!user) {
+        return res.status(404).send({ error: "User not found" });
+      }
+
       const token = GeneratesSignature({
-        id: user?._id,
+        id: user._id,
       });
 
       return res.status(200).send({
         message: "Verification code verified successfully",
         token,
       });
+    } else {
+      return res.status(400).send({
+        message: "Invalid OTP",
+      });
     }
   } catch (error) {
-    res.status(500).send({ msg: "Internal Server Error", error });
+    console.error(error);
+    res.status(500).send({ error: "Internal Server Error" });
   }
 };
 
