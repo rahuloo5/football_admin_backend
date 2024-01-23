@@ -22,7 +22,7 @@ const registerUser = async (req, res) => {
     const existingUser = await User.findOne({ number });
 
     if (existingUser) {
-      return res.status(400).json({ error: "User already registered" });
+      return res.status(400).json({ message: "User already registered" });
     }
 
     // Create a new user
