@@ -17,7 +17,6 @@ function generateOTP() {
 const registerUser = async (req, res) => {
   try {
     const { number } = req.body;
-    console.log("hello java", req.body);
 
     const existingUser = await User.findOne({ number });
 
@@ -50,29 +49,41 @@ const registerUser = async (req, res) => {
 
 // Endpoint: /auth/verify
 // const verifyOTP = async (req, res) => {
-//   const { phone, otp: EnterOtp } = req.body;
+//   const { phone, otp: enteredOTP } = req.body;
+
 //   try {
-//     if (parseInt(EnterOtp) === 1234) {
+//     if (parseInt(enteredOTP) === 1234) {
 //       const user = await User.findOne({ phone });
+//       if (!user) {
+//         return res.status(404).send({ error: "User not found" });
+//       }
+
 //       const token = GeneratesSignature({
-//         id: user?._id,
+//         id: user.id,
 //       });
 
 //       return res.status(200).send({
 //         message: "Verification code verified successfully",
+//         id,
 //         token,
+//       });
+//     } else {
+//       return res.status(400).send({
+//         message: "Invalid OTP",
 //       });
 //     }
 //   } catch (error) {
-//     res.status(500).send({ msg: "Internal Server Error", error });
+//     console.error(error);
+//     res.status(500).send({ error: "Internal Server Error" });
 //   }
 // };
+
 const verifyOTP = async (req, res) => {
-  const { phone, otp: enteredOTP } = req.body;
+  const { number, otp: enteredOTP } = req.body;
+
   try {
     if (parseInt(enteredOTP) === 1234) {
-      const user = await User.findOne({ phone });
-
+      const user = await User.findOne({ number });
       if (!user) {
         return res.status(404).send({ error: "User not found" });
       }
@@ -83,6 +94,7 @@ const verifyOTP = async (req, res) => {
 
       return res.status(200).send({
         message: "Verification code verified successfully",
+        id: user._id,
         token,
       });
     } else {

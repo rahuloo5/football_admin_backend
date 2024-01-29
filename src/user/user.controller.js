@@ -99,6 +99,7 @@ const userlogin = async (req, res) => {
 const createuser = async (req, res) => {
   try {
     const newUser = new User(req.body);
+
     const savedUser = await newUser.save();
     res.status(201).json(savedUser);
   } catch (error) {
@@ -106,13 +107,45 @@ const createuser = async (req, res) => {
   }
 };
 
-// Get all users
-const getalluser = async (req, res) => {
+// // Get all users
+// const getalluser = async (req, res) => {
+//   try {
+//     const users = await User.find();
+//     res.status(200).json(users);
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// };
+const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find();
-    res.status(200).json(users);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    let { page, limit, search } = req.query;
+    page = parseInt(page) || 1;
+    limit = parseInt(limit) || MIN_LIMIT;
+    limit = Math.min(MAX_LIMIT, Math.max(MIN_LIMIT, limit));
+    const skip = (page - 1) * limit;
+    const query = { isOnboardingDone: true };
+    if (search) {
+      query.$or = [
+        { firstName: { $regex: new RegExp(search, "i") } },
+        { lastName: { $regex: new RegExp(search, "i") } },
+      ];
+    }
+
+    const totalCount = await User.countDocuments(query).skip(skip).limit(limit);
+
+    const links = await User.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    res.status(200).json({
+      page,
+      limit,
+      data: links,
+      totalCount,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
@@ -160,8 +193,7 @@ const deleteduser = async (req, res) => {
 module.exports = {
   userSignup,
   userlogin,
-
-  getalluser,
+  getAllUsers,
   createuser,
   deleteduser,
   updateuser,

@@ -1,46 +1,56 @@
 const mongoose = require("mongoose");
 
-const userSchema = new mongoose.Schema(
-  {
-    firstName: {
-      type: String,
-    },
-    lastName: {
-      type: String,
-    },
-    email: {
-      type: String,
-    },
-    number: {
-      type: Number,
-      required: true,
-    },
-    countryCode: {
-      type: String,
-    },
-    country: {
-      type: String,
-    },
-    isVerified: {
-      type: Boolean,
-      default: false,
-    },
-    verifiedAt: {
-      type: Date,
-    },
-  },
-  {
-    timestamps: true,
-  }
-);
+// const userSchema = new mongoose.Schema(
+//   {
+//     firstName: {
+//       type: String,
+//     },
 
-// // Combine countrycode and number to form the phone_number
-// userSchema.pre("save", function (next) {
-//   if (this.countrycode && this.phone_number) {
-//     this.phone_number = `${this.countrycode}${this.phone_number}`;
+//     lastName: {
+//       type: String,
+//     },
+//     email: {
+//       type: String,
+//       required: true,
+//     },
+//     number: {
+//       type: Number,
+//       required: true,
+//     },
+//     countryCode: {
+//       type: String,
+//     },
+//     country: {
+//       type: String,
+//     },
+//     isVerified: {
+//       type: Boolean,
+//       default: false,
+//     },
+//     isOnboardingDone: {
+//       type: Boolean,
+//       default: false,
+//     },
+//   },
+//   {
+//     timestamps: true,
 //   }
-//   next();
-// });
+// );
+
+// const User = mongoose.model("User", userSchema);
+// module.exports = User;
+
+const userSchema = new mongoose.Schema({
+  number: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  otp: {
+    type: String,
+  },
+});
 
 const User = mongoose.model("User", userSchema);
+
 module.exports = User;
