@@ -5,6 +5,8 @@ const { registerRoutes } = require("./src/routes");
 const bodyParser = require("body-parser");
 const app = express();
 const path = require("path");
+// const multer = require("multer");
+// app.use(multer);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 

@@ -2,11 +2,39 @@ const mongoose = require("mongoose");
 
 const deviceSchema = new mongoose.Schema(
   {
-    device_name: String,
-    Images: [String],
-    Icons: [String],
-    video_url: [String],
-    policy_url: [String],
+    device_name: {
+      type: String,
+      // required: true,
+    },
+    deviceImages: [
+      {
+        type: String,
+      },
+    ],
+    deviceIcons: [
+      {
+        type: String,
+      },
+    ],
+
+    video_url: {
+      type: [
+        {
+          type: String,
+          required: "URL can't be empty",
+          unique: true,
+        },
+      ],
+    },
+    policy_url: {
+      type: [
+        {
+          type: String,
+          required: "URL can't be empty",
+          unique: true,
+        },
+      ],
+    },
     categorie: { type: mongoose.Schema.Types.ObjectId, ref: "Category" },
     sub_categorie: { type: mongoose.Schema.Types.ObjectId, ref: "Subcategory" },
     secuirty_overview: String,
