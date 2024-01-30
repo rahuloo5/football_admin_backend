@@ -1,3 +1,5 @@
+const express = require("express");
+const router = express.Router();
 const Category = require("../../db/config/categories.model");
 const Device = require("../../db/config/device.model");
 const Subcategory = require("../../db/sub_categories.model");
@@ -125,9 +127,9 @@ const deleteDevice = async (req, res) => {
 };
 
 module.exports = {
-  createDevice,
   getAllDevices,
   getDeviceById,
   updateDevice,
   deleteDevice,
+  createDevice,
 };

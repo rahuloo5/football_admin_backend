@@ -12,7 +12,7 @@ const getaddcontent = async (req, res) => {
 
     await newContent.save();
 
-    res.status(201).json(newContent);
+    res.status(200).json(newContent);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });

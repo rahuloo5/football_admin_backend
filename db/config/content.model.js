@@ -3,16 +3,13 @@ const mongoose = require("mongoose");
 const contentSchema = new mongoose.Schema(
   [
     {
-      description: [
-        {
-          type: String,
-        },
-      ],
-      image: [
-        {
-          type: String,
-        },
-      ],
+      description: {
+        type: [String],
+      },
+
+      image: {
+        type: [String],
+      },
     },
   ],
 

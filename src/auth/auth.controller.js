@@ -4,8 +4,6 @@ const {
   GeneratesSignature,
 } = require("../middleware/authorization.middleware");
 
-//  create registration
-
 function generateOTP() {
   const otpLength = 4;
   const otp = Math.floor(100000 + Math.random() * 900000)
@@ -48,35 +46,6 @@ const registerUser = async (req, res) => {
 };
 
 // Endpoint: /auth/verify
-// const verifyOTP = async (req, res) => {
-//   const { phone, otp: enteredOTP } = req.body;
-
-//   try {
-//     if (parseInt(enteredOTP) === 1234) {
-//       const user = await User.findOne({ phone });
-//       if (!user) {
-//         return res.status(404).send({ error: "User not found" });
-//       }
-
-//       const token = GeneratesSignature({
-//         id: user.id,
-//       });
-
-//       return res.status(200).send({
-//         message: "Verification code verified successfully",
-//         id,
-//         token,
-//       });
-//     } else {
-//       return res.status(400).send({
-//         message: "Invalid OTP",
-//       });
-//     }
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send({ error: "Internal Server Error" });
-//   }
-// };
 
 const verifyOTP = async (req, res) => {
   const { number, otp: enteredOTP } = req.body;

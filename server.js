@@ -4,10 +4,12 @@ const { connect } = require("./db/config/config");
 const { registerRoutes } = require("./src/routes");
 const bodyParser = require("body-parser");
 const app = express();
+const path = require("path");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use(express.json());
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 registerRoutes(app);
 

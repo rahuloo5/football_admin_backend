@@ -1,13 +1,37 @@
 const Article = require("../../db/config/article.model");
 
 // add Article
+
+// const getaddArticle = async (req, res) => {
+//   try {
+//     const { short_description, long_description } = req.body;
+
+//     const Images = req.file ? req?.file?.filename : null;
+//     console.log("Images:", Images);
+
+//     const newArticle = new Article({
+//       short_description,
+//       long_description,
+//       Images,
+//     });
+//     console.log("newArticledata", newArticle);
+
+//     await newArticle.save();
+
+//     res.status(201).json(newArticle);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: "Internal Server Error" });
+//   }
+// };
+
 const getaddArticle = async (req, res) => {
   try {
     const { short_description, long_description } = req.body;
 
     console.log("article data", req.body);
 
-    const Images = req.file ? req?.file?.filename : null;
+    const Images = req.files ? req.files.map((file) => file.filename) : null;
 
     const newArticle = new Article({
       short_description,
@@ -24,6 +48,30 @@ const getaddArticle = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+// const getaddArticle = async (req, res) => {
+//   try {
+//     const { short_description, long_description } = req.body;
+
+//     console.log("article data", req.body);
+
+//     const Images = req.file ? req?.file?.filename : "";
+
+//     const newArticle = new Article({
+//       short_description,
+//       long_description,
+//       Images,
+//     });
+//     console.log("newArticledata", newArticle);
+
+//     await newArticle.save();
+
+//     res.status(201).json(newArticle);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: "Internal Server Error" });
+//   }
+// };
 
 // Get all article
 const getAllArticle = async (req, res) => {
