@@ -1,8 +1,7 @@
 const express = require("express");
-const router = express.Router();
+const mongoose = require("mongoose");
 const Category = require("../../db/config/categories.model");
 const Device = require("../../db/config/device.model");
-const Subcategory = require("../../db/sub_categories.model");
 
 // const createDevice = async (req, res) => {
 //   try {
@@ -48,50 +47,78 @@ const Subcategory = require("../../db/sub_categories.model");
 //   }
 // };
 
+// const createDevice = async (req, res) => {
+//   try {
+//     const {
+//       device_name,
+//       secuirty_overview,
+//       privacy_overview,
+//       categoryId,
+//       other_information,
+//     } = req.body;
+
+//     const device = new Device({
+//       device_name,
+//       deviceImages: req.files["deviceImages"].map((file) => file.filename),
+//       deviceIcons: req.files["deviceIcons"][0].filename,
+//       video_url: req.files["video_url"][0].filename,
+//       policy_url: req.files["policy_url"][0].filename,
+//       secuirty_overview,
+//       privacy_overview,
+//       other_information,
+//     });
+
+//     await device.save();
+//     res.status(201).json(device);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send("Internal Server Error");
+//   }
+// };
 const createDevice = async (req, res) => {
   try {
     const {
       device_name,
-      categorieId,
-      sub_categorieId,
-      video_url,
-      policy_url,
       secuirty_overview,
       privacy_overview,
       other_information,
+      categoryId,
     } = req.body;
 
-    const deviceImages = req.files
-      ? req.files.map((file) => file.filename)
-      : null;
-    const deviceIcons = req.files
-      ? req.files.map((file) => file.filename)
-      : null;
+    // Validate category and subcategory IDs
+    if (!mongoose.Types.ObjectId.isValid(categoryId)) {
+      return res
+        .status(400)
+        .json({ success: false, error: "Invalid category or subcategory ID" });
+    }
 
-    // console.log("device data", req.body);
+    // Fetch the category
+    const category = await Category.findById(categoryId);
 
-    const categorie = await Category.findById(categorieId);
-    const sub_categorie = await Subcategory.findById(sub_categorieId);
+    // Check if category and subcategory exist
+    if (!category) {
+      return res
+        .status(404)
+        .json({ success: false, error: "Category not found" });
+    }
 
-    const devicedata = new Device({
+    const device = new Device({
       device_name,
-      categorie,
-      sub_categorie,
-      video_url,
-      policy_url,
+      deviceImages: req.files["deviceImages"].map((file) => file.filename),
+      deviceIcons: req.files["deviceIcons"][0].filename,
+      video_url: req.files["video_url"][0].filename,
+      policy_url: req.files["policy_url"][0].filename,
       secuirty_overview,
       privacy_overview,
       other_information,
-      deviceImages,
-      deviceIcons,
+      categorie: categoryId,
     });
 
-    await devicedata.save();
-
-    res.status(200).json(devicedata);
+    await device.save();
+    res.status(200).json(device);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).send("Internal Server Error");
   }
 };
 
@@ -99,7 +126,7 @@ const createDevice = async (req, res) => {
 
 const getAllDevices = async (req, res) => {
   try {
-    const devices = await Device.find().populate("categorie sub_categorie");
+    const devices = await Device.find().populate("categorie");
     const devicesWithImageAndVideo = devices.map((device) => ({
       ...device.toObject(),
       totalImages: device.Images ? device.Images.length : 0,

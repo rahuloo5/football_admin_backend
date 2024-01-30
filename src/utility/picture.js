@@ -15,8 +15,8 @@ const storage = multer.diskStorage({
 exports.contentImage = multer({ storage }).array("image");
 exports.screenImage = multer({ storage }).single("screen_image");
 
-exports.deviceImage = multer({ storage }).array("deviceImages");
-exports.deviceIcons = multer({ storage }).array("deviceIcons");
+// exports.deviceImage = multer({ storage }).array("deviceImages");
+// exports.deviceIcons = multer({ storage }).array("deviceIcons");
 
 exports.articleImage = multer({ storage }).array("Images");
 

@@ -35,8 +35,11 @@ const deviceSchema = new mongoose.Schema(
         },
       ],
     },
-    categorie: { type: mongoose.Schema.Types.ObjectId, ref: "Category" },
-    sub_categorie: { type: mongoose.Schema.Types.ObjectId, ref: "Subcategory" },
+    categorie: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
+      // required: true,
+    },
     secuirty_overview: String,
     privacy_overview: String,
     other_information: String,
