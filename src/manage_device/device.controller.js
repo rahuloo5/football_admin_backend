@@ -84,6 +84,8 @@ const createDevice = async (req, res) => {
       privacy_overview,
       other_information,
       categoryId,
+      video_url1,
+      policy_url1,
       subcategoryId,
     } = req.body;
 
@@ -128,6 +130,8 @@ const createDevice = async (req, res) => {
       secuirty_overview,
       privacy_overview,
       description,
+      video_url1,
+      policy_url1,
       other_information,
       categorie: categoryId,
       subcategory: subcategoryId,
