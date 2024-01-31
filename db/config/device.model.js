@@ -6,6 +6,10 @@ const deviceSchema = new mongoose.Schema(
       type: String,
       // required: true,
     },
+    description: {
+      type: String,
+      // required: true,
+    },
     deviceImages: [
       {
         type: String,
@@ -35,6 +39,12 @@ const deviceSchema = new mongoose.Schema(
         },
       ],
     },
+    categorie: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Subcategory",
+      // required: true,
+    },
+
     categorie: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Category",

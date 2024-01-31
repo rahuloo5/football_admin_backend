@@ -2,6 +2,7 @@ const Joi = require("joi");
 
 const deviceSchema = Joi.object({
   device_name: Joi.string().required(),
+  description: Joi.string().required(),
   categorie: Joi.string().required(),
   sub_categorie: Joi.string().required(),
   Images: Joi.string().required(),

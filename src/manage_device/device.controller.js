@@ -1,4 +1,3 @@
-const express = require("express");
 const mongoose = require("mongoose");
 const Category = require("../../db/config/categories.model");
 const Device = require("../../db/config/device.model");
@@ -80,6 +79,7 @@ const createDevice = async (req, res) => {
   try {
     const {
       device_name,
+      description,
       secuirty_overview,
       privacy_overview,
       other_information,
@@ -127,6 +127,7 @@ const createDevice = async (req, res) => {
       policy_url: req.files["policy_url"][0].filename,
       secuirty_overview,
       privacy_overview,
+      description,
       other_information,
       categorie: categoryId,
       subcategory: subcategoryId,
