@@ -1,11 +1,5 @@
 const mongoose = require("mongoose");
 
-// Connect to your MongoDB database
-mongoose.connect("mongodb://localhost/your_database_name", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
-
 // Define the schema
 const yourSchema = new mongoose.Schema({
   searchText: {
@@ -24,7 +18,6 @@ yourSchema.pre("save", function (next) {
   next();
 });
 
-// Create the model
 const YourModel = mongoose.model("YourModel", yourSchema);
 
 module.exports = YourModel;
