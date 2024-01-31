@@ -156,13 +156,13 @@ const getAllDevices = async (req, res) => {
     }
     const devices = await Device.find(query).populate("categorie");
 
-    const devicesWithImageAndVideo = devices.map((device) => ({
-      ...device.toObject(),
-      totalImages: device.Images ? device.Images.length : 0,
-      video_url: device.video_url ? device.video_url.length : 0,
-    }));
+    // const devicesWithImageAndVideo = devices.map((device) => ({
+    //   ...device.toObject(),
+    //   totalImages: device.Images ? device.Images.length : 0,
+    //   video_url: device.video_url ? device.video_url.length : 0,
+    // }));
 
-    res.status(200).json(devicesWithImageAndVideo);
+    res.status(200).json(devices);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
