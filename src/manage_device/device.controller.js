@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const Category = require("../../db/config/categories.model");
 const Device = require("../../db/config/device.model");
+const Subcategory = require("../../db/sub_categories.model");
 
 // const createDevice = async (req, res) => {
 //   try {
@@ -83,10 +84,19 @@ const createDevice = async (req, res) => {
       privacy_overview,
       other_information,
       categoryId,
+      subcategoryId,
     } = req.body;
 
     // Validate category and subcategory IDs
-    if (!mongoose.Types.ObjectId.isValid(categoryId)) {
+    // if (!mongoose.Types.ObjectId.isValid(categoryId)) {
+    //   return res
+    //     .status(400)
+    //     .json({ success: false, error: "Invalid category or subcategory ID" });
+    // }
+    if (
+      !mongoose.Types.ObjectId.isValid(categoryId) ||
+      !mongoose.Types.ObjectId.isValid(subcategoryId)
+    ) {
       return res
         .status(400)
         .json({ success: false, error: "Invalid category or subcategory ID" });
@@ -94,12 +104,19 @@ const createDevice = async (req, res) => {
 
     // Fetch the category
     const category = await Category.findById(categoryId);
+    const subcategory = await Subcategory.findById(subcategoryId);
 
     // Check if category and subcategory exist
-    if (!category) {
+    // if (!category) {
+    //   return res
+    //     .status(404)
+    //     .json({ success: false, error: "Category not found" });
+    // }
+
+    if (!category || !subcategory) {
       return res
         .status(404)
-        .json({ success: false, error: "Category not found" });
+        .json({ success: false, error: "Category or subcategory not found" });
     }
 
     const device = new Device({
@@ -112,6 +129,7 @@ const createDevice = async (req, res) => {
       privacy_overview,
       other_information,
       categorie: categoryId,
+      subcategory: subcategoryId,
     });
 
     await device.save();
@@ -126,7 +144,13 @@ const createDevice = async (req, res) => {
 
 const getAllDevices = async (req, res) => {
   try {
-    const devices = await Device.find().populate("categorie");
+    let id = req.query.cat_id;
+    const query = {};
+    if (id) {
+      query.categorie = id;
+    }
+    const devices = await Device.find(query).populate("categorie");
+
     const devicesWithImageAndVideo = devices.map((device) => ({
       ...device.toObject(),
       totalImages: device.Images ? device.Images.length : 0,
