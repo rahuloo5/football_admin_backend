@@ -116,15 +116,14 @@ const deviceSchema = new mongoose.Schema(
     },
     categorie: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Subcategory",
-      // required: true,
-    },
-    category: {
-      // Changed to 'category' to avoid duplicate field names
-      type: mongoose.Schema.Types.ObjectId,
       ref: "Category",
       // required: true,
     },
+    // category: {
+    //   type: mongoose.Schema.Types.ObjectId,
+    //   ref: "Category",
+    //   // required: true,
+    // },
     secuirty_overview: String,
     privacy_overview: String,
     other_information: String,

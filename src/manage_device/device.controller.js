@@ -86,19 +86,9 @@ const createDevice = async (req, res) => {
       categoryId,
       video_url1,
       policy_url1,
-      subcategoryId,
     } = req.body;
 
-    // Validate category and subcategory IDs
-    // if (!mongoose.Types.ObjectId.isValid(categoryId)) {
-    //   return res
-    //     .status(400)
-    //     .json({ success: false, error: "Invalid category or subcategory ID" });
-    // }
-    if (
-      !mongoose.Types.ObjectId.isValid(categoryId) ||
-      !mongoose.Types.ObjectId.isValid(subcategoryId)
-    ) {
+    if (!mongoose.Types.ObjectId.isValid(categoryId)) {
       return res
         .status(400)
         .json({ success: false, error: "Invalid category or subcategory ID" });
@@ -106,16 +96,8 @@ const createDevice = async (req, res) => {
 
     // Fetch the category
     const category = await Category.findById(categoryId);
-    const subcategory = await Subcategory.findById(subcategoryId);
 
-    // Check if category and subcategory exist
-    // if (!category) {
-    //   return res
-    //     .status(404)
-    //     .json({ success: false, error: "Category not found" });
-    // }
-
-    if (!category || !subcategory) {
+    if (!category) {
       return res
         .status(404)
         .json({ success: false, error: "Category or subcategory not found" });
@@ -134,7 +116,6 @@ const createDevice = async (req, res) => {
       policy_url1,
       other_information,
       categorie: categoryId,
-      subcategory: subcategoryId,
     });
 
     await device.save();
@@ -147,22 +128,66 @@ const createDevice = async (req, res) => {
 
 // / Get all devices
 
+// const getAllDevices = async (req, res) => {
+//   try {
+//     let id = req.query.cat_id;
+//     const query = {};
+//     if (id) {
+//       query.categorie = id;
+//     }
+//     const devices = await Device.find(query).populate("categorie");
+
+//     const devicesWithImageAndVideo = devices.map((device) => ({
+//       ...device.toObject(),
+//       totalImages: device.Images,
+//       video_url: device.video_url,
+//     }));
+
+//     res.status(200).json(devicesWithImageAndVideo);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: "Internal Server Error" });
+//   }
+// };
+
 const getAllDevices = async (req, res) => {
+  const MIN_LIMIT = 10;
+  const MAX_LIMIT = 50;
+
   try {
+    let { page, limit } = req.query;
+    page = parseInt(page) || 1;
+    limit = parseInt(limit) || MIN_LIMIT;
+    limit = Math.min(MAX_LIMIT, Math.max(MIN_LIMIT, limit));
+    const skip = (page - 1) * limit;
+
     let id = req.query.cat_id;
     const query = {};
     if (id) {
       query.categorie = id;
     }
-    const devices = await Device.find(query).populate("categorie");
 
-    // const devicesWithImageAndVideo = devices.map((device) => ({
-    //   ...device.toObject(),
-    //   totalImages: device.Images ? device.Images.length : 0,
-    //   video_url: device.video_url ? device.video_url.length : 0,
-    // }));
+    const totalCount = await Device.countDocuments(query);
 
-    res.status(200).json(devices);
+    const devices = await Device.find(query)
+      .skip(skip)
+      .limit(limit)
+      .populate("categorie");
+
+    const devicesWithImageAndVideo = devices.map((device) => ({
+      ...device.toObject(),
+      totalImages: device.Images,
+      video_url: device.video_url,
+    }));
+
+    res.status(200).json({
+      page,
+      limit,
+      data: devicesWithImageAndVideo,
+      totalCount,
+      success: true,
+      message: "Devices retrieved successfully",
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
