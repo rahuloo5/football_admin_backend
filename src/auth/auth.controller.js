@@ -47,6 +47,36 @@ const registerUser = async (req, res) => {
 
 // Endpoint: /auth/verify
 
+// const verifyOTP = async (req, res) => {
+//   const { number, otp: enteredOTP } = req.body;
+
+//   try {
+//     if (parseInt(enteredOTP) === 1234) {
+//       const user = await User.findOne({ number });
+//       if (!user) {
+//         return res.status(404).send({ error: "User not found" });
+//       }
+
+//       const token = GeneratesSignature({
+//         id: user._id,
+//       });
+
+//       return res.status(200).send({
+//         message: "Verification code verified successfully",
+//         id: user._id,
+//         token,
+//       });
+//     } else {
+//       return res.status(400).send({
+//         message: "Invalid OTP",
+//       });
+//     }
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send({ error: "Internal Server Error" });
+//   }
+// };
+
 const verifyOTP = async (req, res) => {
   const { number, otp: enteredOTP } = req.body;
 
@@ -62,18 +92,20 @@ const verifyOTP = async (req, res) => {
       });
 
       return res.status(200).send({
+        success: true,
         message: "Verification code verified successfully",
         id: user._id,
         token,
       });
     } else {
       return res.status(400).send({
+        success: false,
         message: "Invalid OTP",
       });
     }
   } catch (error) {
     console.error(error);
-    res.status(500).send({ error: "Internal Server Error" });
+    res.status(500).send({ success: false, error: "Internal Server Error" });
   }
 };
 

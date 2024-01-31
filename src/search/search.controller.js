@@ -29,13 +29,38 @@ const createItem = async (req, res) => {
 };
 
 // Read operation (get all items)
+
 const getAllItems = async (req, res) => {
+  const MIN_LIMIT = 10;
+  const MAX_LIMIT = 50;
+
   try {
-    const items = await YourModel.find();
-    res.status(200).json(items);
+    let { page, limit, searchText } = req.query;
+    page = parseInt(page) || 1;
+    limit = parseInt(limit) || MIN_LIMIT;
+    limit = Math.min(MAX_LIMIT, Math.max(MIN_LIMIT, limit));
+    const skip = (page - 1) * limit;
+
+    const filter = {};
+    if (searchText) {
+      filter.searchText = new RegExp(searchText, "i");
+    }
+
+    const totalCount = await YourModel.countDocuments(filter);
+
+    const items = await YourModel.find(filter).skip(skip).limit(limit);
+
+    res.status(200).json({
+      page,
+      limit,
+      data: items,
+      totalCount,
+      success: true,
+      message: "Items retrieved successfully",
+    });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ success: false, error: "Internal Server Error" });
   }
 };
 
