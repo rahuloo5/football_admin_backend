@@ -114,11 +114,11 @@ const deviceSchema = new mongoose.Schema(
         },
       ],
     },
-    // categorie: {
-    //   type: mongoose.Schema.Types.ObjectId,
-    //   ref: "Subcategory",
-    //   // required: true,
-    // },
+    categorie: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Subcategory",
+      // required: true,
+    },
     category: {
       // Changed to 'category' to avoid duplicate field names
       type: mongoose.Schema.Types.ObjectId,
