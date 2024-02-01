@@ -117,6 +117,9 @@ const createuser = async (req, res) => {
 //   }
 // };
 const getAllUsers = async (req, res) => {
+  const MIN_LIMIT = 10;
+  const MAX_LIMIT = 100;
+
   try {
     let { page, limit, search } = req.query;
     page = parseInt(page) || 1;

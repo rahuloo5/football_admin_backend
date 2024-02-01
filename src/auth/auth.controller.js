@@ -1,5 +1,6 @@
 const OTP = require("../../db/config/otpSchema.model");
 const User = require("../../db/config/user.model");
+const sendSMS = require("../utility/send-sms");
 const {
   GeneratesSignature,
 } = require("../middleware/authorization.middleware");
@@ -12,6 +13,80 @@ function generateOTP() {
   return otp;
 }
 
+// const registerUser = async (req, res) => {
+//   try {
+//     const { number } = req.body;
+
+//     const existingUser = await User.findOne({ number });
+
+//     if (existingUser) {
+//       return res.status(400).json({ message: "User already registered" });
+//     }
+
+//     // Create a new user
+//     const newUser = new User({ number });
+//     await newUser.save();
+
+//     // Create OTP
+//     const otp = generateOTP();
+//     const expiredAt = new Date(Date.now() + 5 * 60 * 1000);
+
+//     const newOTP = new OTP({
+//       userId: newUser._id,
+//       otp,
+//       expiredAt,
+//     });
+
+//     await newOTP.save();
+
+//     res.status(200).json({ message: "User registered successfully" });
+//   } catch (error) {
+//     console.error("Error registering user:", error);
+//     res.status(500).json({ error: "Internal Server Error", details: error });
+//   }
+// };
+
+// Endpoint: /auth/verify
+
+// const registerUser = async (req, res) => {
+//   try {
+//     const { number } = req.body;
+
+//     const existingUser = await User.findOne({ number });
+
+//     if (existingUser) {
+//       return res.status(400).json({ message: "User already registered" });
+//     }
+
+//     // Create a new user
+//     const newUser = new User({ number });
+//     await newUser.save();
+
+//     // Create OTP
+//     const otp = generateOTP();
+//     const expiredAt = new Date(Date.now() + 5 * 60 * 1000);
+
+//     const newOTP = new OTP({
+//       userId: newUser._id,
+//       otp,
+//       expiredAt,
+//     });
+
+//     await newOTP.save();
+
+//     // Retrieve user details with isActive after saving
+//     const userWithIsActive = await User.findById(newUser._id);
+
+//     res.status(200).json({
+//       message: "User registered successfully",
+//       isActive: userWithIsActive.isActive,
+//     });
+//   } catch (error) {
+//     console.error("Error registering user:", error);
+//     res.status(500).json({ error: "Internal Server Error", details: error });
+//   }
+// };
+
 const registerUser = async (req, res) => {
   try {
     const { number } = req.body;
@@ -19,10 +94,12 @@ const registerUser = async (req, res) => {
     const existingUser = await User.findOne({ number });
 
     if (existingUser) {
-      return res.status(400).json({ message: "User already registered" });
+      return res.status(400).json({
+        message: "User already registered",
+        isActive: existingUser.isActive,
+      });
     }
 
-    // Create a new user
     const newUser = new User({ number });
     await newUser.save();
 
@@ -44,8 +121,6 @@ const registerUser = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error", details: error });
   }
 };
-
-// Endpoint: /auth/verify
 
 const verifyOTP = async (req, res) => {
   const { number, otp: enteredOTP } = req.body;
@@ -83,14 +158,12 @@ const verify_update = async (req, res) => {
   try {
     const { number, firstName, lastName, email } = req.body;
 
-    // Find the user by mobile number
     const user = await User.findOne({ number });
 
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // Update user details and set isActive to true
     user.isActive = true;
     user.firstName = firstName;
     user.lastName = lastName;
@@ -98,12 +171,34 @@ const verify_update = async (req, res) => {
 
     await user.save();
 
-    return res
-      .status(200)
-      .json({ message: "User details updated successfully" });
+    return res.status(200).json({
+      message: "User details updated successfully",
+      isActive: user.isActive,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+const resendOtp = async (req, res) => {
+  const { number } = req.body;
+
+  const user = await User.findOne({ number });
+
+  if (user) {
+    const otp = generateOTP();
+    const newOtp = new OTP({ userId: user._id, otp: otp });
+
+    const savedOtp = await newOtp.save();
+
+    sendSMS(number, `Your verification code is ${otp}`);
+
+    res.status(200).send({
+      message: "Verification code sent successfully",
+    });
+  } else {
+    res.status(404).send("User not found");
   }
 };
 
@@ -111,4 +206,5 @@ module.exports = {
   registerUser,
   verifyOTP,
   verify_update,
+  resendOtp,
 };
