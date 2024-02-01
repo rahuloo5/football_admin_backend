@@ -122,14 +122,56 @@ const registerUser = async (req, res) => {
   }
 };
 
+// const verifyOTP = async (req, res) => {
+//   const { number, otp: enteredOTP } = req.body;
+
+//   try {
+//     if (parseInt(enteredOTP) === 1234) {
+//       const user = await User.findOne({ number });
+//       if (!user) {
+//         return res.status(404).send({ error: "User not found" });
+//       }
+//       const isActive = user.isActive;
+//       const token = GeneratesSignature({
+//         id: user._id,
+//       });
+
+//       return res.status(200).send({
+//         success: true,
+//         message: "Verification code verified successfully",
+//         id: user._id,
+//         isActive: isActive,
+//         token,
+//       });
+//     } else {
+//       return res.status(400).send({
+//         success: false,
+//         message: "Invalid OTP",
+//       });
+//     }
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send({ success: false, error: "Internal Server Error" });
+//   }
+// };
+
 const verifyOTP = async (req, res) => {
   const { number, otp: enteredOTP } = req.body;
 
   try {
     if (parseInt(enteredOTP) === 1234) {
       const user = await User.findOne({ number });
+
       if (!user) {
         return res.status(404).send({ error: "User not found" });
+      }
+
+      // Check if the user is active
+      const isActive = user.isActive;
+
+      // Update isActive to true
+      if (!isActive) {
+        await User.updateOne({ _id: user._id }, { $set: { isActive: true } });
       }
 
       const token = GeneratesSignature({
@@ -140,6 +182,7 @@ const verifyOTP = async (req, res) => {
         success: true,
         message: "Verification code verified successfully",
         id: user._id,
+        isActive: true, // Since it's updated, set it to true
         token,
       });
     } else {
