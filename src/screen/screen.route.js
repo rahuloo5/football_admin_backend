@@ -6,7 +6,7 @@ const { screenImage } = require("../utility/picture");
 const router = express.Router();
 
 //Content API
-router.post("/screen", screenImage, authMiddleware, getaddscreen);
-router.get("/screen", authMiddleware, getAllscreen);
+router.post("/screen", screenImage, getaddscreen);
+router.get("/screen", getAllscreen);
 
 module.exports = router;
