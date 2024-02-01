@@ -47,36 +47,6 @@ const registerUser = async (req, res) => {
 
 // Endpoint: /auth/verify
 
-// const verifyOTP = async (req, res) => {
-//   const { number, otp: enteredOTP } = req.body;
-
-//   try {
-//     if (parseInt(enteredOTP) === 1234) {
-//       const user = await User.findOne({ number });
-//       if (!user) {
-//         return res.status(404).send({ error: "User not found" });
-//       }
-
-//       const token = GeneratesSignature({
-//         id: user._id,
-//       });
-
-//       return res.status(200).send({
-//         message: "Verification code verified successfully",
-//         id: user._id,
-//         token,
-//       });
-//     } else {
-//       return res.status(400).send({
-//         message: "Invalid OTP",
-//       });
-//     }
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send({ error: "Internal Server Error" });
-//   }
-// };
-
 const verifyOTP = async (req, res) => {
   const { number, otp: enteredOTP } = req.body;
 
@@ -109,7 +79,36 @@ const verifyOTP = async (req, res) => {
   }
 };
 
+const verify_update = async (req, res) => {
+  try {
+    const { number, firstName, lastName, email } = req.body;
+
+    // Find the user by mobile number
+    const user = await User.findOne({ number });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Update user details and set isActive to true
+    user.isActive = true;
+    user.firstName = firstName;
+    user.lastName = lastName;
+    user.email = email;
+
+    await user.save();
+
+    return res
+      .status(200)
+      .json({ message: "User details updated successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 module.exports = {
   registerUser,
   verifyOTP,
+  verify_update,
 };

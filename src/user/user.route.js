@@ -7,6 +7,7 @@ const {
   getUserById,
   createuser,
   getAllUsers,
+  registeruser,
 } = require("./user.controller");
 const { authMiddleware } = require("../middleware/authorization.middleware");
 
