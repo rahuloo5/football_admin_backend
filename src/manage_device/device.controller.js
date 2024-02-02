@@ -128,69 +128,13 @@ const createDevice = async (req, res) => {
 
 // / Get all devices
 
-// const getAllDevices = async (req, res) => {
-//   try {
-//     let id = req.query.cat_id;
-//     const query = {};
-//     if (id) {
-//       query.categorie = id;
-//     }
-//     const devices = await Device.find(query).populate("categorie");
-
-//     const devicesWithImageAndVideo = devices.map((device) => ({
-//       ...device.toObject(),
-//       totalImages: device.Images,
-//       video_url: device.video_url,
-//     }));
-
-//     res.status(200).json(devicesWithImageAndVideo);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ error: "Internal Server Error" });
-//   }
-// };
-
 const getAllDevices = async (req, res) => {
-  const MIN_LIMIT = 10;
-  const MAX_LIMIT = 50;
-
   try {
-    let { page, limit } = req.query;
-    page = parseInt(page) || 1;
-    limit = parseInt(limit) || MIN_LIMIT;
-    limit = Math.min(MAX_LIMIT, Math.max(MIN_LIMIT, limit));
-    const skip = (page - 1) * limit;
-
-    let id = req.query.cat_id;
-    const query = {};
-    if (id) {
-      query.categorie = id;
-    }
-
-    const totalCount = await Device.countDocuments(query);
-
-    const devices = await Device.find(query)
-      .skip(skip)
-      .limit(limit)
-      .populate("categorie");
-
-    const devicesWithImageAndVideo = devices.map((device) => ({
-      ...device.toObject(),
-      totalImages: device.Images,
-      video_url: device.video_url,
-    }));
-
-    res.status(200).json({
-      page,
-      limit,
-      data: devicesWithImageAndVideo,
-      totalCount,
-      success: true,
-      message: "Devices retrieved successfully",
-    });
+    const devices = await Device.find();
+    res.status(200).json(devices);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).send("Internal Server Error");
   }
 };
 
