@@ -80,9 +80,9 @@ const createDevice = async (req, res) => {
     const {
       device_name,
       description,
-      secuirty_overview,
-      privacy_overview,
-      other_information,
+      privacy_overview: { title1, description1 },
+      secuirty_overview: { title2, description2 },
+      other_information: { title3, description3 },
       categoryId,
       video_url1,
       policy_url1,
@@ -109,12 +109,12 @@ const createDevice = async (req, res) => {
       deviceIcons: req.files["deviceIcons"][0].filename,
       video_url: req.files["video_url"][0].filename,
       policy_url: req.files["policy_url"][0].filename,
-      secuirty_overview,
-      privacy_overview,
+      privacy_overview: { title1, description1 },
+      secuirty_overview: { title2, description2 },
+      other_information: { title3, description3 },
       description,
       video_url1,
       policy_url1,
-      other_information,
       categorie: categoryId,
     });
 

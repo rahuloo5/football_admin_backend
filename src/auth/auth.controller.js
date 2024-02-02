@@ -1,9 +1,11 @@
 const OTP = require("../../db/config/otpSchema.model");
 const User = require("../../db/config/user.model");
-const sendSMS = require("../utility/send-sms");
+// const sendSMS = require("../utility/send-sms");
+
 const {
   GeneratesSignature,
 } = require("../middleware/authorization.middleware");
+const sendSMS = require("../utility/send-sms");
 
 function generateOTP() {
   const otpLength = 4;
@@ -224,6 +226,27 @@ const verify_update = async (req, res) => {
   }
 };
 
+// const resendOtp = async (req, res) => {
+//   const { number } = req.body;
+
+//   const user = await User.findOne({ number });
+
+//   if (user) {
+//     const otp = generateOTP();
+//     const newOtp = new OTP({ userId: user._id, otp: otp });
+
+//     const savedOtp = await newOtp.save();
+
+//     sendSMS(number, `Your verification code is ${otp}`);
+
+//     res.status(200).send({
+//       message: "Verification code sent successfully",
+//     });
+//   } else {
+//     res.status(404).send("User not found");
+//   }
+// };
+
 const resendOtp = async (req, res) => {
   const { number } = req.body;
 
@@ -235,7 +258,8 @@ const resendOtp = async (req, res) => {
 
     const savedOtp = await newOtp.save();
 
-    sendSMS(number, `Your verification code is ${otp}`);
+    const formattedNumber = `+91${number}`;
+    sendSMS(formattedNumber, `Your verification code is ${otp}`);
 
     res.status(200).send({
       message: "Verification code sent successfully",

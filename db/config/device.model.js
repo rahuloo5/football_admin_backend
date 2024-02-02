@@ -58,6 +58,20 @@ const mongoose = require("mongoose");
 // );
 // const mongoose = require("mongoose");
 
+const privacyOverviewSchema = new mongoose.Schema({
+  title1: String,
+  description1: String,
+});
+const secuirtyOverviewSchema = new mongoose.Schema({
+  title2: String,
+  description2: String,
+});
+
+const otherOverviewSchema = new mongoose.Schema({
+  title3: String,
+  description3: String,
+});
+
 const deviceSchema = new mongoose.Schema(
   {
     device_name: {
@@ -117,17 +131,12 @@ const deviceSchema = new mongoose.Schema(
     categorie: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Category",
-      // required: true,
     },
-    // category: {
-    //   type: mongoose.Schema.Types.ObjectId,
-    //   ref: "Category",
-    //   // required: true,
-    // },
-    secuirty_overview: String,
-    privacy_overview: String,
-    other_information: String,
+    privacy_overview: privacyOverviewSchema,
+    secuirty_overview: secuirtyOverviewSchema,
+    other_information: otherOverviewSchema,
   },
+
   { timestamps: true }
 );
 
