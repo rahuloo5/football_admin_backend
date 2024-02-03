@@ -13,9 +13,8 @@ const storage = multer.diskStorage({
 });
 
 exports.contentImage = multer({ storage }).array("image");
-exports.screenImage = multer({ storage }).single("screen_image");
-exports.bgImage = multer({ storage }).single("bg_image");
-
+// exports.screenImage = multer({ storage }).single("screen_image");
+// exports.bgImage = multer({ storage }).single("bg_image");
 exports.articleImage = multer({ storage }).array("Images");
 
 exports.categoriesImage = multer({ storage }).array("icon");

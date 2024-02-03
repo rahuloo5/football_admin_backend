@@ -8,6 +8,9 @@ const screenSchema = new mongoose.Schema({
   screen_image: {
     type: String,
   },
+  bg_image: {
+    type: String,
+  },
 });
 
 const Screen = mongoose.model("screen", screenSchema);
