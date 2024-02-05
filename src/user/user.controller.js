@@ -107,48 +107,13 @@ const createuser = async (req, res) => {
   }
 };
 
-// // Get all users
-// const getalluser = async (req, res) => {
-//   try {
-//     const users = await User.find();
-//     res.status(200).json(users);
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// };
+// Get all users
 const getAllUsers = async (req, res) => {
-  const MIN_LIMIT = 10;
-  const MAX_LIMIT = 100;
-
   try {
-    let { page, limit, search } = req.query;
-    page = parseInt(page) || 1;
-    limit = parseInt(limit) || MIN_LIMIT;
-    limit = Math.min(MAX_LIMIT, Math.max(MIN_LIMIT, limit));
-    const skip = (page - 1) * limit;
-    const query = { isOnboardingDone: true };
-    if (search) {
-      query.$or = [
-        { firstName: { $regex: new RegExp(search, "i") } },
-        { lastName: { $regex: new RegExp(search, "i") } },
-      ];
-    }
-
-    const totalCount = await User.countDocuments(query).skip(skip).limit(limit);
-
-    const links = await User.find(query)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit);
-
-    res.status(200).json({
-      page,
-      limit,
-      data: links,
-      totalCount,
-    });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    const users = await User.find();
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -181,12 +146,16 @@ const updateuser = async (req, res) => {
 };
 
 // Delete a user by ID
-const deleteduser = async (req, res) => {
+const deleteUser = async (req, res) => {
   try {
-    const deletedUser = await User.findByIdAndDelete(req.params.id);
-    if (!deletedUser) {
+    const userId = req.params.id;
+    const existingUser = await User.findById(userId);
+
+    if (!existingUser) {
       return res.status(404).json({ error: "User not found" });
     }
+    await User.findByIdAndDelete(userId);
+
     res.status(200).json({ message: "User deleted successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -198,7 +167,7 @@ module.exports = {
   userlogin,
   getAllUsers,
   createuser,
-  deleteduser,
+  deleteUser,
   updateuser,
   getUserById,
 };
