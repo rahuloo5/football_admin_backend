@@ -4,6 +4,7 @@ const {
   createcomments,
   getallcomments,
   createComments,
+  comments,
 } = require("./service.controller");
 
 const router = express.Router();
@@ -11,9 +12,6 @@ const router = express.Router();
 //search API
 
 // Create
-router.post("/comments", authMiddleware, createComments);
-
-// // // Read
-router.get("/comments", authMiddleware, getallcomments);
+router.post("/comments", authMiddleware, comments);
 
 module.exports = router;
