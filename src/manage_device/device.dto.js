@@ -13,5 +13,6 @@ const deviceSchema = Joi.object({
   video_url1: Joi.string().required(),
   policy_url1: Joi.string().required(),
   other_information: Joi.string().required(),
+  terms_conditions: Joi.string().required(),
 });
 module.exports = deviceSchema;

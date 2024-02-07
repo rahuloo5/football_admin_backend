@@ -22,6 +22,10 @@ const userSchema = new mongoose.Schema({
   otp: {
     type: String,
   },
+
+  password: {
+    type: String,
+  },
 });
 
 const User = mongoose.model("User", userSchema);

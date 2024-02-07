@@ -2,78 +2,6 @@ const mongoose = require("mongoose");
 const Category = require("../../db/config/categories.model");
 const Device = require("../../db/config/device.model");
 
-// const createDevice = async (req, res) => {
-//   try {
-//     const {
-//       device_name,
-//       categorieId,
-//       sub_categorieId,
-//       video_url,
-//       policy_url,
-//       secuirty_overview,
-//       privacy_overview,
-//       other_information,
-//     } = req.body;
-
-//     const Images = req.files ? req.files.map((file) => file.filename) : null;
-//     const Icons = req.files ? req.files.map((file) => file.filename) : null;
-
-//     console.log("device data", req.body);
-//     console.log("device-Images ", Images);
-
-//     const categorie = await Category.findById(categorieId);
-//     const sub_categorie = await Subcategory.findById(sub_categorieId);
-
-//     const devicedata = new Device({
-//       device_name,
-//       categorie,
-//       sub_categorie,
-//       video_url,
-//       Images,
-//       Icons,
-//       policy_url,
-//       secuirty_overview,
-//       privacy_overview,
-//       other_information,
-//     });
-
-//     await devicedata.save();
-
-//     res.status(200).json(devicedata);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ error: "Internal Server Error" });
-//   }
-// };
-
-// const createDevice = async (req, res) => {
-//   try {
-//     const {
-//       device_name,
-//       secuirty_overview,
-//       privacy_overview,
-//       categoryId,
-//       other_information,
-//     } = req.body;
-
-//     const device = new Device({
-//       device_name,
-//       deviceImages: req.files["deviceImages"].map((file) => file.filename),
-//       deviceIcons: req.files["deviceIcons"][0].filename,
-//       video_url: req.files["video_url"][0].filename,
-//       policy_url: req.files["policy_url"][0].filename,
-//       secuirty_overview,
-//       privacy_overview,
-//       other_information,
-//     });
-
-//     await device.save();
-//     res.status(201).json(device);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send("Internal Server Error");
-//   }
-// };
 const createDevice = async (req, res) => {
   try {
     const {
@@ -82,6 +10,8 @@ const createDevice = async (req, res) => {
       privacy_overview: { title1, description1 },
       secuirty_overview: { title2, description2 },
       other_information: { title3, description3 },
+      terms_conditions: { title4, description4 },
+
       categoryId,
       video_url1,
       policy_url1,
@@ -111,6 +41,7 @@ const createDevice = async (req, res) => {
       privacy_overview: { title1, description1 },
       secuirty_overview: { title2, description2 },
       other_information: { title3, description3 },
+      terms_conditions: { title4, description4 },
       description,
       video_url1,
       policy_url1,
