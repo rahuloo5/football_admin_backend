@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 const Category = require("../../db/config/categories.model");
 const Device = require("../../db/config/device.model");
-const Subcategory = require("../../db/sub_categories.model");
 
 // const createDevice = async (req, res) => {
 //   try {
