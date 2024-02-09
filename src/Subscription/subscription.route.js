@@ -1,21 +1,26 @@
 const express = require("express");
 const { authMiddleware } = require("../middleware/authorization.middleware");
-
 const {
-  createsubscription,
-  getsubscriptionById,
-  updateSubscription,
-  deleteSubscription,
-  getAllSubscriptions,
+  createPlan,
+  getAllPlans,
+  getPlanById,
+  updatePlanById,
+  activeplan,
+  deletePlanById,
 } = require("./subscription.controller");
 
 const router = express.Router();
 
-// subscription API
-router.post("/subscriptions", createsubscription);
-router.get("/subscriptions", getAllSubscriptions);
-router.get("/subscriptions/:id", getsubscriptionById);
-router.patch("/subscriptions/:id", updateSubscription);
-router.delete("/subscriptions/:id", deleteSubscription);
+router.post("/plans", authMiddleware, createPlan);
+
+router.get("/plans", authMiddleware, getAllPlans);
+
+router.get("/plans/:id", authMiddleware, getPlanById);
+
+router.patch("/plans/:id", updatePlanById);
+
+router.put("/plan_active/:id", activeplan);
+
+router.delete("/plans/:id", authMiddleware, deletePlanById);
 
 module.exports = router;

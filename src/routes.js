@@ -9,6 +9,7 @@ const subscriptionrouter = require("./Subscription/subscription.route");
 const devicerouter = require("./manage_device/device.route");
 const searchrouter = require("./search/search.route");
 const servicerouter = require("./service/service.route");
+const smtprouter = require("./smtp/smtp.route");
 
 exports.registerRoutes = (app) => {
   app.use(authrouter);
@@ -21,6 +22,6 @@ exports.registerRoutes = (app) => {
   app.use(feedbackrouter);
   app.use(searchrouter);
   app.use(servicerouter);
-
   app.use(subscriptionrouter);
+  app.use(smtprouter);
 };

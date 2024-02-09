@@ -72,9 +72,7 @@ const getAllDevices = async (req, res) => {
 const getDeviceById = async (req, res) => {
   try {
     const deviceId = req.params.id;
-    const device = await Device.findById(deviceId).populate(
-      "categorie  sub_categorie"
-    );
+    const device = await Device.findById(deviceId).populate("categorie");
 
     if (!device) {
       return res.status(404).json({ error: "Device not found" });

@@ -1,12 +1,13 @@
 const express = require("express");
 const { authMiddleware } = require("../middleware/authorization.middleware");
-const { comments } = require("./service.controller");
+const { createsmtp, getallsmtp } = require("./smtp.controller");
 
 const router = express.Router();
 
-//search API
+//smtp API
 
 // Create
-router.post("/comments", authMiddleware, comments);
+router.post("/smtp", authMiddleware, createsmtp);
+router.get("/smtp", authMiddleware, getallsmtp);
 
 module.exports = router;

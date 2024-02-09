@@ -2,41 +2,28 @@ const mongoose = require("mongoose");
 
 const SubscriptionSchema = new mongoose.Schema(
   {
-    plan_name: {
+    name: {
       type: String,
     },
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    },
 
-    number_search: {
+    text_message_count: {
       type: Number,
+      required: true,
     },
 
-    Plan_Subscription: {
-      type: Number,
-    },
-
-    Plan_Subscription: {
+    Subscription: {
       type: String,
       enum: ["monthly", "annually", "Both"],
       required: true,
     },
 
-    startDate: {
-      type: Date,
-      default: Date.now(),
-    },
-    renewDate: {
-      type: Date,
-    },
     amount: {
       type: Number,
+      default: 0,
       required: true,
     },
 
-    plan_description: {
+    description: {
       type: String,
     },
   },

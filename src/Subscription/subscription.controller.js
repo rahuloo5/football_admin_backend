@@ -1,102 +1,129 @@
-const mongoose = require("mongoose");
+const Stripe = require("stripe");
 const Subscription = require("../../db/config/subscription.model");
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
-// Create a new subscription
-const createsubscription = async (req, res) => {
+// Create Plan
+const createPlan = async (req, res) => {
   try {
-    const subscription = new Subscription(req.body);
-    console.log("subscription plan ", req.body);
-    await subscription.save();
-    res.status(201).json(subscription);
-  } catch (error) {
-    console.error("Error creating subscription:", error);
-    res
-      .status(500)
-      .json({ error: "Internal Server Error", details: error.message });
-  }
-};
+    const product = await stripe.products.create({
+      name: req.body.title,
+    });
 
-// Get all subscriptions
+    const plan = await stripe.plans.create({
+      amount: req.body.amount * 100,
+      currency: "usd",
+      interval: "month",
+      product: product.id,
+    });
 
-const getAllSubscriptions = async (req, res) => {
-  try {
-    const subscriptions = await Subscription.find().populate("userId");
+    const newPlan = new Subscription(req.body);
 
-    res.status(200).json(subscriptions);
-  } catch (error) {
-    console.error("Error retrieving subscriptions:", error);
-    res
-      .status(500)
-      .json({ error: "Internal Server Error", details: error.message });
-  }
-};
+    newPlan.stripeplan = plan.id;
 
-// Get a subscription by ID
-const getsubscriptionById = async (req, res) => {
-  try {
-    const subscription = await Subscription.findById(req.params.id);
-    if (!subscription) {
-      return res.status(404).json({ error: "Subscription not found" });
+    const savedPlan = await newPlan.save();
+    if (savedPlan) {
+      console.log(savedPlan);
+      return res.json({
+        message: "plan will be created",
+        savedPlan,
+      });
     }
-    res.json(subscription);
+    return res.status(500).json({ message: "Internal server error" });
   } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
+    console.error("Error in createPlan:", error);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
 
-// Update a subscription by ID
-const updateSubscription = async (req, res) => {
+// Get all Plans
+
+const getAllPlans = async (req, res) => {
   try {
-    const updatedSubscription = await Subscription.findByIdAndUpdate(
+    const allPlans = await Subscription.find();
+    return res.json({ plans: allPlans });
+  } catch (error) {
+    console.error("Error in getAllPlans:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const getPlanById = async (req, res) => {
+  try {
+    const plan = await Subscription.findById(req.params.id);
+    if (!plan) {
+      return res.status(404).json({ message: "Plan not found" });
+    }
+    return res.json({ plan });
+  } catch (error) {
+    console.error("Error in getPlanById:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// Update Plan by ID
+
+const updatePlanById = async (req, res) => {
+  try {
+    const updatedPlan = await Subscription.findByIdAndUpdate(
       req.params.id,
       req.body,
       { new: true }
     );
-    console.log("sdfghjkasdfg", req.body);
-    if (!updatedSubscription) {
-      return res.status(404).json({ error: "Subscription not found" });
+    if (!updatedPlan) {
+      return res.status(404).json({ message: "Plan not found" });
     }
-    res.json(updatedSubscription);
+    return res.json({
+      message: "Plan updated successfully",
+      updatedPlan,
+    });
   } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
+    console.error("Error in updatePlanById:", error);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
 
-// Delete a subscription by ID
+// Delete Plan by ID
 
-const deleteSubscription = async (req, res) => {
+const deletePlanById = async (req, res) => {
   try {
-    const subscriptionId = req.params.id;
-
-    // Validate ObjectId
-    if (!mongoose.Types.ObjectId.isValid(subscriptionId)) {
-      return res.status(400).json({ error: "Invalid Subscription ID format" });
+    const deletedPlan = await Subscription.findByIdAndDelete(req.params.id);
+    if (!deletedPlan) {
+      return res.status(404).json({ message: "Plan not found" });
     }
-
-    const deletedSubscription = await Subscription.findByIdAndDelete(
-      subscriptionId
-    );
-
-    if (!deletedSubscription) {
-      console.log(`Subscription with ID ${subscriptionId} not found`);
-      return res.status(404).json({ error: "Subscription not found" });
-    }
-
-    res
-      .status(200)
-      .json({ success: true, message: "Subscription deleted successfully" });
+    return res.json({
+      message: "Plan deleted successfully",
+      deletedPlan,
+    });
   } catch (error) {
-    console.error("Error deleting subscription:", error);
-    res
-      .status(500)
-      .json({ error: "Internal Server Error", details: error.message });
+    console.error("Error in deletePlanById:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+const activeplan = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const plan = await Plans.findById(id);
+
+    if (!plan) {
+      return res.status(404).json({ error: "Plan not found" });
+    }
+
+    plan.active_plan = !plan.active_plan;
+    await plan.save();
+
+    res.json({ message: "Plan status toggled successfully", plan });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
 module.exports = {
-  createsubscription,
-  getAllSubscriptions,
-  getsubscriptionById,
-  updateSubscription,
-  deleteSubscription,
+  createPlan,
+  getAllPlans,
+  getPlanById,
+  updatePlanById,
+  deletePlanById,
+  activeplan,
 };
