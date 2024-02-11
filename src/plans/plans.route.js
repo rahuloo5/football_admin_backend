@@ -7,7 +7,7 @@ const {
   updatePlanById,
   activeplan,
   deletePlanById,
-} = require("./subscription.controller");
+} = require("./plans.controller");
 
 const router = express.Router();
 

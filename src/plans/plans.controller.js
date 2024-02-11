@@ -1,5 +1,5 @@
 const Stripe = require("stripe");
-const Subscription = require("../../db/config/subscription.model");
+const Plan = require("../../db/config/plan.model");
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
 // Create Plan
@@ -16,7 +16,7 @@ const createPlan = async (req, res) => {
       product: product.id,
     });
 
-    const newPlan = new Subscription(req.body);
+    const newPlan = new Plan(req.body);
 
     newPlan.stripeplan = plan.id;
 
@@ -39,7 +39,7 @@ const createPlan = async (req, res) => {
 
 const getAllPlans = async (req, res) => {
   try {
-    const allPlans = await Subscription.find();
+    const allPlans = await Plan.find();
     return res.json({ plans: allPlans });
   } catch (error) {
     console.error("Error in getAllPlans:", error);
@@ -49,7 +49,7 @@ const getAllPlans = async (req, res) => {
 
 const getPlanById = async (req, res) => {
   try {
-    const plan = await Subscription.findById(req.params.id);
+    const plan = await Plan.findById(req.params.id);
     if (!plan) {
       return res.status(404).json({ message: "Plan not found" });
     }
@@ -64,11 +64,9 @@ const getPlanById = async (req, res) => {
 
 const updatePlanById = async (req, res) => {
   try {
-    const updatedPlan = await Subscription.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
+    const updatedPlan = await Plan.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
     if (!updatedPlan) {
       return res.status(404).json({ message: "Plan not found" });
     }
@@ -86,7 +84,7 @@ const updatePlanById = async (req, res) => {
 
 const deletePlanById = async (req, res) => {
   try {
-    const deletedPlan = await Subscription.findByIdAndDelete(req.params.id);
+    const deletedPlan = await Plan.findByIdAndDelete(req.params.id);
     if (!deletedPlan) {
       return res.status(404).json({ message: "Plan not found" });
     }
@@ -103,7 +101,7 @@ const activeplan = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const plan = await Plans.findById(id);
+    const plan = await Plan.findById(id);
 
     if (!plan) {
       return res.status(404).json({ error: "Plan not found" });

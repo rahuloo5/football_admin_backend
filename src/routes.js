@@ -5,11 +5,13 @@ const screenrouter = require("./screen/screen.route");
 const articlerouter = require("./manage_Article/article.route");
 const feedbackrouter = require("./feedback/feedback.route");
 const authrouter = require("./auth/auth.route");
-const subscriptionrouter = require("./Subscription/subscription.route");
+const planrouter = require("./plans/plans.route");
 const devicerouter = require("./manage_device/device.route");
 const searchrouter = require("./search/search.route");
 const servicerouter = require("./service/service.route");
 const smtprouter = require("./smtp/smtp.route");
+const paymentrouter = require("./payment/payment.route");
+const Subscriptionrouter = require("./subscription/sub.route");
 
 exports.registerRoutes = (app) => {
   app.use(authrouter);
@@ -22,6 +24,8 @@ exports.registerRoutes = (app) => {
   app.use(feedbackrouter);
   app.use(searchrouter);
   app.use(servicerouter);
-  app.use(subscriptionrouter);
+  app.use(planrouter);
   app.use(smtprouter);
+  app.use(paymentrouter);
+  app.use(Subscriptionrouter);
 };

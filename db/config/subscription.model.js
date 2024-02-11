@@ -1,36 +1,40 @@
 const mongoose = require("mongoose");
 
-const SubscriptionSchema = new mongoose.Schema(
-  {
-    name: {
-      type: String,
-    },
-
-    text_message_count: {
-      type: Number,
-      required: true,
-    },
-
-    Subscription: {
-      type: String,
-      enum: ["monthly", "annually", "Both"],
-      required: true,
-    },
-
-    amount: {
-      type: Number,
-      default: 0,
-      required: true,
-    },
-
-    description: {
-      type: String,
-    },
+const subscriptionSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
   },
+  planId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Plans",
+    required: true,
+  },
+  status: {
+    type: String,
+    enum: ["active", "canceled", "past_due", "incomplete", "unpaid", "paid"],
+    default: "active",
+  },
+  stripeSubscriptionId: {
+    type: String,
+  },
+  startDate: {
+    type: Date,
+    default: Date.now(),
+  },
+  renewDate: {
+    type: Date,
+  },
+  amount: {
+    type: Number,
+    required: true,
+  },
+  text_message_count: {
+    type: Number,
+    default: 0,
+  },
+});
+const subscription = mongoose.model("subscription", subscriptionSchema);
 
-  { timestamps: true }
-);
-
-const Subscription = mongoose.model("Subscription", SubscriptionSchema);
-
-module.exports = Subscription;
+module.exports = subscription;

@@ -1,0 +1,36 @@
+const mongoose = require("mongoose");
+
+const planSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+    },
+
+    text_message_count: {
+      type: Number,
+      required: true,
+    },
+
+    Subscription: {
+      type: String,
+      enum: ["monthly", "annually", "Both"],
+      required: true,
+    },
+
+    amount: {
+      type: Number,
+      default: 0,
+      required: true,
+    },
+
+    description: {
+      type: String,
+    },
+  },
+
+  { timestamps: true }
+);
+
+const Plan = mongoose.model("Plan", planSchema);
+
+module.exports = Plan;
