@@ -17,6 +17,11 @@ const userSchema = new mongoose.Schema({
     type: String,
   },
 
+  planId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Plans",
+  },
+
   isActive: { type: Boolean, default: false },
 
   otp: {

@@ -1,26 +1,29 @@
-// const twilio = require("twilio");
+const twilio = require("twilio");
 
-// const accountSid = process.env.TWILLIO_ACCOUNT_SID;
-// const authToken = process.env.TWILLIO_AUTH_TOKEN;
-// const number = process.env.TWILLIO_PHONE_NUMBER;
+const sendSMS = async (otp, toPhoneNumber) => {
+  try {
+    const accountSid = process.env.TWILLIO_ACCOUNT_SID;
+    const authToken = process.env.TWILLIO_AUTH_TOKEN;
+    const twilioPhoneNumber = process.env.TWILLIO_PHONE_NUMBER;
 
-// const client = new twilio(accountSid, authToken);
+    const client = require("twilio")(accountSid, authToken);
 
-// const sendSMS = async (to, body) => {
-//   try {
-//     const message = await client.messages.create({
-//       body: body,
-//       from: number,
-//       to: to,
-//     });
+    const response = await client.messages.create({
+      body: `Your OTP is ${otp}`,
+      from: twilioPhoneNumber,
+      to: `+91${9074313441}`,
+    });
 
-//     console.log(`SMS sent successfully. SID: ${message.sid}`);
-//   } catch (error) {
-//     console.error("Error sending SMS:", error.message);
-//   }
-// };
+    console.log(response);
 
-// // Example usage
-// sendSMS("+919074313441", "Hello, this is a Twilio SMS!");
+    return response;
+  } catch (error) {
+    // console.log(error);
+    return false;
+  }
+};
 
-// module.exports = sendSMS;
+// Example usage
+sendSMS("+919074313441", "Hello, this is a Twilio SMS!");
+
+module.exports = sendSMS;

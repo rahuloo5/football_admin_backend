@@ -26,6 +26,9 @@ const planSchema = new mongoose.Schema(
     description: {
       type: String,
     },
+    active_plan: {
+      type: Boolean,
+    },
   },
 
   { timestamps: true }

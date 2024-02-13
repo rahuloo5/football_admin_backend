@@ -3,6 +3,38 @@ const Plan = require("../../db/config/plan.model");
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
 // Create Plan
+// const createPlan = async (req, res) => {
+//   try {
+//     const product = await stripe.products.create({
+//       name: req.body.title,
+//     });
+
+//     const plan = await stripe.plans.create({
+//       amount: req.body.amount * 100,
+//       currency: "usd",
+//       interval: "month",
+//       product: product.id,
+//     });
+
+//     const newPlan = new Plan(req.body);
+
+//     newPlan.stripeplan = plan.id;
+
+//     const savedPlan = await newPlan.save();
+//     if (savedPlan) {
+//       console.log(savedPlan);
+//       return res.json({
+//         message: "plan will be created",
+//         savedPlan,
+//       });
+//     }
+//     return res.status(500).json({ message: "Internal server error" });
+//   } catch (error) {
+//     console.error("Error in createPlan:", error);
+//     return res.status(500).json({ message: "Internal server error" });
+//   }
+// };
+
 const createPlan = async (req, res) => {
   try {
     const product = await stripe.products.create({
@@ -22,9 +54,12 @@ const createPlan = async (req, res) => {
 
     const savedPlan = await newPlan.save();
     if (savedPlan) {
-      console.log(savedPlan);
+      // console.log("Stripe Product:", product);
+      // console.log("Stripe Plan:", plan);
+      // console.log("Saved Plan in Database:", savedPlan);
+
       return res.json({
-        message: "plan will be created",
+        message: "Plan will be created",
         savedPlan,
       });
     }
@@ -90,13 +125,29 @@ const deletePlanById = async (req, res) => {
     }
     return res.json({
       message: "Plan deleted successfully",
-      deletedPlan,
     });
   } catch (error) {
     console.error("Error in deletePlanById:", error);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+
+// const deletePlanById = async (req, res) => {
+//   try {
+//     const deletedPlan = await Plan.findByIdAndDelete(req.params.id);
+
+//     const deleted = await stripe.plans.del(deletedPlan.stripeplan);
+//     console.log(deleted, "cheking plan");
+//     if (!deletedPlan) {
+//       return res.status(404).json({ message: "Plan not found" });
+//     }
+//     return res.json(deletedPlan);
+//   } catch (error) {
+//     console.error("Error in deletePlanById:", error);
+//     return res.status(500).json({ message: "Internal server error" });
+//   }
+// };
+
 const activeplan = async (req, res) => {
   const { id } = req.params;
 

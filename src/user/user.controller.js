@@ -33,36 +33,6 @@ const userSignup = async (req, resp) => {
   }
 };
 
-// const userlogin = async (req, res) => {
-
-//   try {
-//     const { email, password } = req.body;
-
-//     console.log(req.body, "checking buy here only");
-
-//     const user = await User.findOne({ email });
-//     if (!user) {
-//       return res.status(401).json({ message: "Invalid credentials" });
-//     }
-//     console.log(user);
-//     if (user.password === password) {
-//       let signature = await GeneratesSignature({
-//         _id: user?._id,
-//         email: user?.email,
-//       });
-//       return res.status(200).json({
-//         token: signature,
-//       });
-//     }
-//     return res.status(200).json({
-//       message: "invalid credential",
-//     });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ message: "Internal server error" });
-//   }
-// };
-
 const userlogin = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -146,6 +116,7 @@ const updateuser = async (req, res) => {
 };
 
 // Delete a user by ID
+
 const deleteUser = async (req, res) => {
   try {
     const userId = req.params.id;
@@ -162,7 +133,73 @@ const deleteUser = async (req, res) => {
   }
 };
 
+// create user plan
+const createUserplan = async (req, res) => {
+  try {
+    const { planId } = req.body;
+    const user = req.user;
+
+    if (!user) {
+      return res.status(401).json({ message: "Not authenticated user" });
+    }
+
+    let clientsecret;
+
+    const existingUserPlan = await User.findOne({ user: user._id });
+
+    if (existingUserPlan) {
+      const uplanUpdate = await User.findOneAndUpdate(
+        { user: user._id },
+        { plan: planId },
+        { new: true }
+      );
+
+      return res.status(200).json({
+        message: "User plan updated",
+        uplanUpdate,
+        ...clientsecret,
+      });
+    }
+
+    const uplan = await User.create({
+      user: user._id,
+      plan: planId,
+    });
+
+    clientsecret = await createsub(user, planId);
+
+    return res.status(200).json({
+      message: "User plan created",
+      uplan,
+      ...clientsecret,
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+// Define an endpoint to handle subscription creation
+const createsub = async (req, res) => {
+  try {
+    const { userId, planId } = req.body;
+
+    // Call the Createsub function
+    const subscriptionResponse = await createsub(userId, planId);
+
+    // Send the subscription response back to the client
+    res.json(subscriptionResponse);
+  } catch (error) {
+    console.error("Error in create-subscription endpoint:", error.message);
+    // Handle error and send an appropriate response
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+// Export the router for use in your main application file
+
 module.exports = {
+  createsub,
   userSignup,
   userlogin,
   getAllUsers,
@@ -170,4 +207,5 @@ module.exports = {
   deleteUser,
   updateuser,
   getUserById,
+  createUserplan,
 };

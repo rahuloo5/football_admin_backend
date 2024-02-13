@@ -122,10 +122,10 @@ const resendOtp = async (req, res) => {
 
     const savedOtp = await newOtp.save();
 
-    const formattedNumber = `+91${number}`;
-    sendSMS(formattedNumber, `Your verification code is ${otp}`);
+    let response = await sendSMS(otp, number);
 
     res.status(200).send({
+      response,
       message: "Verification code sent successfully",
       savedOtp,
     });
