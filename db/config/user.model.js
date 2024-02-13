@@ -32,6 +32,10 @@ const userSchema = new mongoose.Schema({
     type: String,
   },
 
+  fcm_token: {
+    type: String,
+  },
+
   role: {
     type: [String],
     enum: ["Admin", "User"],
