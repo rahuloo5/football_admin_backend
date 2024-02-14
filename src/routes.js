@@ -12,6 +12,7 @@ const servicerouter = require("./service/service.route");
 const smtprouter = require("./smtp/smtp.route");
 const paymentrouter = require("./payment/payment.route");
 const Subscriptionrouter = require("./subscription/sub.route");
+const notificationrouter = require("./push_notification/notification.route");
 
 exports.registerRoutes = (app) => {
   app.use(authrouter);
@@ -28,4 +29,5 @@ exports.registerRoutes = (app) => {
   app.use(smtprouter);
   app.use(paymentrouter);
   app.use(Subscriptionrouter);
+  // app.use(notificationrouter);
 };

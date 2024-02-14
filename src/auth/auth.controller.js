@@ -1,4 +1,5 @@
 const OTP = require("../../db/config/otpSchema.model");
+const TempOTP = require("../../db/config/tamp.model");
 const User = require("../../db/config/user.model");
 
 const {
@@ -21,9 +22,23 @@ const registerUser = async (req, res) => {
     const existingUser = await User.findOne({ number });
 
     if (existingUser) {
+      const otp = generateOTP();
+      const newOtp = new OTP({ userId: existingUser._id, otp: otp });
+
+      await TempOTP.findOneAndUpdate(
+        { userId: existingUser._id },
+        { userId: existingUser._id, otp: otp },
+        { upsert: true }
+      );
+      const savedOtp = await newOtp.save();
+
+      let response = await sendSMS(otp, number);
+
       return res.status(400).json({
         message: "User already registered",
+        number: existingUser.number,
         isActive: existingUser.isActive,
+        response,
       });
     }
 
@@ -42,7 +57,10 @@ const registerUser = async (req, res) => {
 
     await newOTP.save();
 
-    res.status(200).json({ message: "User registered successfully" });
+    // Send OTP via Twilio
+    let response = await sendSMS(`+91${number}`, `Your OTP is ${otp}`);
+
+    res.status(200).json({ message: "User registered successfully", response });
   } catch (error) {
     console.error("Error registering user:", error);
     res.status(500).json({ error: "Internal Server Error", details: error });
@@ -53,15 +71,22 @@ const verifyOTP = async (req, res) => {
   const { number, otp: enteredOTP } = req.body;
 
   try {
-    if (parseInt(enteredOTP) === 1234) {
-      const user = await User.findOne({ number });
-      if (!user) {
-        return res.status(404).send({ error: "User not found" });
-      }
+    const user = await User.findOne({ number });
+
+    if (!user) {
+      return res.status(404).send({ error: "User not found" });
+    }
+
+    const storedOTPRecord = await TempOTP.findOne({ userId: user._id });
+
+    if (storedOTPRecord && parseInt(enteredOTP) === storedOTPRecord.otp) {
       const isActive = user.isActive;
       const token = GeneratesSignature({
         id: user._id,
       });
+
+      // Remove the OTP record from the temporary collection after verification
+      await TempOTP.deleteOne({ userId: user._id });
 
       return res.status(200).send({
         success: true,
@@ -120,6 +145,11 @@ const resendOtp = async (req, res) => {
     const otp = generateOTP();
     const newOtp = new OTP({ userId: user._id, otp: otp });
 
+    await TempOTP.findOneAndUpdate(
+      { userId: user._id },
+      { userId: user._id, otp: otp },
+      { upsert: true }
+    );
     const savedOtp = await newOtp.save();
 
     let response = await sendSMS(otp, number);

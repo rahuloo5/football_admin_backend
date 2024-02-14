@@ -4,9 +4,11 @@ const User = require("../../db/config/user.model");
 
 const createpayment = async (req, res) => {
   try {
-    const { userId, planId } = req.body;
+    const { name, amount, userId, planId, email } = req.body;
 
-    const updatedUser = await User.findById(userId);
+    let user = req.user;
+
+    const updatedUser = await User.findById(user?._id);
     if (!updatedUser) {
       return res.status(404).json({ error: "User not found" });
     }
@@ -82,78 +84,6 @@ const createpayment = async (req, res) => {
     throw error;
   }
 };
-
-// const createpayment = async (req, res) => {
-//   try {
-//     const { userId, planId } = req.body;
-
-//     const updatedUser = await User.findById(userId);
-//     if (!updatedUser) {
-//       return res.status(404).json({ error: "User not found" });
-//     }
-
-//     // Check if the plan is present
-//     const plan = await Plan.findById(planId);
-//     if (!plan) {
-//       return res.status(404).json({ error: "Plan not found" });
-//     }
-
-//     const paymentIntent = await stripe.paymentIntents.create({
-//       amount: plan?.amount,
-//       currency: "usd",
-//       // Remove the email parameter as it's not valid
-//       capture_method: "automatic",
-//     });
-
-//     const session = await stripe.products
-//       .create({
-//         name: updatedUser.firstname,
-//       })
-//       .then(async ({ id }) => {
-//         return await stripe.prices.create({
-//           product: id,
-//           unit_amount: plan?.amount * 100,
-//           currency: "usd",
-//         });
-//       })
-//       .then(async ({ id }) => {
-//         return await stripe.checkout.sessions.create({
-//           mode: "payment",
-//           line_items: [
-//             {
-//               price: id,
-//               quantity: 1,
-//             },
-//           ],
-//           invoice_creation: {
-//             enabled: true,
-//             invoice_data: {
-//               custom_fields: [
-//                 { name: "Description", value: plan?.description },
-//                 { name: "Amount", value: plan?.amount },
-//               ],
-//               footer: "secure your living",
-//             },
-//           },
-//           metadata: { planId },
-//           payment_intent: paymentIntent?.id,
-
-//           success_url: `${req.protocol}://${req.get("host")}/payment_success`,
-//           cancel_url: `${req.protocol}://${req.get("host")}/payment_failed`,
-//         });
-//       });
-
-//     console.log(session, "denfue");
-
-//     return res.json({
-//       url: session.url,
-//       session,
-//     });
-//   } catch (error) {
-//     console.log(error.message);
-//     throw error;
-//   }
-// };
 
 module.exports = {
   createpayment,
