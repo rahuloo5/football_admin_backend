@@ -61,6 +61,46 @@ const registerUser = async (req, res) => {
   }
 };
 
+// const verifyOTP = async (req, res) => {
+//   const { number, otp: enteredOTP } = req.body;
+
+//   try {
+//     const user = await User.findOne({ number });
+
+//     if (!user) {
+//       return res.status(404).send({ error: "User not found" });
+//     }
+
+//     const storedOTPRecord = await TempOTP.findOne({ userId: user._id });
+
+//     if (storedOTPRecord && parseInt(enteredOTP) === storedOTPRecord.otp) {
+//       const isActive = user.isActive;
+//       const token = GeneratesSignature({
+//         id: user._id,
+//       });
+
+//       // Remove the OTP record from the temporary collection after verification
+//       await TempOTP.deleteOne({ userId: user._id });
+
+//       return res.status(200).send({
+//         success: true,
+//         message: "Verification code verified successfully",
+//         id: user._id,
+//         isActive: isActive,
+//         token,
+//       });
+//     } else {
+//       return res.status(400).send({
+//         success: false,
+//         message: "Invalid OTP",
+//       });
+//     }
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send({ success: false, error: "Internal Server Error" });
+//   }
+// };
+
 const verifyOTP = async (req, res) => {
   const { number, otp: enteredOTP } = req.body;
 
