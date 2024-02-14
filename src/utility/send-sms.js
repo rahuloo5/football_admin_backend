@@ -1,35 +1,5 @@
 const twilio = require("twilio");
 
-const sendSMS = async (otp) => {
-  try {
-    const accountSid = process.env.TWILLIO_ACCOUNT_SID;
-    const authToken = process.env.TWILLIO_AUTH_TOKEN;
-    const twilioPhoneNumber = process.env.TWILLIO_PHONE_NUMBER;
-
-    const client = require("twilio")(accountSid, authToken);
-
-    const response = await client.messages.create({
-      body: `Your OTP is ${otp}`,
-      from: twilioPhoneNumber,
-      to: `+91${9074313441}`,
-    });
-
-    // console.log(response);
-
-    return response;
-  } catch (error) {
-    // console.log(error);
-    return false;
-  }
-};
-
-// Example usage
-sendSMS("+919074313441", "Hello, this is a Twilio SMS!");
-
-// module.exports = sendSMS;
-
-// const twilio = require("twilio");
-
 // const sendSMS = async (otp) => {
 //   try {
 //     const accountSid = process.env.TWILLIO_ACCOUNT_SID;
@@ -44,40 +14,42 @@ sendSMS("+919074313441", "Hello, this is a Twilio SMS!");
 //       to: `+91${9074313441}`,
 //     });
 
-//     console.log(response);
+//     // console.log(response);
 
 //     return response;
 //   } catch (error) {
-//     console.error("Twilio error:", error);
-
-//     return { error: "Failed to send SMS", details: error.message };
+//     // console.log(error);
+//     return false;
 //   }
 // };
+
+// Example usage
+// sendSMS("+919074313441", "Hello, this is a Twilio SMS!");
 
 // const twilio = require("twilio");
 
-// const sendSMS = async (otp, phoneNumber) => {
-//   try {
-//     const accountSid = process.env.TWILIO_ACCOUNT_SID;
-//     const authToken = process.env.TWILIO_AUTH_TOKEN;
-//     const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
+const sendSMS = async (otp, phoneNumber) => {
+  try {
+    const accountSid = process.env.TWILIO_ACCOUNT_SID;
+    const authToken = process.env.TWILIO_AUTH_TOKEN;
+    const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
 
-//     const client = require("twilio")(accountSid, authToken);
+    const client = require("twilio")(accountSid, authToken);
 
-//     const response = await client.messages.create({
-//       body: `Your OTP is ${otp}`,
-//       from: twilioPhoneNumber,
-//       to: `+91${phoneNumber}`,
-//     });
+    const response = await client.messages.create({
+      body: `Your OTP is ${otp}`,
+      from: twilioPhoneNumber,
+      to: `+91${phoneNumber}`,
+    });
 
-//     console.log(response);
+    console.log(response);
 
-//     return response;
-//   } catch (error) {
-//     console.error("Twilio error:", error);
+    return response;
+  } catch (error) {
+    console.error("Twilio error:", error);
 
-//     return { error: "Failed to send SMS", details: error.message };
-//   }
-// };
+    return { error: "Failed to send SMS", details: error.message };
+  }
+};
 
 module.exports = sendSMS;

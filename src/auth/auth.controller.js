@@ -58,9 +58,9 @@ const registerUser = async (req, res) => {
     await newOTP.save();
 
     // Send OTP via Twilio
-    let response = await sendSMS(`+91${number}`, `Your OTP is ${otp}`);
+    // let response = await sendSMS(`+91${number}`, `Your OTP is ${otp}`);
 
-    res.status(200).json({ message: "User registered successfully", response });
+    res.status(200).json({ message: "User registered successfully" });
   } catch (error) {
     console.error("Error registering user:", error);
     res.status(500).json({ error: "Internal Server Error", details: error });
