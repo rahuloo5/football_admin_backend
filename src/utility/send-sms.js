@@ -30,7 +30,7 @@
 
 const twilio = require("twilio");
 
-const sendSMS = async (otp) => {
+const sendSMS = async (otp, number) => {
   try {
     const accountSid = process.env.TWILLIO_ACCOUNT_SID;
     const authToken = process.env.TWILLIO_AUTH_TOKEN;
@@ -41,7 +41,7 @@ const sendSMS = async (otp) => {
     const response = await client.messages.create({
       body: `Your OTP is ${otp}`,
       from: twilioPhoneNumber,
-      to: `+91${9074313441}`,
+      to: `+91${number}`,
     });
 
     console.log(response);

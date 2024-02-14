@@ -15,51 +15,51 @@ function generateOTP() {
   return otp;
 }
 
-const registerUser = async (req, res) => {
-  try {
-    const { number } = req.body;
+// const registerUser = async (req, res) => {
+//   try {
+//     const { number } = req.body;
 
-    const existingUser = await User.findOne({ number });
-    const otp = generateOTP();
-    if (existingUser) {
-      // const newOtp = new OTP({ userId: existingUser._id, otp: otp });
+//     const existingUser = await User.findOne({ number });
+//     const otp = generateOTP();
+//     if (existingUser) {
+//       // const newOtp = new OTP({ userId: existingUser._id, otp: otp });
 
-      let savedotp = await TempOTP.findOneAndUpdate(
-        { userId: existingUser._id },
-        { userId: existingUser._id, otp: otp },
-        { upsert: true }
-      );
+//       let savedotp = await TempOTP.findOneAndUpdate(
+//         { userId: existingUser._id },
+//         { userId: existingUser._id, otp: otp },
+//         { upsert: true }
+//       );
 
-      let response = await sendSMS(savedotp?.otp, existingUser?.number);
+//       let response = await sendSMS(savedotp?.otp, existingUser?.number);
 
-      return res.status(400).json({
-        message: "User already registered",
-        number: existingUser.number,
-        isActive: existingUser.isActive,
-        response,
-      });
-    }
+//       return res.status(400).json({
+//         message: "User already registered",
+//         number: existingUser.number,
+//         isActive: existingUser.isActive,
+//         response,
+//       });
+//     }
 
-    const newUser = new User({ number });
-    let firstsaveduser = await newUser.save();
+//     const newUser = new User({ number });
+//     let firstsaveduser = await newUser.save();
 
-    // Create OTP
+//     // Create OTP
 
-    let sotp = await TempOTP.create({
-      userId: firstsaveduser?._id,
-      otp: otp,
-    });
+//     let sotp = await TempOTP.create({
+//       userId: firstsaveduser?._id,
+//       otp: otp,
+//     });
 
-    let responses = await sendSMS(otp, firstsaveduser?.number);
+//     let responses = await sendSMS(otp, firstsaveduser?.number);
 
-    res
-      .status(200)
-      .json({ message: "User registered successfully", responses });
-  } catch (error) {
-    console.error("Error registering user:", error);
-    res.status(500).json({ error: "Internal Server Error", details: error });
-  }
-};
+//     res
+//       .status(200)
+//       .json({ message: "User registered successfully", responses });
+//   } catch (error) {
+//     console.error("Error registering user:", error);
+//     res.status(500).json({ error: "Internal Server Error", details: error });
+//   }
+// };
 
 // const verifyOTP = async (req, res) => {
 //   const { number, otp: enteredOTP } = req.body;
@@ -100,6 +100,50 @@ const registerUser = async (req, res) => {
 //     res.status(500).send({ success: false, error: "Internal Server Error" });
 //   }
 // };
+
+const registerUser = async (req, res) => {
+  try {
+    const { number } = req.body;
+
+    const existingUser = await User.findOne({ number });
+    const otp = generateOTP();
+    let savedotp;
+
+    if (existingUser) {
+      savedotp = await TempOTP.findOneAndUpdate(
+        { userId: existingUser._id },
+        { userId: existingUser._id, otp: otp },
+        { upsert: true, new: true } // Use the 'new' option to get the updated document
+      );
+    } else {
+      const newUser = new User({ number });
+      let firstsaveduser = await newUser.save();
+
+      // Create OTP
+      savedotp = await TempOTP.create({
+        userId: firstsaveduser?._id,
+        otp: otp,
+      });
+    }
+
+    let response = await sendSMS(otp, number);
+
+    res.status(200).json({
+      message: existingUser
+        ? "User already registered"
+        : "User registered successfully",
+      response,
+      number: existingUser?.number || savedotp.userId,
+      isActive: existingUser?.isActive || false,
+      response: {
+        body: `Sent from your Twilio trial account - Your OTP is ${savedotp?.otp}`,
+      },
+    });
+  } catch (error) {
+    console.error("Error registering user:", error);
+    res.status(500).json({ error: "Internal Server Error", details: error });
+  }
+};
 
 const verifyOTP = async (req, res) => {
   const { number, otp: enteredOTP } = req.body;
