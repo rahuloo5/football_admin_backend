@@ -16,13 +16,13 @@ const paymentschema = new mongoose.Schema(
       required: true,
     },
 
-    User: {
+    UserId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
 
-    Plan: {
+    planId: {
       type: Schema.Types.ObjectId,
       ref: "Plan",
     },

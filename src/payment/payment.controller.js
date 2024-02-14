@@ -4,11 +4,11 @@ const User = require("../../db/config/user.model");
 
 const createpayment = async (req, res) => {
   try {
-    const { name, amount, userId, planId, email } = req.body;
+    const { userId, planId } = req.body;
 
     let user = req.user;
 
-    const updatedUser = await User.findById(user?._id);
+    const updatedUser = await User.findById(userId);
     if (!updatedUser) {
       return res.status(404).json({ error: "User not found" });
     }
