@@ -25,20 +25,20 @@ const registerUser = async (req, res) => {
       const otp = generateOTP();
       const newOtp = new OTP({ userId: existingUser._id, otp: otp });
 
-      await TempOTP.findOneAndUpdate(
-        { userId: existingUser._id },
-        { userId: existingUser._id, otp: otp },
-        { upsert: true }
-      );
+      // await TempOTP.findOneAndUpdate(
+      //   { userId: existingUser._id },
+      //   { userId: existingUser._id, otp: otp },
+      //   { upsert: true }
+      // );
       const savedOtp = await newOtp.save();
 
-      let response = await sendSMS(otp, number);
+      // let response = await sendSMS(otp, number);
 
       return res.status(400).json({
         message: "User already registered",
         number: existingUser.number,
         isActive: existingUser.isActive,
-        response,
+        // response,
       });
     }
 
@@ -60,7 +60,7 @@ const registerUser = async (req, res) => {
     // Send OTP via Twilio
     // let response = await sendSMS(`+91${number}`, `Your OTP is ${otp}`);
 
-    res.status(200).json({ message: "User registered successfully" });
+    res.status(200).json({ message: "User registered successfully", response });
   } catch (error) {
     console.error("Error registering user:", error);
     res.status(500).json({ error: "Internal Server Error", details: error });
@@ -157,7 +157,6 @@ const resendOtp = async (req, res) => {
     res.status(200).send({
       response,
       message: "Verification code sent successfully",
-      response,
       savedOtp,
     });
   } else {
