@@ -157,6 +157,7 @@ const resendOtp = async (req, res) => {
     res.status(200).send({
       response,
       message: "Verification code sent successfully",
+      response,
       savedOtp,
     });
   } else {
