@@ -1,4 +1,4 @@
-const twilio = require("twilio");
+// const twilio = require("twilio");
 
 // const sendSMS = async (otp) => {
 //   try {
@@ -23,23 +23,25 @@ const twilio = require("twilio");
 //   }
 // };
 
-// Example usage
+// // Example usage
 // sendSMS("+919074313441", "Hello, this is a Twilio SMS!");
 
-// const twilio = require("twilio");
+// module.exports = sendSMS;
 
-const sendSMS = async (otp, phoneNumber) => {
+const twilio = require("twilio");
+
+const sendSMS = async (otp) => {
   try {
-    const accountSid = process.env.TWILIO_ACCOUNT_SID;
-    const authToken = process.env.TWILIO_AUTH_TOKEN;
-    const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
+    const accountSid = process.env.TWILLIO_ACCOUNT_SID;
+    const authToken = process.env.TWILLIO_AUTH_TOKEN;
+    const twilioPhoneNumber = process.env.TWILLIO_PHONE_NUMBER;
 
     const client = require("twilio")(accountSid, authToken);
 
     const response = await client.messages.create({
       body: `Your OTP is ${otp}`,
       from: twilioPhoneNumber,
-      to: `+91${phoneNumber}`,
+      to: `+91${9074313441}`,
     });
 
     console.log(response);

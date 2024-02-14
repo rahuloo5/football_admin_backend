@@ -20,47 +20,41 @@ const registerUser = async (req, res) => {
     const { number } = req.body;
 
     const existingUser = await User.findOne({ number });
-
+    const otp = generateOTP();
     if (existingUser) {
-      const otp = generateOTP();
-      const newOtp = new OTP({ userId: existingUser._id, otp: otp });
+      // const newOtp = new OTP({ userId: existingUser._id, otp: otp });
 
-      // await TempOTP.findOneAndUpdate(
-      //   { userId: existingUser._id },
-      //   { userId: existingUser._id, otp: otp },
-      //   { upsert: true }
-      // );
-      const savedOtp = await newOtp.save();
+      let savedotp = await TempOTP.findOneAndUpdate(
+        { userId: existingUser._id },
+        { userId: existingUser._id, otp: otp },
+        { upsert: true }
+      );
 
-      // let response = await sendSMS(otp, number);
+      let response = await sendSMS(savedotp?.otp, existingUser?.number);
 
       return res.status(400).json({
         message: "User already registered",
         number: existingUser.number,
         isActive: existingUser.isActive,
-        // response,
+        response,
       });
     }
 
     const newUser = new User({ number });
-    await newUser.save();
+    let firstsaveduser = await newUser.save();
 
     // Create OTP
-    const otp = generateOTP();
-    const expiredAt = new Date(Date.now() + 5 * 60 * 1000);
 
-    const newOTP = new OTP({
-      userId: newUser._id,
-      otp,
-      expiredAt,
+    let sotp = await TempOTP.create({
+      userId: firstsaveduser?._id,
+      otp: otp,
     });
 
-    await newOTP.save();
+    let responses = await sendSMS(otp, firstsaveduser?.number);
 
-    // Send OTP via Twilio
-    // let response = await sendSMS(`+91${number}`, `Your OTP is ${otp}`);
-
-    res.status(200).json({ message: "User registered successfully", response });
+    res
+      .status(200)
+      .json({ message: "User registered successfully", responses });
   } catch (error) {
     console.error("Error registering user:", error);
     res.status(500).json({ error: "Internal Server Error", details: error });
