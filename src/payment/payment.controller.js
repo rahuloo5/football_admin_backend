@@ -4,85 +4,69 @@ const User = require("../../db/config/user.model");
 
 const createpayment = async (req, res) => {
   try {
-    const { name, amount, planId, email } = req.body;
-    console.log("fghjklqwerthdf", req.body);
+    const { firstName, amount, planId, email, UserId, description } = req.body;
 
-    let user = req.user;
+    //find user by id
 
-    const updatedUser = await User.findById(user?._id);
+    const updatedUser = await User.findById(UserId);
     if (!updatedUser) {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // Check if the plan is present
+    // console.log("User found:", updatedUser);
+
+    //find plan by id
+
     const plan = await Plan.findById(planId);
     if (!plan) {
       return res.status(404).json({ error: "Plan not found" });
     }
 
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: plan?.amount,
-      currency: "usd",
-      email: updatedUser.email,
-      capture_method: "automatic",
+    // console.log("plan found:", plan);
+
+    // create customer
+
+    const customer = await stripe.customers.create({
+      email: email,
     });
 
-    const session = await stripe.products
-      .create({
-        name: updatedUser.firstname,
-      })
-      .then(async ({ id }) => {
-        return await stripe.prices.create({
-          product: id,
-          unit_amount: plan?.amount * 100,
-          currency: "usd",
-        });
-      })
-      .then(async ({ id }) => {
-        return await stripe.checkout.sessions.create({
-          mode: "payment",
-          line_items: [
-            {
-              price: id,
-              quantity: 1,
-            },
-          ],
-          invoice_creation: {
-            enabled: true,
-            invoice_data: {
-              custom_fields: [
-                { name: "Description", value: plan?.description },
-                { name: "Amount", value: plan?.amount },
-              ],
-              footer: "secure your living",
-            },
-          },
-          metadata: { planId },
-          payment_intent: paymentIntent?.id,
-          success_url: `${req.protocol}://${req.get("host")}/payment_success`,
-          cancel_url: `${req.protocol}://${req.get("host")}/payment_failed`,
-        });
-      });
+    console.log("Stripe Customer created:", customer);
 
-    console.log(session, "denfue");
-    if (session) {
-      let subscribe = await subscription.create({
-        userId: user?._id,
-        planId: planId,
-        status: session?.payment_status,
-        stripeSubscriptionId: session?.id,
-        renewDate: moment().add(1, "month"),
-        amount: session?.amount_total / 100,
-      });
-      console.log(user);
-    }
-    return res.json({
-      url: session.url,
-      session,
+    // create product
+
+    const product = await stripe.products.create({
+      firstName: firstName,
+      description: description,
+      type: "service",
     });
+
+    console.log("Stripe Customer created:", product);
+
+    //creating stripe prices
+
+    const price = await stripe.prices.create({
+      product: id,
+      amount: amount * 100,
+      currency: currency,
+    });
+
+    console.log("Stripe Price created:", price);
+
+    const subscription = await stripe.subscriptions.create({
+      customer: customer?.id,
+      items: checkingPrices,
+      payment_behavior: "default_incomplete",
+      expand: ["latest_invoice.payment_intent"],
+    });
+
+    let respond = {
+      client_secret: subscription.latest_invoice.payment_intent.client_secret,
+      subscriptionId: subscription.id,
+    };
+    return respond;
   } catch (error) {
     console.log(error.message);
-    throw error;
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 };
 

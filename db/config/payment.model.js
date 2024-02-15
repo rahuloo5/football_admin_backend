@@ -19,6 +19,12 @@ const paymentschema = new mongoose.Schema(
       type: Schema.Types.ObjectId,
       ref: "Plan",
     },
+
+    UserId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
+
     sessionId: {
       type: String,
     },

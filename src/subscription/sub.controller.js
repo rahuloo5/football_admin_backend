@@ -1,21 +1,33 @@
 const express = require("express");
 const Plan = require("../../db/config/plan.model");
+const subscription = require("../../db/config/subscription.model");
 const router = express.Router();
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 const createsubcription = async (req, res) => {
   try {
-    const { planId } = req.body;
-    let user = req.user;
-    console.log(req.body, "cheking body is here");
+    const { planId, UserId } = req.body;
 
-    const updatedUser = await User.findById(user?._id);
+    //find user by id
+
+    const updatedUser = await User.findById(UserId);
+    if (!updatedUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    console.log("User found:", updatedUser);
+
+    //find plan by id
+
     const plan = await Plan.findById(planId);
+    if (!plan) {
+      return res.status(404).json({ error: "Plan not found" });
+    }
 
-    if (plan.amount == 0) {
+    if (Plan.amount == 0) {
       let subc = await subscription.create({
-        userId: updatedUser?._id,
-        planId: plan?._id,
+        UserId: updatedUser?._id,
+        PlanId: Plan?._id,
         status: "active",
         stripeSubscriptionId: "",
         renewDate: "",

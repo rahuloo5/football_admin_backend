@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema({
 
   planId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Plans",
+    ref: "Plan",
   },
 
   isActive: { type: Boolean, default: false },

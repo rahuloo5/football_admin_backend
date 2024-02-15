@@ -120,33 +120,29 @@ const updatePlanById = async (req, res) => {
 const deletePlanById = async (req, res) => {
   try {
     const deletedPlan = await Plan.findByIdAndDelete(req.params.id);
+
     if (!deletedPlan) {
       return res.status(404).json({ message: "Plan not found" });
     }
-    return res.json({
-      message: "Plan deleted successfully",
-    });
+
+    if (deletedPlan.stripeplan) {
+      const deletedStripePlan = await stripe.plans.del(deletedPlan.stripeplan);
+      console.log(deletedStripePlan, "Checking plan deletion from Stripe");
+
+      return res.json({
+        message: "Plan deleted successfully",
+        // deletedPlan,
+      });
+    } else {
+      console.log("stripeplan is null or undefined");
+    }
+
+    return res.json({ message: "Plan deleted successfully" });
   } catch (error) {
     console.error("Error in deletePlanById:", error);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
-
-// const deletePlanById = async (req, res) => {
-//   try {
-//     const deletedPlan = await Plan.findByIdAndDelete(req.params.id);
-
-//     const deleted = await stripe.plans.del(deletedPlan.stripeplan);
-//     console.log(deleted, "cheking plan");
-//     if (!deletedPlan) {
-//       return res.status(404).json({ message: "Plan not found" });
-//     }
-//     return res.json(deletedPlan);
-//   } catch (error) {
-//     console.error("Error in deletePlanById:", error);
-//     return res.status(500).json({ message: "Internal server error" });
-//   }
-// };
 
 const activeplan = async (req, res) => {
   const { id } = req.params;

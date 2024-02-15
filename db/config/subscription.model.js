@@ -1,14 +1,14 @@
 const mongoose = require("mongoose");
 
 const subscriptionSchema = new mongoose.Schema({
-  userId: {
+  UserId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true,
   },
   planId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Plans",
+    ref: "Plan",
     required: true,
   },
   status: {

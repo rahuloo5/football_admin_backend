@@ -1,7 +1,11 @@
 const User = require("../../db/config/user.model");
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const Plan = require("../../db/config/plan.model");
+
 const {
   GeneratesSignature,
 } = require("../middleware/authorization.middleware");
+const { log } = require("handlebars");
 
 const userSignup = async (req, resp) => {
   try {
@@ -134,69 +138,135 @@ const deleteUser = async (req, res) => {
 };
 
 // create user plan
+// const createUserplan = async (req, res) => {
+//   try {
+//     const { planId } = req.body;
+
+//     if (!user) {
+//       return res.status(401).json({ message: "Not authenticated user" });
+//     }
+
+//     const existingUserPlan = await User.findOne({ id });
+
+//     if (existingUserPlan) {
+//       const uplanUpdate = await User.findOneAndUpdate(
+//         { user: user._id },
+//         { plan: planId },
+//         { new: true }
+//       );
+
+//       return res.status(200).json({
+//         message: "User plan updated",
+//         uplanUpdate,
+//         ...clientsecret,
+//       });
+//     }
+
+//     const uplan = await User.create({
+//       user: user._id,
+//       plan: planId,
+//     });
+
+//     clientsecret = await createsub(user, planId);
+
+//     return res.status(200).json({
+//       message: "User plan created",
+//       uplan,
+//       ...clientsecret,
+//     });
+//   } catch (err) {
+//     console.error(err);
+//     return res.status(500).json({ message: "Internal Server Error" });
+//   }
+// };
+
 const createUserplan = async (req, res) => {
   try {
-    const { planId } = req.body;
+    const { planId } = req?.params;
+
     const user = req.user;
 
     if (!user) {
       return res.status(401).json({ message: "Not authenticated user" });
     }
 
-    let clientsecret;
-
     const existingUserPlan = await User.findOne({ user: user._id });
-
+    console.log(planId, "RMGGJRGJ");
     if (existingUserPlan) {
       const uplanUpdate = await User.findOneAndUpdate(
         { user: user._id },
-        { plan: planId },
+        { planId: planId },
         { new: true }
       );
-
+      const clientsecret = await createsub(uplanUpdate?._id);
       return res.status(200).json({
         message: "User plan updated",
         uplanUpdate,
         ...clientsecret,
       });
     }
-
-    const uplan = await User.create({
-      user: user._id,
-      plan: planId,
-    });
-
-    clientsecret = await createsub(user, planId);
-
-    return res.status(200).json({
-      message: "User plan created",
-      uplan,
-      ...clientsecret,
-    });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
-// Define an endpoint to handle subscription creation
-const createsub = async (req, res) => {
+const createsub = async (userId) => {
   try {
-    const { userId, planId } = req.body;
+    const user = await User.findById(userId).populate("planId");
 
-    // Call the Createsub function
-    const subscriptionResponse = await createsub(userId, planId);
+    console.log("plan found:", user);
 
-    // Send the subscription response back to the client
-    res.json(subscriptionResponse);
+    // create customer
+
+    const customer = await stripe.customers.create({
+      phone: user?.number,
+    });
+
+    console.log("Stripe Customer created:", customer);
+
+    // create product
+
+    const product = await stripe.products.create({
+      name: "gold plan",
+      type: "service",
+    });
+
+    console.log("Stripe Customer created:", product);
+
+    //creating stripe prices
+    const ephemeralKey = await stripe.ephemeralKeys.create(
+      { customer: customer.id },
+      { apiVersion: "2023-10-16" }
+    );
+
+    const price = await stripe.prices.create({
+      currency: "usd",
+      unit_amount: 20,
+      recurring: {
+        interval: "month",
+      },
+      product: product?.id,
+    });
+    const subscription = await stripe.subscriptions.create({
+      customer: customer?.id,
+      items: [{ price: price.id }],
+      payment_behavior: "default_incomplete",
+      expand: ["latest_invoice.payment_intent"],
+    });
+    let pubkey = process.env.PUBLISHED_KEY;
+    let respond = {
+      client_secret: subscription.latest_invoice.payment_intent.client_secret,
+      subscriptionId: subscription.id,
+      ephemeralKey,
+      pubkey,
+    };
+    console.log(respond);
+    return respond;
   } catch (error) {
-    console.error("Error in create-subscription endpoint:", error.message);
-    // Handle error and send an appropriate response
-    res.status(500).json({ error: "Internal Server Error" });
+    console.log(error);
   }
 };
-
-// Export the router for use in your main application file
 
 module.exports = {
   createsub,

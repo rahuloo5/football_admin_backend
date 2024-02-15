@@ -27,7 +27,6 @@ router.patch("/users/:id", authMiddleware, updateuser);
 router.delete("/users/:id", authMiddleware, deleteUser);
 
 // User plan API
-router.post("/users-plan", authMiddleware, createUserplan);
-router.post("/create-subscription", authMiddleware, createsub);
+router.post("/users-plan/:planId", authMiddleware, createUserplan);
 
 module.exports = router;
