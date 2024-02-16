@@ -1,6 +1,7 @@
 const User = require("../../db/config/user.model");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const Plan = require("../../db/config/plan.model");
+const nodemailer = require("nodemailer");
 
 const {
   GeneratesSignature,
@@ -268,6 +269,36 @@ const createsub = async (userId) => {
   }
 };
 
+//nodemail api
+
+var transport = nodemailer.createTransport({
+  host: "sandbox.smtp.mailtrap.io",
+  port: 2525,
+  auth: {
+    user: "26bc6b986e7a40",
+    pass: "9a1466e5e1e7ab",
+  },
+});
+
+const mailtrap = async (req, res) => {
+  const { to, subject, text } = req.body;
+
+  const mailOptions = {
+    from: "your_email@example.com",
+    to,
+    subject,
+    text,
+  };
+
+  transport.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      return res.status(500).send(`Error sending email: ${error.message}`);
+    }
+
+    res.status(200).json({ message: "Email sent successfully", info });
+  });
+};
+
 module.exports = {
   createsub,
   userSignup,
@@ -278,4 +309,7 @@ module.exports = {
   updateuser,
   getUserById,
   createUserplan,
+
+  //mailtrap
+  mailtrap,
 };
