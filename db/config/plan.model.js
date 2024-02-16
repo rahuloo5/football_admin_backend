@@ -11,6 +11,14 @@ const planSchema = new mongoose.Schema(
       required: true,
     },
 
+    video_message_count: {
+      type: Number,
+      required: true,
+    },
+    audio_message_count: {
+      type: Number,
+      required: true,
+    },
     Subscription: {
       type: String,
       enum: ["monthly", "annually", "Both"],

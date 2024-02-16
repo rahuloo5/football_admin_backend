@@ -3,37 +3,6 @@ const Plan = require("../../db/config/plan.model");
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
 // Create Plan
-// const createPlan = async (req, res) => {
-//   try {
-//     const product = await stripe.products.create({
-//       name: req.body.title,
-//     });
-
-//     const plan = await stripe.plans.create({
-//       amount: req.body.amount * 100,
-//       currency: "usd",
-//       interval: "month",
-//       product: product.id,
-//     });
-
-//     const newPlan = new Plan(req.body);
-
-//     newPlan.stripeplan = plan.id;
-
-//     const savedPlan = await newPlan.save();
-//     if (savedPlan) {
-//       console.log(savedPlan);
-//       return res.json({
-//         message: "plan will be created",
-//         savedPlan,
-//       });
-//     }
-//     return res.status(500).json({ message: "Internal server error" });
-//   } catch (error) {
-//     console.error("Error in createPlan:", error);
-//     return res.status(500).json({ message: "Internal server error" });
-//   }
-// };
 
 const createPlan = async (req, res) => {
   try {
