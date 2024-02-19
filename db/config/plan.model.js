@@ -6,6 +6,10 @@ const planSchema = new mongoose.Schema(
       type: String,
     },
 
+    title: {
+      type: String,
+    },
+
     text_message_count: {
       type: Number,
       required: true,
