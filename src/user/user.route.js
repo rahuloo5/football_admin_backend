@@ -11,6 +11,7 @@ const {
   createUserplan,
   createsub,
   mailtrap,
+  sendNotification,
 } = require("./user.controller");
 const { authMiddleware } = require("../middleware/authorization.middleware");
 
@@ -31,6 +32,6 @@ router.delete("/users/:id", authMiddleware, deleteUser);
 router.post("/users-plan/:planId", authMiddleware, createUserplan);
 
 // mailtrap API
-router.post("/send-email", authMiddleware, mailtrap);
+router.post("/send-email", authMiddleware, sendNotification);
 
 module.exports = router;

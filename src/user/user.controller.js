@@ -221,7 +221,14 @@ const createsub = async (userId) => {
     // create customer
 
     const customer = await stripe.customers.create({
-      phone: user?.number,
+      name: "Jenny Rosen",
+      address: {
+        line1: "510 Townsend St",
+        postal_code: "98140",
+        city: "San Francisco",
+        state: "CA",
+        country: "US",
+      },
     });
 
     console.log("Stripe Customer created:", customer);
@@ -233,7 +240,7 @@ const createsub = async (userId) => {
       type: "service",
     });
 
-    console.log("Stripe Customer created:", product);
+    //   console.log("Stripe Customer created:", product);
 
     //creating stripe prices
     const ephemeralKey = await stripe.ephemeralKeys.create(
@@ -243,7 +250,7 @@ const createsub = async (userId) => {
 
     const price = await stripe.prices.create({
       currency: "usd",
-      unit_amount: 20,
+      unit_amount: 2000,
       recurring: {
         interval: "month",
       },
@@ -253,8 +260,10 @@ const createsub = async (userId) => {
       customer: customer?.id,
       items: [{ price: price.id }],
       payment_behavior: "default_incomplete",
+      payment_settings: { save_default_payment_method: "on_subscription" },
       expand: ["latest_invoice.payment_intent"],
     });
+
     let pubkey = process.env.PUBLISHED_KEY;
     let respond = {
       client_secret: subscription.latest_invoice.payment_intent.client_secret,
@@ -262,7 +271,7 @@ const createsub = async (userId) => {
       ephemeralKey,
       pubkey,
     };
-    console.log(respond);
+    //  console.log(respond, subscription);
     return respond;
   } catch (error) {
     console.log(error);
@@ -280,7 +289,7 @@ var transport = nodemailer.createTransport({
   },
 });
 
-const mailtrap = async (req, res) => {
+const sendNotification = async (req, res) => {
   const { to, subject, text } = req.body;
 
   const mailOptions = {
@@ -311,5 +320,5 @@ module.exports = {
   createUserplan,
 
   //mailtrap
-  mailtrap,
+  sendNotification,
 };

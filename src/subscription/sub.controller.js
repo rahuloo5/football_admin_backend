@@ -1,108 +1,44 @@
 const express = require("express");
-const Plan = require("../../db/config/plan.model");
-const subscription = require("../../db/config/subscription.model");
+const { sendNotification } = require("../user/user.controller");
 const router = express.Router();
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
-const createsubcription = async (req, res) => {
+const subscriptionWebhook = async (req, res) => {
+  const payload = req.body;
+
   try {
-    const { planId, UserId } = req.body;
-
-    //find user by id
-
-    const updatedUser = await User.findById(UserId);
-    if (!updatedUser) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    console.log("User found:", updatedUser);
-
-    //find plan by id
-
-    const plan = await Plan.findById(planId);
-    if (!plan) {
-      return res.status(404).json({ error: "Plan not found" });
-    }
-
-    if (Plan.amount == 0) {
-      let subc = await subscription.create({
-        UserId: updatedUser?._id,
-        PlanId: Plan?._id,
-        status: "active",
-        stripeSubscriptionId: "",
-        renewDate: "",
-        amount: 0,
-      });
-      await User.findByIdAndUpdate(updatedUser._id, {
-        subscriptionId: subc._id,
-      });
-      return res.status(200).json({
-        message: "you have choose free plan",
-      });
-    }
-
-    if (!updatedUser.stripecustomer) {
-      const cus = stripe.customer.create({
-        email: updatedUser.email,
-        name: updatedUser.firstname,
-      });
-      updatedUser.stripecustomer = cus.id;
-      await updatedUser.save();
-    }
-
-    const ephemeralKey = await stripe.ephemeralKeys.create(
-      { customer: updatedUser.stripecustomer },
-      { apiVersion: "2023-10-16" }
+    const event = stripe.webhooks.constructEvent(
+      req.rawBody,
+      req.headers["stripe-signature"],
+      "your_stripe_webhook_secret"
     );
 
-    console.log(ephemeralKey);
-    const sub = await stripe.subscriptions.create({
-      customer: updatedUser.stripecustomer,
-      items: [{ price: plan.stripeplan }],
-      payment_behavior: "default_incomplete",
-      payment_settings: { save_default_payment_method: "on_subscription" },
-      expand: ["latest_invoice.payment_intent"],
-    });
+    // Handle the event
+    handleStripeEvent(event);
 
-    let plans = await Plan.findOne({
-      stripeplan: sub.plan.id,
-    });
-
-    let User = await User.findOne({ stripecustomer: sub.customer });
-
-    let subc = await subscription.create({
-      userId: User?._id,
-      planId: plans?._id,
-      status: sub?.status,
-      stripeSubscriptionId: sub?.id,
-      renewDate: moment().add(1, "month"),
-      amount: sub?.plan.amount,
-    });
-    let notification = await Notification.create({
-      user: subc?.userId,
-      message: `${subc?.amount} paid for subscription
-                  `,
-    });
-    await Usermodel.findByIdAndUpdate(updatedUser._id, {
-      subscriptionId: subc._id,
-    });
-
-    return res.json({
-      message: "success",
-      client_secret: sub.latest_invoice.payment_intent.client_secret,
-      ephemeralKey: ephemeralKey.secret,
-      customer: sub.customer,
-      publishableKey:
-        "pk_test_51BTUDGJAJfZb9HEBwDg86TN1KNprHjkfipXmEDMb0gSCassK5T3ZfxsAbcgKVmAIXF7oZ6ItlZZbXO6idTHE67IM007EwQ4uN3",
-    });
+    res.status(200).send("Webhook Received");
   } catch (err) {
-    console.log(err);
-    return res.status(500).json({
-      message: err,
-    });
+    console.error("Webhook Error:", err.message);
+    res.status(400).send(`Webhook Error: ${err.message}`);
   }
 };
 
+function handleStripeEvent(event) {
+  switch (event.type) {
+    case "payment_intent.succeeded":
+      // Handle successful payment
+      sendNotification("Payment Succeeded", event.data.object);
+      break;
+    case "payment_intent.failed":
+      // Handle failed payment
+      sendNotification("Payment Failed", event.data.object);
+      break;
+    // Add other cases for different event types
+    default:
+      console.log(`Unhandled event type ${event.type}`);
+  }
+}
+
 module.exports = {
-  createsubcription,
+  subscriptionWebhook,
 };
