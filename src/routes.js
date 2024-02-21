@@ -11,10 +11,17 @@ const searchrouter = require("./search/search.route");
 const servicerouter = require("./service/service.route");
 const smtprouter = require("./smtp/smtp.route");
 const paymentrouter = require("./payment/payment.route");
+const cors = require("cors");
 const Subscriptionrouter = require("./subscription/sub.route");
 const notificationrouter = require("./push_notification/notification.route");
 
 exports.registerRoutes = (app) => {
+  app.use(
+    cors({
+      origin: "*",
+    })
+  );
+
   app.use(authrouter);
   app.use(userrouter);
   app.use(contentrouter);

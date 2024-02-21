@@ -5,10 +5,18 @@ const { registerRoutes } = require("./src/routes");
 const bodyParser = require("body-parser");
 const app = express();
 const path = require("path");
+const cors = require("cors");
+
 // const multer = require("multer");
 // app.use(multer);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+
+app.use(
+  cors({
+    origin: "*",
+  })
+);
 
 app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
