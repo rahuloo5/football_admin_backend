@@ -7,35 +7,35 @@ const {
   GeneratesSignature,
 } = require("../middleware/authorization.middleware");
 
-// const userSignup = async (req, resp) => {
-//   try {
-//     const { firstName, lastName, email, number, password } = req.body;
-//     console.log(req.body, "checking body is here");
-//     const existingUser = await User.findOne({ email });
-//     if (existingUser) {
-//       return resp
-//         .status(400)
-//         .json({ message: "User with this email already exists" });
-//     }
+const userSignup = async (req, resp) => {
+  try {
+    const { firstName, lastName, email, number, password } = req.body;
+    console.log(req.body, "checking body is here");
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return resp
+        .status(400)
+        .json({ message: "User with this email already exists" });
+    }
 
-//     // Create a new user
-//     const newUser = new User({
-//       firstName,
-//       lastName,
-//       email,
-//       number,
-//       password,
-//     });
+    // Create a new user
+    const newUser = new User({
+      firstName,
+      lastName,
+      email,
+      number,
+      password,
+    });
 
-//     // Save the user to the database
-//     await newUser.save();
+    // Save the user to the database
+    await newUser.save();
 
-//     resp.status(201).json({ message: "User registered successfully" });
-//   } catch (error) {
-//     console.error(error);
-//     resp.status(500).json({ message: "Internal server error" });
-//   }
-// };
+    resp.status(201).json({ message: "User registered successfully" });
+  } catch (error) {
+    console.error(error);
+    resp.status(500).json({ message: "Internal server error" });
+  }
+};
 
 const userlogin = async (req, res) => {
   try {
@@ -309,7 +309,7 @@ const sendNotification = async (req, res) => {
 
 module.exports = {
   createsub,
-  // userSignup,
+  userSignup,
   userlogin,
   getAllUsers,
   createuser,
