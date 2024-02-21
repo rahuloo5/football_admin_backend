@@ -10,10 +10,9 @@ const subscriptionWebhook = async (req, res) => {
     const event = stripe.webhooks.constructEvent(
       req.rawBody,
       req.headers["stripe-signature"],
-      "your_stripe_webhook_secret"
+      "whsec_4b420df130f510b3a273003d4ed78fd7feab539a0f7d0b19485e36f7ec030734"
     );
 
-    // Handle the event
     handleStripeEvent(event);
 
     res.status(200).send("Webhook Received");
@@ -26,14 +25,11 @@ const subscriptionWebhook = async (req, res) => {
 function handleStripeEvent(event) {
   switch (event.type) {
     case "payment_intent.succeeded":
-      // Handle successful payment
       sendNotification("Payment Succeeded", event.data.object);
       break;
     case "payment_intent.failed":
-      // Handle failed payment
       sendNotification("Payment Failed", event.data.object);
       break;
-    // Add other cases for different event types
     default:
       console.log(`Unhandled event type ${event.type}`);
   }
