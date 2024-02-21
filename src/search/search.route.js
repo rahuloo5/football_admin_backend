@@ -16,7 +16,7 @@ const router = express.Router();
 router.post("/search", authMiddleware, createItem);
 
 // Read
-router.get("/search", authMiddleware, getAllItems);
+router.get("/search", getAllItems);
 
 // Update
 router.put("/search/:id", authMiddleware, updateItem);
