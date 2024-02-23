@@ -74,7 +74,7 @@ const getallsubcategory = async (req, res) => {
     const totalSubcategories = await Subcategory.countDocuments(filter);
     const totalPages = Math.ceil(totalSubcategories / pageSize);
 
-    const allsub = await Subcategory.find(filter)
+    const data = await Subcategory.find(filter)
       .populate("category")
       .skip(startIndex)
       .limit(pageSize);
@@ -86,7 +86,7 @@ const getallsubcategory = async (req, res) => {
       totalSubcategories: totalSubcategories,
     };
 
-    res.status(200).json({ allsub, paginationInfo });
+    res.status(200).json({ data, paginationInfo });
   } catch (err) {
     console.log(err);
     res.status(500).json({ error: "Internal Server Error" });
