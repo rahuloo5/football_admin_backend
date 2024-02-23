@@ -13,7 +13,7 @@ const router = express.Router();
 
 // device API
 router.post("/article", articleImage, authMiddleware, getaddArticle);
-router.get("/article", authMiddleware, getAllArticle);
+router.get("/article", getAllArticle);
 router.get("/article/:id", authMiddleware, getArticleById);
 router.patch("/article/:id", articleImage, authMiddleware, updateArticle);
 router.delete("/article/:id", authMiddleware, deleteArticle);
