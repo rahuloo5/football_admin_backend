@@ -33,6 +33,8 @@ const createDevice = async (req, res) => {
         .json({ success: false, error: "Category or subcategory not found" });
     }
 
+    const deviceImages = req.files["deviceImages"];
+    const numDeviceImages = deviceImages.length;
     const device = new Device({
       device_name,
       deviceImages: req.files["deviceImages"].map((file) => file.filename),
@@ -49,8 +51,6 @@ const createDevice = async (req, res) => {
       policy_url1,
       categorie: categoryId,
     });
-    const numDeviceImages = deviceImages.length;
-    const numVideos = videoUrl1 ? 1 : 0;
 
     await device.save();
 
