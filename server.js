@@ -20,7 +20,6 @@ registerRoutes(app);
 
 connect();
 const PORT = process.env.PORT;
-
 app.listen(PORT, () => {
   console.log("server is listining on port number", PORT);
 });

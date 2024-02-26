@@ -9,7 +9,6 @@ const router = express.Router();
 router.post(
   "/webhook",
   express.json({ type: "application/json" }),
-  authMiddleware,
   subscriptionWebhook
 );
 
