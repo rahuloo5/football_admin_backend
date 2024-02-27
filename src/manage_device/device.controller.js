@@ -3,6 +3,62 @@ const Category = require("../../db/config/categories.model");
 const Device = require("../../db/config/device.model");
 
 // / Get all devices
+// const createDevice = async (req, res) => {
+//   try {
+//     const {
+//       device_name,
+//       description,
+//       privacy_overview: { title1, description1 },
+//       secuirty_overview: { title2, description2 },
+//       other_information: { title3, description3 },
+//       terms_conditions: { title4, description4 },
+
+//       categoryId,
+//       video_url1,
+//       policy_url1,
+//     } = req.body;
+
+//     if (!mongoose.Types.ObjectId.isValid(categoryId)) {
+//       return res
+//         .status(400)
+//         .json({ success: false, error: "Invalid category " });
+//     }
+
+//     // Fetch the category
+//     const category = await Category.findById(categoryId);
+
+//     if (!category) {
+//       return res
+//         .status(404)
+//         .json({ success: false, error: "Category  not found" });
+//     }
+
+//     const device = new Device({
+//       device_name,
+//       deviceImages: req.files["deviceImages"]?.map((file) => file.filename),
+
+//       deviceIcons: req.files["deviceIcons"][0].filename,
+//       video_url: req.files["video_url"][0].filename,
+//       policy_url: req.files["policy_url"][0].filename,
+//       privacy_overview: { title1, description1 },
+//       secuirty_overview: { title2, description2 },
+//       other_information: { title3, description3 },
+//       terms_conditions: { title4, description4 },
+//       description,
+//       video_url1,
+//       policy_url1,
+//       categorie: categoryId,
+//     });
+
+//     await device.save();
+
+//     res.status(200).json(device);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send("Internal Server Error");
+//   }
+// };
+
 const createDevice = async (req, res) => {
   try {
     const {
@@ -21,7 +77,7 @@ const createDevice = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(categoryId)) {
       return res
         .status(400)
-        .json({ success: false, error: "Invalid category or subcategory ID" });
+        .json({ success: false, error: "Invalid category ID" });
     }
 
     // Fetch the category
@@ -30,18 +86,30 @@ const createDevice = async (req, res) => {
     if (!category) {
       return res
         .status(404)
-        .json({ success: false, error: "Category or subcategory not found" });
+        .json({ success: false, error: "Category not found" });
     }
 
-    const deviceImages = req.files["deviceImages"];
-    const numDeviceImages = deviceImages.length;
+    const deviceIcons =
+      req.files["deviceIcons"] && req.files["deviceIcons"].length > 0
+        ? req.files["deviceIcons"][0].filename
+        : null;
+
+    const video_url =
+      req.files["video_url"] && req.files["video_url"].length > 0
+        ? req.files["video_url"][0].filename
+        : null;
+
+    const policy_url =
+      req.files["policy_url"] && req.files["policy_url"].length > 0
+        ? req.files["policy_url"][0].filename
+        : null;
+
     const device = new Device({
       device_name,
-      deviceImages: req.files["deviceImages"].map((file) => file.filename),
-
-      deviceIcons: req.files["deviceIcons"][0].filename,
-      video_url: req.files["video_url"][0].filename,
-      policy_url: req.files["policy_url"][0].filename,
+      deviceImages: req.files["deviceImages"]?.map((file) => file.filename),
+      deviceIcons,
+      video_url,
+      policy_url,
       privacy_overview: { title1, description1 },
       secuirty_overview: { title2, description2 },
       other_information: { title3, description3 },
@@ -54,7 +122,7 @@ const createDevice = async (req, res) => {
 
     await device.save();
 
-    res.status(200).json(device, numDeviceImages, numVideos);
+    res.status(200).json({ success: true, device });
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal Server Error");
@@ -115,19 +183,37 @@ const updateDevice = async (req, res) => {
 };
 
 // Delete a device by ID
+// const deleteDevice = async (req, res) => {
+//   try {
+//     const deviceId = req.params.id;
+
+//     const deletedDevice = await Device.findByIdAndDelete(deviceId).populate(
+//       "categorie"
+//     );
+
+//     if (!deletedDevice) {
+//       return res.status(404).json({ error: "Device not found" });
+//     }
+
+//     res.status(200).json();
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: "Internal Server Error" });
+//   }
+// };
 const deleteDevice = async (req, res) => {
   try {
     const deviceId = req.params.id;
 
     const deletedDevice = await Device.findByIdAndDelete(deviceId).populate(
-      "categorie sub_categorie"
+      "categorie"
     );
 
     if (!deletedDevice) {
       return res.status(404).json({ error: "Device not found" });
     }
 
-    res.status(200).json(deletedDevice);
+    res.status(200).json({ message: "Device deleted successfully" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });

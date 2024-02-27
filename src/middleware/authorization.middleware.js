@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 function GeneratesSignature(payload) {
+  console.log(payload, "rtyuiqwertrtydfgh");
   const secretKey = process.env?.SECRET_KEY || "secure-living";
   const expiresIn = "50d";
 

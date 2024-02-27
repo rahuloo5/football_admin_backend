@@ -138,47 +138,6 @@ const deleteUser = async (req, res) => {
 };
 
 // create user plan
-// const createUserplan = async (req, res) => {
-//   try {
-//     const { planId } = req.body;
-
-//     if (!user) {
-//       return res.status(401).json({ message: "Not authenticated user" });
-//     }
-
-//     const existingUserPlan = await User.findOne({ id });
-
-//     if (existingUserPlan) {
-//       const uplanUpdate = await User.findOneAndUpdate(
-//         { user: user._id },
-//         { plan: planId },
-//         { new: true }
-//       );
-
-//       return res.status(200).json({
-//         message: "User plan updated",
-//         uplanUpdate,
-//         ...clientsecret,
-//       });
-//     }
-
-//     const uplan = await User.create({
-//       user: user._id,
-//       plan: planId,
-//     });
-
-//     clientsecret = await createsub(user, planId);
-
-//     return res.status(200).json({
-//       message: "User plan created",
-//       uplan,
-//       ...clientsecret,
-//     });
-//   } catch (err) {
-//     console.error(err);
-//     return res.status(500).json({ message: "Internal Server Error" });
-//   }
-// };
 
 const createUserplan = async (req, res) => {
   try {
@@ -191,6 +150,7 @@ const createUserplan = async (req, res) => {
     }
 
     const existingUserPlan = await User.findOne({ user: user._id });
+    console.log(existingUserPlan, "fjjfj");
     console.log(planId, "RMGGJRGJ");
     if (existingUserPlan) {
       const uplanUpdate = await User.findOneAndUpdate(
@@ -307,6 +267,42 @@ const sendNotification = async (req, res) => {
   });
 };
 
+// transection api
+
+const transactionapi = async (req, res) => {
+  try {
+    let user = req.user;
+
+    const updatedUser = await User.findById(user?._id);
+
+    let singlesub = await subscription
+      .findOne({ userId: user?._id })
+      .populate("userId")
+      .populate("planId");
+
+    const transactions = await stripe.paymentIntents.list({
+      customer: updatedUser?.stripecustomer,
+    });
+
+    const payments = transactions.data.map((invoice) => ({
+      plan: singlesub?.planId?.title || "Basic",
+      amount: invoice.amount,
+      timestamp: moment(invoice.created).format("L"),
+      status: invoice.status,
+    }));
+
+    return res.json({
+      message: "success",
+      payments,
+    });
+  } catch (err) {
+    console.log(err, "cheking erroe");
+    return res.json({
+      message: "invalid server error",
+    });
+  }
+};
+
 module.exports = {
   createsub,
   userSignup,
@@ -317,6 +313,7 @@ module.exports = {
   updateuser,
   getUserById,
   createUserplan,
+  transactionapi,
 
   //mailtrap
   sendNotification,
