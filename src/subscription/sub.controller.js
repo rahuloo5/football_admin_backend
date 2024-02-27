@@ -6,6 +6,7 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const subscriptionWebhook = async (req, res) => {
   const payload = req.body;
   const endpointSecret = process.env.WEBHOOK_KEY;
+  console.log("dfgyuiasdfasdf", req);
 
   try {
     const event = stripe.webhooks.constructEvent(

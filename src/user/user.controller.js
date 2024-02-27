@@ -254,8 +254,8 @@ const sendNotification = async (req, res) => {
   const mailOptions = {
     from: "your_email@example.com",
     to,
-    subject,
-    text,
+    subject: "Invoice Payment Confirmation",
+    text: `Thank you for your payment! Your invoice (#${invoiceNumber}) has been paid successfully.`,
   };
 
   transport.sendMail(mailOptions, (error, info) => {

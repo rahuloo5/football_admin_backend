@@ -6,10 +6,6 @@ const router = express.Router();
 
 //webhook api
 
-router.post(
-  "/webhook",
-  express.json({ type: "application/json" }),
-  subscriptionWebhook
-);
+router.post("/webhook", subscriptionWebhook);
 
 module.exports = router;
