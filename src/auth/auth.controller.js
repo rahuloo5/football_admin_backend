@@ -106,7 +106,11 @@ const registerUser = async (req, res) => {
     const { number, fcm_token } = req.body;
     console.log("asdfghsdfg", req.body);
     const existingUser = await User.findOne({ number });
-    const otp = generateOTP();
+    // const otp = generateOTP();
+    // let savedotp;
+
+    const otp = "1234";
+
     let savedotp;
 
     if (existingUser) {
@@ -126,7 +130,7 @@ const registerUser = async (req, res) => {
       });
     }
 
-    let response = await sendSMS(otp, number);
+    let response = await (otp, number);
     res.status(200).json({
       message: existingUser
         ? "User already registered"
