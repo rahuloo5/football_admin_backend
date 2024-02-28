@@ -130,7 +130,10 @@ const registerUser = async (req, res) => {
       });
     }
 
+    // let response = await sendSMS(otp, number);
+
     let response = await (otp, number);
+
     res.status(200).json({
       message: existingUser
         ? "User already registered"
