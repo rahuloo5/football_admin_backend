@@ -103,8 +103,8 @@ function generateOTP() {
 
 const registerUser = async (req, res) => {
   try {
-    const { number } = req.body;
-
+    const { number, fcm_token } = req.body;
+    console.log("asdfghsdfg", req.body);
     const existingUser = await User.findOne({ number });
     const otp = generateOTP();
     let savedotp;
@@ -113,10 +113,10 @@ const registerUser = async (req, res) => {
       savedotp = await TempOTP.findOneAndUpdate(
         { userId: existingUser._id },
         { userId: existingUser._id, otp: otp },
-        { upsert: true, new: true } // Use the 'new' option to get the updated document
+        { upsert: true, new: true }
       );
     } else {
-      const newUser = new User({ number });
+      const newUser = new User({ number, fcm_token });
       let firstsaveduser = await newUser.save();
 
       // Create OTP
@@ -127,7 +127,6 @@ const registerUser = async (req, res) => {
     }
 
     let response = await sendSMS(otp, number);
-
     res.status(200).json({
       message: existingUser
         ? "User already registered"
