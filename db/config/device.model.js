@@ -83,6 +83,11 @@ const deviceSchema = new mongoose.Schema(
     secuirty_overview: secuirtyOverviewSchema,
     other_information: otherOverviewSchema,
     terms_conditions: condition,
+
+    recommendedProduct: {
+      type: Boolean,
+      default: false,
+    },
   },
 
   { timestamps: true }
