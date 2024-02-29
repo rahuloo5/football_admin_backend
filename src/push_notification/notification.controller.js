@@ -1,4 +1,5 @@
 // const { sendPushNotification } = require("../utility/push_notification");
+const Notification = require("../../db/config/notification.model");
 
 // const createnotification = async (req, res) => {
 //   const { token, title, body } = req.body;
@@ -20,31 +21,6 @@
 //   }
 // };
 
-//fake notification
-
-const notification = async (req, res) => {
-  try {
-    const { title } = req.body;
-    const newNotification = new Notification({ title });
-    const savedNotification = await newNotification.save();
-    res.json(savedNotification);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// Read (Get all notifications)
-const allnotification = async (req, res) => {
-  try {
-    const notifications = await Notification.find();
-    res.json(notifications);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
 module.exports = {
   //   createnotification,
-  notification,
-  allnotification,
 };

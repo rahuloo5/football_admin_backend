@@ -11,7 +11,4 @@ const router = express.Router();
 
 //fake notification
 
-router.post("/notification", notification);
-router.get("/notification", allnotification);
-
 module.exports = router;

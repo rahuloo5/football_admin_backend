@@ -7,6 +7,8 @@ const {
   updatesubscription,
   getsubscriptionbyId,
   getAllsubscription,
+  notification,
+  allnotification,
 } = require("./plan_subscription.controller");
 
 const router = express.Router();
@@ -17,5 +19,10 @@ router.delete("/subscriptions/:id", authMiddleware, deletesubscription);
 router.patch("/subscriptions/:id", authMiddleware, updatesubscription);
 router.get("/subscriptions/:id", authMiddleware, getsubscriptionbyId);
 router.get("/subscriptionss", getAllsubscription);
+
+//fake notifoication
+
+router.post("/notification", notification);
+router.get("/notification", allnotification);
 
 module.exports = router;
