@@ -13,6 +13,7 @@ const smtprouter = require("./smtp/smtp.route");
 const paymentrouter = require("./payment/payment.route");
 const cors = require("cors");
 const Subscriptionrouter = require("./subscription/sub.route");
+const plansubscriptionrouter = require("./plan_subscription/plan_subscription.route");
 const notificationrouter = require("./push_notification/notification.route");
 
 exports.registerRoutes = (app) => {
@@ -36,5 +37,7 @@ exports.registerRoutes = (app) => {
   app.use(smtprouter);
   app.use(paymentrouter);
   app.use(Subscriptionrouter);
+  app.use(plansubscriptionrouter);
+
   // app.use(notificationrouter);
 };
