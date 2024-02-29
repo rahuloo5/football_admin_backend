@@ -1,45 +1,50 @@
-// const admin = require("firebase-admin");
+// const { sendPushNotification } = require("../utility/push_notification");
 
-// const serviceAccount = require("");
-// admin.initializeApp({
-//   credential: admin.credential.cert(serviceAccount),
-//   databaseURL: MONGO_URI,
-// });
+// const createnotification = async (req, res) => {
+//   const { token, title, body } = req.body;
 
-// const createnotification = (req, res) => {
-//   const { deviceToken, title, body } = req.body;
-
-//   console.log("sachin", req.body);
-
-//   if (!deviceToken || !title || !body) {
+//   if (!token || !title || !body) {
 //     return res.status(400).json({ error: "Missing required parameters" });
 //   }
 
-//   const message = {
-//     notification: {
-//       title,
-//       body,
-//     },
-//     token: deviceToken,
-//   };
-
-//   admin
-//     .messaging()
-//     .send(message)
-//     .then((response) => {
-//       console.log("Successfully sent message:", response);
-//       res
-//         .status(200)
-//         .json({ success: true, message: "Notification sent successfully" });
-//     })
-//     .catch((error) => {
-//       console.error("Error sending message:", error);
-//       res
-//         .status(500)
-//         .json({ success: false, error: "Error sending notification" });
-//     });
+//   try {
+//     await sendPushNotification(token, title, body);
+//     return res
+//       .status(200)
+//       .json({ success: true, message: "Notification sent successfully" });
+//   } catch (error) {
+//     console.error("Error:", error);
+//     return res
+//       .status(500)
+//       .json({ error: "Internal Server Error", details: error });
+//   }
 // };
 
-// module.exports = {
-//   createnotification,
-// };
+//fake notification
+
+const notification = async (req, res) => {
+  try {
+    const { title } = req.body;
+    const newNotification = new Notification({ title });
+    const savedNotification = await newNotification.save();
+    res.json(savedNotification);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Read (Get all notifications)
+const allnotification = async (req, res) => {
+  try {
+    const notifications = await Notification.find();
+    res.json(notifications);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports = {
+  //   createnotification,
+  notification,
+  allnotification,
+};
