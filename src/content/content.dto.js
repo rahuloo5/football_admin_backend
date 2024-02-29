@@ -1,7 +1,8 @@
 const Joi = require("joi");
 
-const ContentSchema = Joi.object({
+const contentValidationSchema = Joi.object({
   description: Joi.string().required(),
-  image: Joi.string().required(),
+  image: Joi.string(),
 });
-module.exports = ContentSchema;
+
+module.exports = { contentValidationSchema };

@@ -6,7 +6,6 @@ const getaddArticle = async (req, res) => {
 
     console.log("article data", req.body);
 
-    // const Images = req.files ? req.files.map((file) => file.filename) : null;
     const Images = req.file ? req.file.filename : null;
 
     const newArticle = new Article({

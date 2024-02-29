@@ -4,11 +4,11 @@ const contentSchema = new mongoose.Schema(
   [
     {
       description: {
-        type: [String],
+        type: String,
       },
 
       image: {
-        type: [String],
+        type: String,
       },
     },
   ],
