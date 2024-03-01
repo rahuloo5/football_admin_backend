@@ -17,9 +17,9 @@ const userSchema = new mongoose.Schema({
     type: String,
   },
 
-  planId: {
+  Subscription: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Plan",
+    ref: "Subscription",
   },
 
   isActive: { type: Boolean, default: false },

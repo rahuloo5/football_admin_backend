@@ -12,6 +12,7 @@ const {
 
   notification,
   allnotification,
+  getTotalAmount,
 } = require("./plan_subscription.controller");
 
 const router = express.Router();
@@ -22,6 +23,10 @@ router.delete("/subscriptions/:id", authMiddleware, deletesubscription);
 router.patch("/subscriptions/:id", authMiddleware, updatesubscription);
 router.get("/subscriptions/:id", authMiddleware, getsubscriptionbyId);
 router.get("/subscriptionss", getAllsubscription);
+
+// dashboard api for total number of subscrption and amount
+
+router.get("/total-amount", getTotalAmount);
 
 //fake notifoication
 

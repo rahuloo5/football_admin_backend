@@ -1,9 +1,11 @@
 const Joi = require("joi");
 
-const smtpValidationSchema = Joi.object({
-  comment: Joi.string().required(),
-  name: Joi.string().required(),
-  email: Joi.string().email().required(),
+const smtpSchema = Joi.object({
+  slug: Joi.string(),
+  host: Joi.string().required(),
+  port: Joi.string().required(),
+  user: Joi.string().required(),
+  password: Joi.string().required(),
 });
 
-module.exports = smtpValidationSchema;
+module.exports = smtpSchema;

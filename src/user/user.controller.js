@@ -6,6 +6,7 @@ const nodemailer = require("nodemailer");
 const {
   GeneratesSignature,
 } = require("../middleware/authorization.middleware");
+const Subscription = require("../../db/config/plan_subscription.model");
 
 const userSignup = async (req, resp) => {
   try {
@@ -70,11 +71,32 @@ const userlogin = async (req, res) => {
 };
 
 // Create a new user
+// const createuser = async (req, res) => {
+//   try {
+//     const newUser = new User(req.body);
+
+//     const savedUser = await newUser.save();
+//     res.status(201).json(savedUser);
+//   } catch (error) {
+//     res.status(400).json({ error: error.message });
+//   }
+// };
+
 const createuser = async (req, res) => {
   try {
-    const newUser = new User(req.body);
+    const { subscriptionId } = req.body;
 
+    const existingSubscription = await Subscription.findOne({
+      _id: subscriptionId,
+    });
+
+    if (!existingSubscription) {
+      return res.status(404).json({ error: "Subscription not found" });
+    }
+
+    const newUser = new User(req.body);
     const savedUser = await newUser.save();
+
     res.status(201).json(savedUser);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -82,9 +104,19 @@ const createuser = async (req, res) => {
 };
 
 // Get all users
+// const getAllUsers = async (req, res) => {
+//   try {
+//     const users = await User.find().populate("subscription");
+//     res.status(200).json(users);
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// };
+
 const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find().populate("planId");
+    const users = await User.find().populate("Subscription");
+    console.log(users);
     res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -94,7 +126,7 @@ const getAllUsers = async (req, res) => {
 // Get a specific user by ID
 const getUserById = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).populate("planId");
+    const user = await User.findById(req.params.id).populate("Subscription");
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }

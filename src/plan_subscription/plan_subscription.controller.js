@@ -5,7 +5,6 @@ const { subscriptionValidationSchema } = require("./plan_subscription.dto");
 // Create
 const addsubscription = async (req, res) => {
   try {
-    // Validate the request body against the Joi schema
     const { error } = subscriptionValidationSchema.validate(req.body);
     if (error) {
       return res.status(400).json({ error: error.details[0].message });
@@ -36,17 +35,29 @@ const addsubscription = async (req, res) => {
   }
 };
 
-// Read (Get all subscriptions)
 const getAllsubscription = async (req, res) => {
   try {
     const subscriptions = await Subscription.find();
-    res.json(subscriptions);
+
+    let totalAmount = 0;
+    let totalSubscriptions = subscriptions.length;
+
+    subscriptions.forEach((subscription) => {
+      totalAmount += subscription.planAmount;
+    });
+
+    const result = {
+      totalAmount,
+      totalSubscriptions,
+      subscriptions,
+    };
+
+    res.json(result);
   } catch (error) {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
-// Read (Get a specific subscription by ID)
 const getsubscriptionbyId = async (req, res) => {
   try {
     const subscription = await Subscription.findById(req.params.id);
@@ -59,7 +70,6 @@ const getsubscriptionbyId = async (req, res) => {
 // Update
 const updatesubscription = async (req, res) => {
   try {
-    // Validate the request body against the Joi schema
     const { error } = subscriptionValidationSchema.validate(req.body);
     if (error) {
       return res.status(400).json({ error: error.details[0].message });
@@ -101,6 +111,28 @@ const deletesubscription = async (req, res) => {
   }
 };
 
+const getTotalAmount = async (req, res) => {
+  try {
+    const subscriptions = await Subscription.find();
+
+    let totalAmount = 0;
+    let totalSubscriptions = subscriptions.length;
+
+    subscriptions.forEach((subscription) => {
+      totalAmount += subscription.planAmount;
+    });
+
+    const result = {
+      totalAmount,
+      totalSubscriptions,
+    };
+
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 //fake notification
 
 const notification = async (req, res) => {
@@ -130,6 +162,10 @@ module.exports = {
   updatesubscription,
   getsubscriptionbyId,
   getAllsubscription,
+
+  // get total amount
+
+  getTotalAmount,
 
   //fake notification
   notification,

@@ -50,6 +50,7 @@ const getaddArticle = async (req, res) => {
 // };
 
 // Get all article
+
 const getAllArticle = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -94,9 +95,38 @@ const getArticleById = async (req, res) => {
 };
 
 // Update an article by ID
+// const updateArticle = async (req, res) => {
+//   try {
+//     const { short_description, long_description } = req.body;
+//     const Images = req.file ? req.file.filename : null;
+//     // const Images = req.file ? req.file.filename : null;
+
+//     const updatedArticle = await Article.findByIdAndUpdate(
+//       req.params.id,
+//       { short_description, long_description, Images },
+//       { new: true }
+//     );
+
+//     console.log("update", updatedArticle);
+
+//     if (!updatedArticle) {
+//       return res.status(404).json({ error: "Article not found" });
+//     }
+
+//     res.status(200).json({
+//       message: "Article updated successfully",
+//       article: updatedArticle,
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: "Internal Server Error" });
+//   }
+// };
+
 const updateArticle = async (req, res) => {
   try {
     const { short_description, long_description } = req.body;
+
     const Images = req.file ? req.file.filename : null;
 
     const updatedArticle = await Article.findByIdAndUpdate(
@@ -104,8 +134,6 @@ const updateArticle = async (req, res) => {
       { short_description, long_description, Images },
       { new: true }
     );
-
-    console.log("update", updatedArticle);
 
     if (!updatedArticle) {
       return res.status(404).json({ error: "Article not found" });
@@ -121,7 +149,6 @@ const updateArticle = async (req, res) => {
   }
 };
 
-// Delete an article by ID
 const deleteArticle = async (req, res) => {
   try {
     const deletedArticle = await Article.findByIdAndDelete(req.params.id);
