@@ -63,7 +63,11 @@ const createDevice = async (req, res) => {
 
 const getAllDevices = async (req, res) => {
   try {
-    const devices = await manageDevice.find().populate("category");
+    const categoryId = req.query.categoryId;
+
+    const query = categoryId ? { category: categoryId } : {};
+
+    const devices = await manageDevice.find(query).populate("category");
 
     res.status(200).json({
       success: true,
