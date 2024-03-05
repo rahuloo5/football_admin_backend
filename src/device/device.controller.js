@@ -7,10 +7,12 @@ const createDevice = async (req, res) => {
     const {
       device_name,
       categoryId,
+      device_terms,
       overall_security,
       overall_privacy,
       security_tips,
       video_urls,
+
       device_policies,
       product_purchase_info,
     } = req.body;
@@ -38,6 +40,7 @@ const createDevice = async (req, res) => {
       category: categoryId,
       overall_privacy,
       security_tips,
+      device_terms,
       device_policies,
       Icons,
       Images,

@@ -5,6 +5,9 @@ const deviceSchema = new mongoose.Schema(
     device_name: {
       type: String,
     },
+    device_terms: {
+      type: String,
+    },
     overall_security: { type: String },
     overall_privacy: { type: String },
     Icons: [{ type: String }],
