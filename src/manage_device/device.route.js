@@ -19,20 +19,13 @@ router.post(
   upload.fields([
     { name: "deviceImages", maxCount: Infinity },
     { name: "deviceIcons", maxCount: 1 },
-    { name: "video_url", maxCount: 1 },
+    { name: "video_url", maxCount: 5 },
     { name: "policy_url", maxCount: 1 },
   ]),
   createDevice
 );
 router.get("/devices", authMiddleware, getAllDevices);
-router.get("/devices/:id", authMiddleware, getDeviceById);
-router.patch(
-  "/devices/:id",
-  authMiddleware,
-  // deviceImage,
-  // deviceIcons,
-  updateDevice
-);
+
 router.delete("/devices/:id", authMiddleware, deleteDevice);
 
 module.exports = router;

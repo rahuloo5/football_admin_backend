@@ -39,25 +39,16 @@ const deviceSchema = new mongoose.Schema(
         type: String,
       },
     ],
-    video_url1: {
-      type: [
-        {
-          type: String,
-          // required: true, // Corrected to boolean value
-          // unique: true,
-        },
-      ],
-    },
+    // video_url1: {
+    //   type: [
+    //     {
+    //       type: String,
+    //       required: true,
+    //       unique: true,
+    //     },
+    //   ],
+    // },
     policy_url1: {
-      type: [
-        {
-          type: String,
-          // required: true, // Corrected to boolean value
-          // unique: true,
-        },
-      ],
-    },
-    video_url: {
       type: [
         {
           type: String,
@@ -66,6 +57,18 @@ const deviceSchema = new mongoose.Schema(
         },
       ],
     },
+    // video_url: {
+    //   type: [
+    //     {
+    //       type: String,
+    //       required: true,
+    //       unique: true,
+    //     },
+    //   ],
+    // },
+
+    // video_url: { type: String, default: "default_value" },
+
     policy_url: {
       type: [
         {

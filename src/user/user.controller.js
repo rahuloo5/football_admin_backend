@@ -1,12 +1,12 @@
 const User = require("../../db/config/user.model");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-const Plan = require("../../db/config/plan.model");
 const nodemailer = require("nodemailer");
 
 const {
   GeneratesSignature,
 } = require("../middleware/authorization.middleware");
 const Subscription = require("../../db/config/plan_subscription.model");
+const mongoose = require("mongoose");
 
 const userSignup = async (req, resp) => {
   try {
@@ -71,62 +71,65 @@ const userlogin = async (req, res) => {
 };
 
 // Create a new user
-// const createuser = async (req, res) => {
-//   try {
-//     const newUser = new User(req.body);
-
-//     const savedUser = await newUser.save();
-//     res.status(201).json(savedUser);
-//   } catch (error) {
-//     res.status(400).json({ error: error.message });
-//   }
-// };
 
 const createuser = async (req, res) => {
   try {
-    const { subscriptionId } = req.body;
+    const { subscriptionId, number, firstName, lastName, email } = req.body;
 
-    const existingSubscription = await Subscription.findOne({
-      _id: subscriptionId,
-    });
-
-    if (!existingSubscription) {
-      return res.status(404).json({ error: "Subscription not found" });
+    if (!mongoose.Types.ObjectId.isValid(subscriptionId)) {
+      return res
+        .status(400)
+        .json({ success: false, error: "Invalid subscription  ID" });
     }
 
-    const newUser = new User(req.body);
-    const savedUser = await newUser.save();
+    const Subscriptions = await Subscription.findById(subscriptionId);
 
-    res.status(201).json(savedUser);
+    if (!Subscriptions) {
+      return res
+        .status(404)
+        .json({ success: false, error: "Subscription not found" });
+    }
+
+    const newUser = new User({
+      subscriptionId,
+      number,
+      firstName,
+      lastName,
+      email,
+    });
+
+    await newUser.save();
+
+    res.status(201).json({
+      success: true,
+      message: "user created successfully",
+      newUser,
+    });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.error(error);
+    res.status(500).json({ success: false, error: "Internal Server Error" });
   }
 };
 
 // Get all users
-// const getAllUsers = async (req, res) => {
-//   try {
-//     const users = await User.find().populate("subscription");
-//     res.status(200).json(users);
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// };
 
 const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find().populate("Subscription");
-    console.log(users);
-    res.status(200).json(users);
+    const users = await User.find().populate("subscriptionId");
+    res.status(200).json({
+      success: true,
+      message: "Users retrieved successfully",
+      data: users,
+    });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ success: false, error: error.message });
   }
 };
 
 // Get a specific user by ID
 const getUserById = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).populate("Subscription");
+    const user = await User.findById(req.params.id).populate("subscriptionId");
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
