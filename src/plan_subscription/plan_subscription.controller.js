@@ -46,13 +46,13 @@ const getAllsubscription = async (req, res) => {
       totalAmount += subscription.planAmount;
     });
 
-    const result = {
+    const allPlans = {
       totalAmount,
       totalSubscriptions,
       subscriptions,
     };
 
-    res.json(result);
+    res.json({ plans: allPlans });
   } catch (error) {
     res.status(500).json({ error: "Internal Server Error" });
   }
