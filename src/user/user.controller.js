@@ -1,11 +1,12 @@
 const User = require("../../db/config/user.model");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-const Plan = require("../../db/config/plan.model");
 const nodemailer = require("nodemailer");
 
 const {
   GeneratesSignature,
 } = require("../middleware/authorization.middleware");
+const Subscription = require("../../db/config/plan_subscription.model");
+const mongoose = require("mongoose");
 
 const userSignup = async (req, resp) => {
   try {
@@ -70,31 +71,65 @@ const userlogin = async (req, res) => {
 };
 
 // Create a new user
+
 const createuser = async (req, res) => {
   try {
-    const newUser = new User(req.body);
+    const { subscriptionId, number, firstName, lastName, email } = req.body;
 
-    const savedUser = await newUser.save();
-    res.status(201).json(savedUser);
+    if (!mongoose.Types.ObjectId.isValid(subscriptionId)) {
+      return res
+        .status(400)
+        .json({ success: false, error: "Invalid subscription  ID" });
+    }
+
+    const Subscriptions = await Subscription.findById(subscriptionId);
+
+    if (!Subscriptions) {
+      return res
+        .status(404)
+        .json({ success: false, error: "Subscription not found" });
+    }
+
+    const newUser = new User({
+      subscriptionId,
+      number,
+      firstName,
+      lastName,
+      email,
+    });
+
+    await newUser.save();
+
+    res.status(201).json({
+      success: true,
+      message: "user created successfully",
+      newUser,
+    });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.error(error);
+    res.status(500).json({ success: false, error: "Internal Server Error" });
   }
 };
 
 // Get all users
+
 const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find().populate("planId");
-    res.status(200).json(users);
+    const users = await User.find().populate("subscriptionId");
+    res.status(200).json({
+      success: true,
+      message: "Users retrieved successfully",
+      data: users,
+    });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ success: false, error: error.message });
   }
 };
 
 // Get a specific user by ID
 const getUserById = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).populate("planId");
+    const user = await User.findById(req.params.id).populate("subscriptionId");
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }

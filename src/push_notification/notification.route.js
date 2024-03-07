@@ -1,8 +1,14 @@
-// const express = require("express");
-// const { createnotification } = require("./notification.controller");
+const express = require("express");
+const {
+  createnotification,
+  notification,
+  allnotification,
+} = require("./notification.controller");
 
-// const router = express.Router();
+const router = express.Router();
 
 // router.post("/send-push-notification", createnotification);
 
-// module.exports = router;
+//fake notification
+
+module.exports = router;

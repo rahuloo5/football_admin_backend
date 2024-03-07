@@ -66,17 +66,7 @@ const getAllCategories = async (req, res) => {
 };
 
 // Get category by ID
-// const getCategoryById = async (req, res) => {
-//   try {
-//     const category = await categories.findById(req.params.id);
-//     if (!category) {
-//       return res.status(404).json({ message: "Category not found" });
-//     }
-//     res.json(category);
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// };
+
 const getCategoryById = async (req, res) => {
   try {
     const categoryId = req.params.categoryId;
@@ -103,21 +93,6 @@ const getCategoryById = async (req, res) => {
 };
 
 // Update category by ID
-// const updateCategory = async (req, res) => {
-//   try {
-//     const updatedCategory = await categories.findByIdAndUpdate(
-//       req.params.id,
-//       req.body,
-//       { new: true }
-//     );
-//     if (!updatedCategory) {
-//       return res.status(404).json({ message: "Category not found" });
-//     }
-//     res.json(updatedCategory);
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// };
 
 const updateCategory = async (req, res) => {
   try {

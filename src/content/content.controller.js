@@ -1,18 +1,26 @@
 const Content = require("../../db/config/content.model");
+const { contentValidationSchema } = require("./content.dto");
 
 // add content
 const getaddcontent = async (req, res) => {
   try {
+    const { error } = contentValidationSchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({ error: error.details[0].message });
+    }
+
     const { description } = req.body;
 
-    // const image = req.file ? req?.file?.filename : null;
-    const image = req.files ? req.files.map((file) => file.filename) : null;
+    const image = req.file ? req.file.filename : null;
 
-    const newContent = new Content({ description, image });
+    const newContent = new Content({
+      description,
+      image,
+    });
 
     await newContent.save();
 
-    res.status(200).json(newContent);
+    res.status(201).json(newContent);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
@@ -20,6 +28,7 @@ const getaddcontent = async (req, res) => {
 };
 
 // Update content by ID
+
 const updateContent = async (req, res) => {
   const { id } = req.params;
   const { title, description, heading } = req.body;

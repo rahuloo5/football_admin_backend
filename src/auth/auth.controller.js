@@ -15,96 +15,10 @@ function generateOTP() {
   return otp;
 }
 
-// const registerUser = async (req, res) => {
-//   try {
-//     const { number } = req.body;
-
-//     const existingUser = await User.findOne({ number });
-//     const otp = generateOTP();
-//     if (existingUser) {
-//       // const newOtp = new OTP({ userId: existingUser._id, otp: otp });
-
-//       let savedotp = await TempOTP.findOneAndUpdate(
-//         { userId: existingUser._id },
-//         { userId: existingUser._id, otp: otp },
-//         { upsert: true }
-//       );
-
-//       let response = await sendSMS(savedotp?.otp, existingUser?.number);
-
-//       return res.status(400).json({
-//         message: "User already registered",
-//         number: existingUser.number,
-//         isActive: existingUser.isActive,
-//         response,
-//       });
-//     }
-
-//     const newUser = new User({ number });
-//     let firstsaveduser = await newUser.save();
-
-//     // Create OTP
-
-//     let sotp = await TempOTP.create({
-//       userId: firstsaveduser?._id,
-//       otp: otp,
-//     });
-
-//     let responses = await sendSMS(otp, firstsaveduser?.number);
-
-//     res
-//       .status(200)
-//       .json({ message: "User registered successfully", responses });
-//   } catch (error) {
-//     console.error("Error registering user:", error);
-//     res.status(500).json({ error: "Internal Server Error", details: error });
-//   }
-// };
-
-// const verifyOTP = async (req, res) => {
-//   const { number, otp: enteredOTP } = req.body;
-
-//   try {
-//     const user = await User.findOne({ number });
-
-//     if (!user) {
-//       return res.status(404).send({ error: "User not found" });
-//     }
-
-//     const storedOTPRecord = await TempOTP.findOne({ userId: user._id });
-
-//     if (storedOTPRecord && parseInt(enteredOTP) === storedOTPRecord.otp) {
-//       const isActive = user.isActive;
-//       const token = GeneratesSignature({
-//         id: user._id,
-//       });
-
-//       // Remove the OTP record from the temporary collection after verification
-//       await TempOTP.deleteOne({ userId: user._id });
-
-//       return res.status(200).send({
-//         success: true,
-//         message: "Verification code verified successfully",
-//         id: user._id,
-//         isActive: isActive,
-//         token,
-//       });
-//     } else {
-//       return res.status(400).send({
-//         success: false,
-//         message: "Invalid OTP",
-//       });
-//     }
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send({ success: false, error: "Internal Server Error" });
-//   }
-// };
-
 const registerUser = async (req, res) => {
   try {
-    const { number } = req.body;
-
+    const { number, fcm_token } = req.body;
+    console.log("asdfghsdfg", req.body);
     const existingUser = await User.findOne({ number });
     const otp = generateOTP();
     let savedotp;
@@ -113,10 +27,10 @@ const registerUser = async (req, res) => {
       savedotp = await TempOTP.findOneAndUpdate(
         { userId: existingUser._id },
         { userId: existingUser._id, otp: otp },
-        { upsert: true, new: true } // Use the 'new' option to get the updated document
+        { upsert: true, new: true }
       );
     } else {
-      const newUser = new User({ number });
+      const newUser = new User({ number, fcm_token });
       let firstsaveduser = await newUser.save();
 
       // Create OTP
@@ -126,7 +40,9 @@ const registerUser = async (req, res) => {
       });
     }
 
-    let response = await sendSMS(otp, number);
+    // let response = await sendSMS(otp, number, fcm_token);
+
+    let response = await (otp, number, fcm_token);
 
     res.status(200).json({
       message: existingUser

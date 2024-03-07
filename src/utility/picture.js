@@ -11,13 +11,15 @@ const storage = multer.diskStorage({
     cb(null, Date.now() + "-" + file.originalname);
   },
 });
+// for device
+exports.deviceIcons = multer({ storage }).array("Icons");
+exports.deviceImages = multer({ storage }).array("Images");
 
-exports.contentImage = multer({ storage }).array("image");
-// exports.screenImage = multer({ storage }).single("screen_image");
-// exports.bgImage = multer({ storage }).single("bg_image");
-exports.articleImage = multer({ storage }).array("Images");
+exports.contentImage = multer({ storage }).single("image");
+exports.articleImage = multer({ storage }).single("Images");
 
 exports.categoriesImage = multer({ storage }).array("icon");
 exports.categoriesIcon = multer({ storage }).array("icon");
 exports.subcategoriesImage = multer({ storage }).array("Icons");
+
 exports.upload = multer({ storage: storage });
