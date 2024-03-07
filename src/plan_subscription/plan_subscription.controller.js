@@ -167,7 +167,6 @@ module.exports = {
 
   getTotalAmount,
 
-  //fake notification
   notification,
   allnotification,
 };

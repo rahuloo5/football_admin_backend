@@ -28,8 +28,6 @@ router.get("/subscriptionss", getAllsubscription);
 
 router.get("/total-amount", getTotalAmount);
 
-//fake notifoication
-
 router.post("/notification", notification);
 router.get("/notification", allnotification);
 

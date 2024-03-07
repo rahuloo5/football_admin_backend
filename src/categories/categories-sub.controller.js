@@ -2,8 +2,6 @@ const mongoose = require("mongoose");
 const Category = require("../../db/config/categories.model");
 const Subcategory = require("../../db/sub_categories.model");
 
-// Create a subcategory
-
 const createSubCategory = async (req, res) => {
   try {
     const { sub_category, categoryId } = req.body;
@@ -43,8 +41,6 @@ const createSubCategory = async (req, res) => {
     res.status(500).json({ success: false, error: "Internal Server Error" });
   }
 };
-
-//get allsubcategory
 
 const getallsubcategory = async (req, res) => {
   try {

@@ -2,7 +2,6 @@ const express = require("express");
 const CommentModel = require("../../db/config/service.model");
 const router = express.Router();
 
-// Create a new comment
 const comments = async (req, res) => {
   try {
     const { message, name, email } = req.body;
