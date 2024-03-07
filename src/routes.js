@@ -6,7 +6,7 @@ const articlerouter = require("./manage_Article/article.route");
 const feedbackrouter = require("./feedback/feedback.route");
 const authrouter = require("./auth/auth.route");
 const planrouter = require("./plans/plans.route");
-const devicerouter = require("./manage_device/device.route");
+// const devicerouter = require("./manage_device/device.route");
 const searchrouter = require("./search/search.route");
 const servicerouter = require("./service/service.route");
 const smtprouter = require("./smtp/smtp.route");
@@ -28,7 +28,7 @@ exports.registerRoutes = (app) => {
   app.use(userrouter);
   app.use(contentrouter);
   app.use(categoryrouter);
-  app.use(devicerouter);
+  // app.use(devicerouter);
   app.use(screenrouter);
   app.use(articlerouter);
   app.use(feedbackrouter);
