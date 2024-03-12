@@ -12,10 +12,11 @@ const createDevice = async (req, res) => {
       overall_privacy,
       security_tips,
       video_urls,
-
       device_policies,
       product_purchase_info,
     } = req.body;
+
+    console.log(req.body);
 
     if (!mongoose.Types.ObjectId.isValid(categoryId)) {
       return res
@@ -31,8 +32,18 @@ const createDevice = async (req, res) => {
         .json({ success: false, error: "Category not found" });
     }
 
-    const Icons = req.files ? req.files.map((file) => file.filename) : null;
-    const Images = req.files ? req.files.map((file) => file.filename) : null;
+    console.log(req.files);
+
+    const Icons = req.Icons
+      ? req.files
+          .filter((item) => item.fieldname === "Icons")
+          .map((file) => file.filename)
+      : null;
+    const Images = req.Images
+      ? req.files
+          .filter((item) => item.fieldname === "Images")
+          .map((file) => file.filename)
+      : null;
 
     const newDevice = new manageDevice({
       device_name,
@@ -57,7 +68,7 @@ const createDevice = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, error: "Internal Server Error" });
+    res.status(500).json({ success: false, error: error });
   }
 };
 

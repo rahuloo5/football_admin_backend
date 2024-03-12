@@ -7,7 +7,6 @@ const createpayment = async (req, res) => {
     const { firstName, amount, planId, email, UserId, description } = req.body;
 
     //find user by id
-
     const updatedUser = await User.findById(UserId);
     if (!updatedUser) {
       return res.status(404).json({ error: "User not found" });

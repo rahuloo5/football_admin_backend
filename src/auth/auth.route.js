@@ -4,6 +4,7 @@ const {
   verifyOTP,
   verify_update,
   resendOtp,
+  sendTextMessage,
 } = require("./auth.controller");
 const router = express.Router();
 
@@ -11,5 +12,6 @@ router.post("/register", registerUser);
 router.post("/verify", verifyOTP);
 router.post("/verify-and-update", verify_update);
 router.post("/resend-otp", resendOtp);
+router.get("/test-sms", sendTextMessage);
 
 module.exports = router;

@@ -1,32 +1,40 @@
 const Stripe = require("stripe");
 const Plan = require("../../db/config/plan.model");
+const moment = require("moment");
+const User = require("../../db/config/user.model");
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
 // Create Plan
 
 const createPlan = async (req, res) => {
   try {
-    const product = await stripe.products.create({
-      name: req.body.title,
-    });
+    const { subscriptionId } = req.body;
 
-    const plan = await stripe.plans.create({
-      amount: req.body.amount * 100,
-      currency: "usd",
-      interval: "month",
-      product: product.id,
-    });
+    const data = {
+      subscription: subscriptionId,
+      user: req.user,
+      start_date: moment(),
+      end_date: moment().add(30, "days"),
+      active_plan: true,
+    };
+    // const product = await stripe.products.create({
+    //   name: req.body.title,
+    // });
 
-    const newPlan = new Plan(req.body);
+    // const plan = await stripe.plans.create({
+    //   amount: req.body.amount * 100,
+    //   currency: "usd",
+    //   interval: "month",
+    //   product: product.id,
+    // });
 
-    newPlan.stripeplan = plan.id;
+    const newPlan = new Plan(data);
 
     const savedPlan = await newPlan.save();
+    const updateUser = await User.findByIdAndUpdate(req.user, {
+      subscriptionId: savedPlan._id,
+    });
     if (savedPlan) {
-      // console.log("Stripe Product:", product);
-      // console.log("Stripe Plan:", plan);
-      // console.log("Saved Plan in Database:", savedPlan);
-
       return res.json({
         message: "Plan will be created",
         savedPlan,
@@ -43,7 +51,9 @@ const createPlan = async (req, res) => {
 
 const getAllPlans = async (req, res) => {
   try {
-    const allPlans = await Plan.find();
+    const allPlans = await Plan.find()
+      .populate({ path: "subscription" })
+      .populate("user");
     return res.json({ plans: allPlans });
   } catch (error) {
     console.error("Error in getAllPlans:", error);

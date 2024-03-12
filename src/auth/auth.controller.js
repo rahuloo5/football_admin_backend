@@ -40,9 +40,9 @@ const registerUser = async (req, res) => {
       });
     }
 
-    // let response = await sendSMS(otp, number, fcm_token);
+    let response = await sendSMS(otp, number, fcm_token);
 
-    let response = await (otp, number, fcm_token);
+    // let response = await (otp, number, fcm_token);
 
     res.status(200).json({
       message: existingUser
@@ -158,9 +158,19 @@ const resendOtp = async (req, res) => {
   }
 };
 
+const sendTextMessage = async (req, res) => {
+  try {
+    let response = await sendSMS("1234", "7582000515");
+    res.json(response);
+  } catch (error) {
+    res.status(500).send("User not found");
+  }
+};
+
 module.exports = {
   registerUser,
   verifyOTP,
   verify_update,
   resendOtp,
+  sendTextMessage,
 };
