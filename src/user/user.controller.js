@@ -115,7 +115,10 @@ const createuser = async (req, res) => {
 
 const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find().populate("subscriptionId");
+    const users = await User.find().populate({
+      path: "subscriptionId",
+      populate: { path: "subscription" },
+    });
     res.status(200).json({
       success: true,
       message: "Users retrieved successfully",

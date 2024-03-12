@@ -17,7 +17,7 @@ const deviceSchema = new mongoose.Schema(
       type: String,
     },
     device_policies: [{ type: String }],
-    video_urls: [{ type: String, unique: true }],
+    video_urls: [{ type: String }],
     category: { type: mongoose.Schema.Types.ObjectId, ref: "Category" },
 
     Recommended_Product: { type: Boolean, default: false },

@@ -130,7 +130,7 @@ const updateArticle = async (req, res) => {
     const { short_description, long_description } = req.body;
 
     const Images = req.file ? req.file.filename : null;
-
+    console.log(JSON.stringify(req.params.id), "idd");
     const updatedArticle = await Article.findByIdAndUpdate(
       req.params.id,
       { short_description, long_description, Images },

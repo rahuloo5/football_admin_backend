@@ -42,6 +42,7 @@ router.post(
   createSubCategory
 );
 router.get("/subcategories", getallsubcategory);
+// router.get("/subcategories/:catId", getSubCategoryByCategoryId);
 router.delete(
   "/subcategories/:subcategoryId",
   authMiddleware,

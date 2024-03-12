@@ -67,7 +67,7 @@ const userSchema = new mongoose.Schema({
   },
   subscriptionId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Subscription",
+    ref: "Plan",
   },
   isActive: { type: Boolean, default: false },
   otp: {
