@@ -132,7 +132,10 @@ const getAllUsers = async (req, res) => {
 // Get a specific user by ID
 const getUserById = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).populate("subscriptionId");
+    const user = await User.findById(req.params.id).populate({
+      path: "subscriptionId",
+      populate: { path: "subscription" },
+    });
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
