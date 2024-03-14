@@ -15,6 +15,7 @@ const cors = require("cors");
 const Subscriptionrouter = require("./subscription/sub.route");
 const plansubscriptionrouter = require("./plan_subscription/plan_subscription.route");
 const addDevicerouter = require("./device/device.route");
+const twilioRouter = require("./twilio/twilio.route");
 const notificationrouter = require("./push_notification/notification.route");
 
 exports.registerRoutes = (app) => {
@@ -40,6 +41,7 @@ exports.registerRoutes = (app) => {
   app.use(Subscriptionrouter);
   app.use(plansubscriptionrouter);
   app.use(addDevicerouter);
+  app.use(twilioRouter);
 
   // app.use(notificationrouter);
 };

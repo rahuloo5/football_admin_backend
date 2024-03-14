@@ -128,7 +128,7 @@ const getArticleById = async (req, res) => {
 const updateArticle = async (req, res) => {
   try {
     const { short_description, long_description } = req.body;
-
+    console.log(req.file);
     const Images = req.file ? req.file.filename : null;
     console.log(JSON.stringify(req.params.id), "idd");
     const updatedArticle = await Article.findByIdAndUpdate(
