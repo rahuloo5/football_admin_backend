@@ -1,5 +1,6 @@
 const Notification = require("../../db/config/notification.model");
 const Subscription = require("../../db/config/plan_subscription.model");
+const User = require("../../db/config/user.model");
 const { subscriptionValidationSchema } = require("./plan_subscription.dto");
 
 // Create
@@ -82,6 +83,8 @@ const updatesubscription = async (req, res) => {
       planAmount,
       planDescription,
     } = req.body;
+
+    console.log(req.body);
     const updatedSubscription = await Subscription.findByIdAndUpdate(
       req.params.id,
       {
@@ -113,13 +116,17 @@ const deletesubscription = async (req, res) => {
 
 const getTotalAmount = async (req, res) => {
   try {
-    const subscriptions = await Subscription.find();
-
+    const subscriptions = await User.find({
+      subscriptionId: { $ne: null },
+    }).populate({ path: "subscriptionId", populate: "subscription" });
+    // console.log(JSON.stringify(subscriptions));
     let totalAmount = 0;
     let totalSubscriptions = subscriptions.length;
-
     subscriptions.forEach((subscription) => {
-      totalAmount += subscription.planAmount;
+      if (subscription.subscriptionId.subscription) {
+        console.log(subscription.subscriptionId.subscription.planAmount);
+        totalAmount += subscription.subscriptionId.subscription.planAmount;
+      }
     });
 
     const result = {
@@ -129,6 +136,7 @@ const getTotalAmount = async (req, res) => {
 
     res.json(result);
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
