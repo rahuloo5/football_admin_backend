@@ -1,0 +1,36 @@
+name: secureliving_Backend
+
+on:
+  push:
+    branches: [ "master" ]
+    
+jobs:
+  secureliving_Backend:
+
+    runs-on: ubuntu-latest
+
+    steps:
+ 
+    - name: Checkout
+
+      uses: actions/checkout@v3
+
+    - name: Deployment
+
+      uses: appleboy/ssh-action@master
+
+      with:
+
+        host: 203.190.153.23
+
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+        username: user
+        
+        port: 22
+
+        script: |
+          cd /home/user/secureliving/backend
+          git pull origin master
+          /home/user/.yarn/bin/yarn install
+          pm2 restart 17
