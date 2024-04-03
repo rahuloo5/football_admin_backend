@@ -15,25 +15,17 @@ const createDevice = async (req, res) => {
       device_policies,
       product_purchase_info,
     } = req.body;
-
-    console.log(req.body);
-
     if (!mongoose.Types.ObjectId.isValid(categoryId)) {
       return res
         .status(400)
         .json({ success: false, error: "Invalid category ID" });
     }
-
     const category = await Category.findById(categoryId);
-
     if (!category) {
       return res
         .status(404)
         .json({ success: false, error: "Category not found" });
     }
-
-    console.log(req.files);
-
     const Icons = req.Icons
       ? req.files
           .filter((item) => item.fieldname === "Icons")
@@ -44,7 +36,6 @@ const createDevice = async (req, res) => {
           .filter((item) => item.fieldname === "Images")
           .map((file) => file.filename)
       : null;
-
     const newDevice = new manageDevice({
       device_name,
       overall_security,
@@ -58,13 +49,62 @@ const createDevice = async (req, res) => {
       video_urls,
       product_purchase_info,
     });
-
     await newDevice.save();
-
     res.status(201).json({
       success: true,
       message: "device created successfully",
       data: newDevice,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: error });
+  }
+};
+
+const editDevice = async (req, res) => {
+  try {
+    const data = req.body;
+    if (!mongoose.Types.ObjectId.isValid(data.categoryId)) {
+      return res
+        .status(400)
+        .json({ success: false, error: "Invalid category ID" });
+    }
+    const category = await Category.findById(data.categoryId);
+    if (!category) {
+      return res
+        .status(404)
+        .json({ success: false, error: "Category not found" });
+    }
+    const Icons = req.Icons
+      ? req.files
+          .filter((item) => item.fieldname === "Icons")
+          .map((file) => file.filename)
+      : null;
+    const Images = req.Images
+      ? req.files
+          .filter((item) => item.fieldname === "Images")
+          .map((file) => file.filename)
+      : null;
+
+    if (Icons) {
+      data.Icons = Icons;
+    }
+
+    if (Images) {
+      data.Images = Images;
+    }
+
+    const device = await manageDevice.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      {
+        new: true,
+      }
+    );
+    res.status(201).json({
+      success: true,
+      message: "device created successfully",
+      data: device,
     });
   } catch (error) {
     console.error(error);
@@ -79,6 +119,20 @@ const getAllDevices = async (req, res) => {
     const query = categoryId ? { category: categoryId } : {};
 
     const devices = await manageDevice.find(query).populate("category");
+
+    res.status(200).json({
+      success: true,
+      message: "Devices retrieved successfully",
+      data: devices,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: "Internal Server Error" });
+  }
+};
+const getDeviceById = async (req, res) => {
+  try {
+    const devices = await manageDevice.findById(req.params.id);
 
     res.status(200).json({
       success: true,
@@ -126,4 +180,6 @@ module.exports = {
   createDevice,
   getAllDevices,
   deleteDevice,
+  getDeviceById,
+  editDevice,
 };
