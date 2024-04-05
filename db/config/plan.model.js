@@ -19,6 +19,12 @@ const planSchema = new mongoose.Schema(
     end_date: {
       type: Date,
     },
+    transactionId: {
+      type: String,
+    },
+    transactionReceipt: {
+      type: String,
+    },
   },
   { timestamps: true }
 );

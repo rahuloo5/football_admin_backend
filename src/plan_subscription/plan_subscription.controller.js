@@ -6,17 +6,18 @@ const { subscriptionValidationSchema } = require("./plan_subscription.dto");
 // Create
 const addsubscription = async (req, res) => {
   try {
-    const { error } = subscriptionValidationSchema.validate(req.body);
-    if (error) {
-      return res.status(400).json({ error: error.details[0].message });
-    }
-
+    // const { error } = subscriptionValidationSchema.validate(req.body);
+    // if (error) {
+    //   return res.status(400).json({ error: error.details[0].message });
+    // }
     const {
       planName,
       numberOfSearchAllowed,
       planSubscription,
       planAmount,
       planDescription,
+      productId,
+      deviceType,
     } = req.body;
 
     const newSubscription = new Subscription({
@@ -25,10 +26,10 @@ const addsubscription = async (req, res) => {
       planSubscription,
       planAmount,
       planDescription,
+      productId,
+      deviceType,
     });
-
     await newSubscription.save();
-
     res.status(201).json(newSubscription);
   } catch (error) {
     console.error(error);
@@ -38,8 +39,11 @@ const addsubscription = async (req, res) => {
 
 const getAllsubscription = async (req, res) => {
   try {
-    const subscriptions = await Subscription.find();
-
+    const filter = {};
+    if (req.query.type) {
+      filter.deviceType = req.query.type;
+    }
+    const subscriptions = await Subscription.find({ filter });
     let totalAmount = 0;
     let totalSubscriptions = subscriptions.length;
 
@@ -71,10 +75,10 @@ const getsubscriptionbyId = async (req, res) => {
 // Update
 const updatesubscription = async (req, res) => {
   try {
-    const { error } = subscriptionValidationSchema.validate(req.body);
-    if (error) {
-      return res.status(400).json({ error: error.details[0].message });
-    }
+    // const { error } = subscriptionValidationSchema.validate(req.body);
+    // if (error) {
+    //   return res.status(400).json({ error: error.details[0].message });
+    // }
 
     const {
       planName,
@@ -82,6 +86,8 @@ const updatesubscription = async (req, res) => {
       planSubscription,
       planAmount,
       planDescription,
+      productId,
+      deviceType,
     } = req.body;
 
     console.log(req.body);
@@ -93,11 +99,14 @@ const updatesubscription = async (req, res) => {
         planSubscription,
         planAmount,
         planDescription,
+        productId,
+        deviceType,
       },
       { new: true }
     );
     res.json(updatedSubscription);
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };

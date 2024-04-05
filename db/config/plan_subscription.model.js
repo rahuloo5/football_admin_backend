@@ -22,6 +22,12 @@ const subscriptionSchema = new mongoose.Schema(
     planDescription: {
       type: String,
     },
+    productId: {
+      type: String,
+    },
+    deviceType: {
+      type: String,
+    },
   },
   { timestamps: true }
 );
