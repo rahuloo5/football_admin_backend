@@ -43,7 +43,7 @@ const getAllsubscription = async (req, res) => {
     if (req.query.type) {
       filter.deviceType = req.query.type;
     }
-    const subscriptions = await Subscription.find({ filter });
+    const subscriptions = await Subscription.find(filter);
     let totalAmount = 0;
     let totalSubscriptions = subscriptions.length;
 
