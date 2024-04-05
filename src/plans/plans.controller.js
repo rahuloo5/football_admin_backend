@@ -8,13 +8,15 @@ const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
 const createPlan = async (req, res) => {
   try {
-    const { subscriptionId } = req.body;
+    const { subscriptionId, transactionId, transactionReceipt } = req.body;
 
     const data = {
       subscription: subscriptionId,
       user: req.user,
       start_date: moment(),
       end_date: moment().add(30, "days"),
+      transactionId: transactionId,
+      transactionReceipt: transactionReceipt,
       active_plan: true,
     };
     // const product = await stripe.products.create({
