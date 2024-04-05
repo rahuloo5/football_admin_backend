@@ -7,6 +7,8 @@ const subscriptionValidationSchema = Joi.object({
     .required(),
   planAmount: Joi.number().required(),
   planDescription: Joi.string(),
+  productId: Joi.string(),
+  deviceId: Joi.string(),
 });
 
 module.exports = { subscriptionValidationSchema };
