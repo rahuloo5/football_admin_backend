@@ -21,7 +21,7 @@ jobs:
 
       with:
 
-        host: 203.190.153.23
+        host: 203.190.153.27
 
         key: ${{ secrets.SSH_PRIVATE_KEY }}
 
@@ -30,7 +30,7 @@ jobs:
         port: 22
 
         script: |
-          cd /home/user/secureliving/backend
+          cd /home/user/SecureYourLiving/backend/
           git pull origin master
-          /home/user/.yarn/bin/yarn install
+          yarn
           pm2 restart 17
