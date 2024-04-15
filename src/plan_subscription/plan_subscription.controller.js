@@ -43,7 +43,9 @@ const getAllsubscription = async (req, res) => {
     if (req.query.type) {
       filter.deviceType = req.query.type;
     }
-    const subscriptions = await Subscription.find(filter);
+    const subscriptions = await Subscription.find(filter).sort({
+      planAmount: 1,
+    });
     let totalAmount = 0;
     let totalSubscriptions = subscriptions.length;
 

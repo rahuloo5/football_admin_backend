@@ -115,11 +115,34 @@ const editDevice = async (req, res) => {
 const getAllDevices = async (req, res) => {
   try {
     const categoryId = req.query.categoryId;
-
-    const query = categoryId ? { category: categoryId } : {};
-
+    const deviceName = req.query.name;
+    const query = {};
+    if (categoryId) {
+      query.category = categoryId;
+    }
+    if (deviceName) {
+      query.device_name = { $regex: deviceName, $options: "i" };
+    }
+    // console.log(query);
+    // const query = categoryId ? { category: categoryId } : {};
     const devices = await manageDevice.find(query).populate("category");
+    res.status(200).json({
+      success: true,
+      message: "Devices retrieved successfully",
+      data: devices,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: "Internal Server Error" });
+  }
+};
 
+const searchAllDevices = async (req, res) => {
+  try {
+    // const categoryId = req.query.categoryId;
+    const filter = {};
+    filter.device_name = { $regex: req.query.name, $options: "i" };
+    const devices = await manageDevice.find(filter).populate("category");
     res.status(200).json({
       success: true,
       message: "Devices retrieved successfully",
@@ -182,4 +205,5 @@ module.exports = {
   deleteDevice,
   getDeviceById,
   editDevice,
+  searchAllDevices,
 };

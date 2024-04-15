@@ -9,10 +9,12 @@ const storage = multer.diskStorage({
     cb(null, uploadPath);
   },
   filename: (req, file, cb) => {
+    console.log(file, "file");
     req[file.fieldname] = Date.now() + "-" + file.originalname;
     cb(null, Date.now() + "-" + file.originalname);
   },
 });
+
 const iconStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadPath = "uploads/";
