@@ -31,5 +31,5 @@ jobs:
           /home/user/.nvm/versions/node/v18.20.1/bin/yarn install
           PATH="$PATH:/home/user/.nvm/versions/node/v18.20.1/bin/"
           #/home/user/.nvm/versions/node/v18.20.1/bin/yarn build || echo "Yarn build failed with exit code $?"
-          /home/user/.nvm/versions/node/v18.20.1/bin/pm2 restart 17 || echo "PM2 restart failed with exit code $?"
+          /home/user/.nvm/versions/node/v18.20.1/bin/pm2 restart 14 || echo "PM2 restart failed with exit code $?"
           #/home/user/.nvm/versions/node/v18.20.1/bin/node -v  # Check Node.js version
