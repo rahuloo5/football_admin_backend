@@ -86,6 +86,7 @@ const verifyOTP = async (req, res) => {
         success: true,
         message: "Verification code verified successfully",
         id: user._id,
+        user: user,
         isActive: isActive,
         token,
       });
