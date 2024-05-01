@@ -119,6 +119,10 @@ const getAllUsers = async (req, res) => {
       path: "subscriptionId",
       populate: { path: "subscription" },
     });
+
+    // Sort the users array in descending order based on the createdAt field
+    users.sort((a, b) => new Date(b.subscriptionId?.createdAt) - new Date(a.subscriptionId?.createdAt));
+
     res.status(200).json({
       success: true,
       message: "Users retrieved successfully",
@@ -128,6 +132,7 @@ const getAllUsers = async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 };
+
 
 // Get a specific user by ID
 const getUserById = async (req, res) => {

@@ -74,6 +74,44 @@ const getsubscriptionbyId = async (req, res) => {
   }
 };
 
+const getPaidUsers = async (req, res) => {
+  try {
+    const filter = {};
+    if (req.query.type) {
+      filter.deviceType = req.query.type;
+    }
+    const users = await User.find(filter).populate({
+      path: "subscriptionId",
+      populate: { path: "subscription" },
+    });
+
+    const filteredUsers = users.filter(user => 
+      user.subscriptionId && user.subscriptionId?.subscription && 
+      (user.subscriptionId.subscription.planName === "Basic Plan" ||
+       user.subscriptionId.subscription.planName === "Premium Plan")
+    );
+    let totalAmount = 0;
+    let totalSubscriptions = filteredUsers.length;
+    users.forEach((user) => {
+      if (user.subscriptionId?.subscription) {
+        console.log(user.subscriptionId?.subscription?.planAmount);
+        totalAmount += user.subscriptionId?.subscription?.planAmount;
+      }
+    });
+    const result = {
+      totalAmount,
+      totalSubscriptions,
+    };
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+
+
 // Update
 const updatesubscription = async (req, res) => {
   try {
@@ -130,7 +168,6 @@ const getTotalAmount = async (req, res) => {
     const subscriptions = await User.find({
       subscriptionId: { $ne: null },
     }).populate({ path: "subscriptionId", populate: "subscription" });
-    // console.log(JSON.stringify(subscriptions));
     let totalAmount = 0;
     let totalSubscriptions = subscriptions.length;
     subscriptions.forEach((subscription) => {
@@ -181,6 +218,7 @@ module.exports = {
   updatesubscription,
   getsubscriptionbyId,
   getAllsubscription,
+  getPaidUsers,
 
   // get total amount
 

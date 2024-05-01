@@ -7,6 +7,7 @@ const {
   updatesubscription,
   getsubscriptionbyId,
   getAllsubscription,
+  getPaidUsers,
 
   //fake notification
 
@@ -23,6 +24,7 @@ router.delete("/subscriptions/:id", authMiddleware, deletesubscription);
 router.patch("/subscriptions/:id", authMiddleware, updatesubscription);
 router.get("/subscriptions/:id", authMiddleware, getsubscriptionbyId);
 router.get("/subscriptionss", getAllsubscription);
+router.get("/paidSubscriptions", getPaidUsers);
 
 // dashboard api for total number of subscrption and amount
 
