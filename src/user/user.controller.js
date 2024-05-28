@@ -115,18 +115,33 @@ const createuser = async (req, res) => {
 
 const getAllUsers = async (req, res) => {
   try {
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = parseInt(req.query.pageSize) || 10;
+
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = page * pageSize;
+
+    const totalUsers = await User.countDocuments();
+    const totalPages = Math.ceil(totalUsers / pageSize);
+
     const users = await User.find().populate({
       path: "subscriptionId",
       populate: { path: "subscription" },
-    });
+    }).skip(startIndex).limit(pageSize);
+
+    const paginationInfo = {
+      currentPage: page,
+      totalPages: totalPages,
+      pageSize: pageSize,
+      totalUsers: totalUsers,
+    };
 
     // Sort the users array in descending order based on the createdAt field
     users.sort((a, b) => new Date(b.subscriptionId?.createdAt) - new Date(a.subscriptionId?.createdAt));
-
     res.status(200).json({
       success: true,
       message: "Users retrieved successfully",
-      data: users,
+      data: { users, paginationInfo }
     });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });

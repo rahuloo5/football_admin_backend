@@ -116,6 +116,16 @@ const getAllDevices = async (req, res) => {
   try {
     const categoryId = req.query.categoryId;
     const deviceName = req.query.name;
+
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = parseInt(req.query.pageSize) || 10;
+
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = page * pageSize;
+
+    const totalDevices = await manageDevice.countDocuments();
+    const totalPages = Math.ceil(totalDevices / pageSize);
+
     const query = {};
     if (categoryId) {
       query.category = categoryId;
@@ -125,11 +135,24 @@ const getAllDevices = async (req, res) => {
     }
     // console.log(query);
     // const query = categoryId ? { category: categoryId } : {};
-    const devices = await manageDevice.find(query).populate("category");
+    const devices = await manageDevice
+      .find(query)
+      .populate("category")
+      .skip(startIndex)
+      .limit(pageSize);
+
+      const paginationInfo = {
+        currentPage: page,
+        totalPages: totalPages,
+        pageSize: pageSize,
+        totalDevices: totalDevices,
+      };
+     
+      console.log("paginationInfo", paginationInfo)
     res.status(200).json({
       success: true,
       message: "Devices retrieved successfully",
-      data: devices,
+      data: { devices, paginationInfo }
     });
   } catch (error) {
     console.error(error);
