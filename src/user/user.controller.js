@@ -1,4 +1,5 @@
 const User = require("../../db/config/user.model");
+const Plan = require("../../db/config/plan.model")
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const nodemailer = require("nodemailer");
 
@@ -117,17 +118,52 @@ const getAllUsers = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const pageSize = parseInt(req.query.pageSize) || 10;
-
+    const { 
+      email = "", 
+      firstName = "", 
+      number = "",
+      _id = "", 
+    } = req?.query?.query || {};
+    const startDate = req.query?.query?.startDate;
+    const endDate = req.query?.query?.endDate;
     const startIndex = (page - 1) * pageSize;
-    const endIndex = page * pageSize;
 
-    const totalUsers = await User.countDocuments();
-    const totalPages = Math.ceil(totalUsers / pageSize);
+    let query = {};
+    if (email) {
+      query.email = { $regex: email, $options: 'i' };
+    }
+    if (firstName) {
+      query.firstName = { $regex: firstName, $options: 'i' };
+    }
+    if (number) {
+      query.number = { $regex: number, $options: 'i' };
+    }
 
-    const users = await User.find().populate({
+    if (startDate && endDate) {
+      const range = { $gte: new Date(startDate), $lte: new Date(endDate) };
+      const matchingPlans = await Plan.find({ createdAt: range }).select("_id");
+      const planIds = matchingPlans.map(plan => plan._id);
+      if (planIds.length > 0) {
+        query.subscriptionId = { $in: planIds };
+        console.log("subscriptionId", query?.susbscriptionId)
+      }
+      console.log("matching plans:", matchingPlans);
+    }
+
+    let users = await User.find(query).populate({
       path: "subscriptionId",
       populate: { path: "subscription" },
-    }).skip(startIndex).limit(pageSize);
+    });
+
+    if (_id) {
+      const regex = new RegExp(_id, 'i');
+      users = users.filter(user => regex.test(user._id.toString()));
+    }
+
+    // Pagination and sorting
+    const totalUsers = users.length;
+    const totalPages = Math.ceil(totalUsers / pageSize);
+    const paginatedUsers = users.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(startIndex, startIndex + pageSize);
 
     const paginationInfo = {
       currentPage: page,
@@ -136,12 +172,10 @@ const getAllUsers = async (req, res) => {
       totalUsers: totalUsers,
     };
 
-    // Sort the users array in descending order based on the createdAt field
-    users.sort((a, b) => new Date(b.subscriptionId?.createdAt) - new Date(a.subscriptionId?.createdAt));
     res.status(200).json({
       success: true,
       message: "Users retrieved successfully",
-      data: { users, paginationInfo }
+      data: { users: paginatedUsers, paginationInfo }
     });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -152,7 +186,7 @@ const getAllUsers = async (req, res) => {
 // Get a specific user by ID
 const getUserById = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).populate({
+    const user = await User.findById(req.params?.id).populate({
       path: "subscriptionId",
       populate: { path: "subscription" },
     });

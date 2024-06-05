@@ -50,6 +50,7 @@ const createpayment = async (req, res) => {
     });
 
     console.log("Stripe Price created:", price);
+    
 
     const subscription = await stripe.subscriptions.create({
       customer: customer?.id,

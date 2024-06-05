@@ -14,6 +14,7 @@ const createDevice = async (req, res) => {
       video_urls,
       device_policies,
       product_purchase_info,
+      Recommended_Product,
     } = req.body;
     if (!mongoose.Types.ObjectId.isValid(categoryId)) {
       return res
@@ -48,6 +49,7 @@ const createDevice = async (req, res) => {
       Images,
       video_urls,
       product_purchase_info,
+      Recommended_Product,
     });
     await newDevice.save();
     res.status(201).json({
@@ -114,18 +116,15 @@ const editDevice = async (req, res) => {
 
 const getAllDevices = async (req, res) => {
   try {
-    const categoryId = req.query.categoryId;
-    const deviceName = req.query.name;
+    const categoryId = req.query?.categoryId;
+    const deviceName = req.query?.page?.device_name;
 
     const page = parseInt(req.query.page) || 1;
     const pageSize = parseInt(req.query.pageSize) || 10;
 
     const startIndex = (page - 1) * pageSize;
     const endIndex = page * pageSize;
-
-    const totalDevices = await manageDevice.countDocuments();
-    const totalPages = Math.ceil(totalDevices / pageSize);
-
+    
     const query = {};
     if (categoryId) {
       query.category = categoryId;
@@ -133,8 +132,9 @@ const getAllDevices = async (req, res) => {
     if (deviceName) {
       query.device_name = { $regex: deviceName, $options: "i" };
     }
-    // console.log(query);
-    // const query = categoryId ? { category: categoryId } : {};
+    const totalDevices = await manageDevice.countDocuments(query);
+    const totalPages = Math.ceil(totalDevices / pageSize);
+
     const devices = await manageDevice
       .find(query)
       .populate("category")
@@ -148,7 +148,6 @@ const getAllDevices = async (req, res) => {
         totalDevices: totalDevices,
       };
      
-      console.log("paginationInfo", paginationInfo)
     res.status(200).json({
       success: true,
       message: "Devices retrieved successfully",

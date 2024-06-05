@@ -46,12 +46,14 @@ const getAllCategories = async (req, res) => {
     const startIndex = (page - 1) * pageSize;
     const endIndex = page * pageSize;
 
-    const totalCategories = await Category.countDocuments();
-    const totalPages = Math.ceil(totalCategories / pageSize);
     let filter = {};
-    if (req.query.name) {
-      filter.name = { $regex: req.query.name, $options: "i" };
+    if (req.query?.page?.name) {
+      filter.name = { $regex: req?.query?.page?.name, $options: "i" };
     }
+
+    const totalCategories = await Category.countDocuments(filter);
+    const totalPages = Math.ceil(totalCategories / pageSize);
+
     const allcategories = await Category.find(filter)
       .skip(startIndex)
       .limit(pageSize);
