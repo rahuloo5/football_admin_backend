@@ -61,11 +61,19 @@ const getAllArticle = async (req, res) => {
     const startIndex = (page - 1) * pageSize;
     const endIndex = page * pageSize;
 
-    const totalArticles = await Article.countDocuments();
+    console.log("queries", req.query)
+    let query = {};
+      if (req.query?.page?.short_description) {
+        query.short_description = { $regex: req?.query?.page?.short_description, $options: 'i' };
+      }
+      if (req.query?.page?.detail_description) {
+        query.long_description = { $regex: req?.query?.page?.detail_description, $options: 'i' };
+      }
+
+    const totalArticles = await Article.countDocuments(query);
     const totalPages = Math.ceil(totalArticles / pageSize);
 
-    const articles = await Article.find().skip(startIndex).limit(pageSize);
-
+    const articles = await Article.find(query).skip(startIndex).limit(pageSize);
     const paginationInfo = {
       currentPage: page,
       totalPages: totalPages,

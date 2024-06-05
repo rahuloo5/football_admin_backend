@@ -53,10 +53,54 @@ const createPlan = async (req, res) => {
 
 const getAllPlans = async (req, res) => {
   try {
-    const allPlans = await Plan.find()
+    const { page, pageSize } = req.query;
+    const { 
+      transaction_id = "", 
+      user_detail = "", 
+      startDate, 
+      endDate 
+    } = req.query?.query || {};
+
+    const pageNum = parseInt(page) || 1;
+    const pageSizeNum = parseInt(pageSize) || 10;
+    const startIndex = (pageNum - 1) * pageSizeNum;
+    
+    const query = {};
+
+    if (transaction_id) {
+      query.transactionId = { $regex: transaction_id, $options: "i" };
+    }
+
+    if (user_detail) {
+      const user_name = { $regex: user_detail, $options: "i" };
+      const matchingUsers = await User.find({ firstName: user_name }).select("_id");
+      const userIds = matchingUsers.map(user => user._id);
+      if (userIds.length > 0) {
+        query.user = { $in: userIds };
+      }
+    }
+
+    if (startDate && endDate) {
+      query.createdAt = { $gte: new Date(startDate), $lte: new Date(endDate) };
+    }
+    const totalPlans = await Plan.countDocuments(query);
+    const totalPages = Math.ceil(totalPlans / pageSizeNum);
+
+    const allPlans = await Plan.find(query)
       .populate({ path: "subscription" })
-      .populate("user");
-    return res.json({ plans: allPlans });
+      .populate("user")
+      .sort({ createdAt: -1 }) 
+      .skip(startIndex)
+      .limit(pageSizeNum);
+
+    const paginationInfo = {
+      currentPage: pageNum,
+      totalPages: totalPages,
+      pageSize: pageSizeNum,
+      totalPlans: totalPlans,
+    };
+    console.log("allPlans", allPlans)
+    return res.json({ plans: allPlans, paginationInfo: paginationInfo });
   } catch (error) {
     console.error("Error in getAllPlans:", error);
     return res.status(500).json({ message: "Internal server error" });
