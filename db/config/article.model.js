@@ -8,6 +8,9 @@ const articleSchema = new mongoose.Schema(
     long_description: {
       type: String,
     },
+    description_image: {
+      type: String
+    },
     Images: {
       type: String,
     },

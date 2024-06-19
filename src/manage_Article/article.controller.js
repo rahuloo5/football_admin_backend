@@ -6,17 +6,16 @@ const getaddArticle = async (req, res) => {
   try {
     const { short_description, long_description } = req.body;
 
-    console.log("article data", req.body);
-
-    const Images = req.file ? req.file.filename : null;
+    // Accessing uploaded files from req.files
+    const Images = req.files['Images'] ? req.files['Images'][0].filename : null;
+    const description_image = req.files['description_image'] ? req.files['description_image'][0].filename : null;
 
     const newArticle = new Article({
       short_description,
       long_description,
+      description_image,
       Images,
     });
-
-    console.log("newArticledata", newArticle);
 
     await newArticle.save();
 
@@ -26,6 +25,7 @@ const getaddArticle = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
 
 // const getaddArticle = async (req, res) => {
 //   try {
@@ -61,7 +61,6 @@ const getAllArticle = async (req, res) => {
     const startIndex = (page - 1) * pageSize;
     const endIndex = page * pageSize;
 
-    console.log("queries", req.query)
     let query = {};
       if (req.query?.page?.short_description) {
         query.short_description = { $regex: req?.query?.page?.short_description, $options: 'i' };

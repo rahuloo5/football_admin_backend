@@ -4,7 +4,6 @@ const Feedback = require("../../db/config/feedback.model");
 const Createfeedback = async (req, res) => {
   try {
     const feedback = new Feedback(req.body);
-    console.log("feedbackdone", feedback);
     await feedback.save();
     res.status(201).json(feedback);
   } catch (error) {

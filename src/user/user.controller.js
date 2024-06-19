@@ -245,7 +245,6 @@ const createUserplan = async (req, res) => {
     }
 
     const existingUserPlan = await User.findOne({ user: user._id });
-    console.log(existingUserPlan, "fjjfj");
     console.log(planId, "RMGGJRGJ");
     if (existingUserPlan) {
       const uplanUpdate = await User.findOneAndUpdate(

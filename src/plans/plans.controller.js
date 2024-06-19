@@ -99,7 +99,6 @@ const getAllPlans = async (req, res) => {
       pageSize: pageSizeNum,
       totalPlans: totalPlans,
     };
-    console.log("allPlans", allPlans)
     return res.json({ plans: allPlans, paginationInfo: paginationInfo });
   } catch (error) {
     console.error("Error in getAllPlans:", error);
