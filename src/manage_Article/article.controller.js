@@ -135,14 +135,19 @@ const getArticleById = async (req, res) => {
 const updateArticle = async (req, res) => {
   try {
     const { short_description, long_description } = req.body;
-    console.log(req.file);
-    const Images = req.file ? req.file.filename : null;
-    console.log(JSON.stringify(req.params.id), "idd");
+    const Images = req.files['Images'] ? req.files['Images'][0].filename : null;
+    const description_image = req.files['description_image'] ? req.files['description_image'][0].filename : null;
+
+    const updateData = { short_description };
+    if (long_description) updateData.long_description = long_description;
+    if (Images) updateData.Images = Images;
+    if (description_image) updateData.description_image = description_image;
+
     const updatedArticle = await Article.findByIdAndUpdate(
       req.params.id,
-      { short_description, long_description, Images },
+      updateData,
       { new: true }
-    );
+    );     
 
     if (!updatedArticle) {
       return res.status(404).json({ error: "Article not found" });
