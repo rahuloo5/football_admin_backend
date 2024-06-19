@@ -98,7 +98,6 @@ const deletesubcategory = async (req, res) => {
         .status(400)
         .json({ success: false, error: "Invalid subcategory ID" });
     }
-    console.log("subsubcategory", subcategoryId);
     const deletedSubcategory = await Subcategory.findByIdAndDelete(
       subcategoryId
     );

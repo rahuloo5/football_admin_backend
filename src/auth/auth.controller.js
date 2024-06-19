@@ -18,7 +18,6 @@ function generateOTP() {
 const registerUser = async (req, res) => {
   try {
     const { number, fcm_token } = req.body;
-    console.log("asdfghsdfg", req.body);
     const existingUser = await User.findOne({ number });
     const otp = generateOTP();
     let savedotp;

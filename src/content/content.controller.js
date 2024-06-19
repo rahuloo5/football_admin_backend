@@ -32,7 +32,6 @@ const getaddcontent = async (req, res) => {
 const updateContent = async (req, res) => {
   const { id } = req.params;
   const { title, description, heading } = req.body;
-  console.log("sdfghjkl", req.body);
 
   try {
     const updatedContent = await Content.findByIdAndUpdate(

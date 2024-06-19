@@ -8,7 +8,6 @@ const manageDevice = require("../../db/config/devicemanage.model");
 const createCategory = async (req, res) => {
   try {
     const { name } = req.body;
-    console.log("category data", req.body);
     // const icon = req.file ? req?.file?.filename : null;
     const icon = req.files ? req.files.map((file) => file.filename) : null;
     const cat = await Category.findOne({ name });
@@ -153,7 +152,6 @@ const deleteCategory = async (req, res) => {
         .json({ success: false, error: "Invalid category ID" });
     }
     const devices = await manageDevice.find({ category: categoryId });
-    console.log(devices);
     if (devices.length == 0) {
       const deletedCategory = await Category.findByIdAndDelete(categoryId);
       res.status(200).json({ success: true, data: deletedCategory });

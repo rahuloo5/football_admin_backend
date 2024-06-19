@@ -6,7 +6,6 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const subscriptionWebhook = async (req, res) => {
   const payload = req.body;
   const endpointSecret = "whsec_qxCIXtYQicCymC5u4N0JpDyVjuEaY3yk";
-  console.log("dfgyuiasdfasdf", req.body);
   // const sig = req.headers["stripe-signature"];
   const header = stripe.webhooks.generateTestHeaderString({
     payload: JSON.stringify(req.body),
