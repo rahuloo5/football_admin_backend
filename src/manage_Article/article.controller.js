@@ -7,8 +7,8 @@ const getaddArticle = async (req, res) => {
     const { short_description, long_description } = req.body;
 
     // Accessing uploaded files from req.files
-    const Images = req.files['Images'] ? req.files['Images'][0].filename : null;
-    const description_image = req.files['description_image'] ? req.files['description_image'][0].filename : null;
+    const Images = req.files['Images'] ? req.files['Images'][0].filename : "";
+    const description_image = req.files['description_image'] ? req.files['description_image'][0].filename : "";
 
     const newArticle = new Article({
       short_description,
