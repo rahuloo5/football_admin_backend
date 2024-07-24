@@ -136,14 +136,18 @@ const getArticleById = async (req, res) => {
 const updateArticle = async (req, res) => {
   try {
     const { short_description, long_description } = req.body;
+    const new_description_image = req.files['new_description_image[]'] ? req.files['new_description_image[]']?.map(file => file.filename) : req.body?.new_description_image;
     const Images = req.files['Images'] ? req.files['Images'][0].filename : null;
-    const description_images = req.files['description_image'] ? req.files['description_image'].map(file => file.filename) : [];
-
+    const description_images = req.files['description_image[]'] ? req.files['description_image[]'].map(file => file.filename) : [];
+    
     const updateData = { short_description };
     if (long_description) updateData.long_description = long_description;
     if (Images) updateData.Images = Images;
-    if (description_images.length > 0) updateData.description_image = description_images;
-
+    if (description_images.length >= 0) updateData.description_image = [
+      ...description_images,
+      ...new_description_image
+    ];
+    
     const updatedArticle = await Article.findByIdAndUpdate(
       req.params.id,
       updateData,
