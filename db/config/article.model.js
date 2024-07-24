@@ -9,7 +9,7 @@ const articleSchema = new mongoose.Schema(
       type: String,
     },
     description_image: {
-      type: String
+      type: [String]
     },
     Images: {
       type: String,

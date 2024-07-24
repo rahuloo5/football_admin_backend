@@ -31,7 +31,12 @@ exports.contentImage = multer({ storage }).single("image");
 
 exports.articleImage = multer({ storage: articleImageStorage }).fields([
   { name: "Images", maxCount: 1 },
-  { name: "description_image", maxCount: 1 },
+  { name: "description_image[]", maxCount: 40 },
+]);
+
+exports.updateArticleImage = multer({ storage: articleImageStorage }).fields([
+  { name: "Images", maxCount: 1 },
+  { name: "description_image", maxCount: 40 },
 ]);
 
 exports.categoriesImage = multer({ storage }).array("icon");
