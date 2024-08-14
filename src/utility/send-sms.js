@@ -11,7 +11,7 @@ const sendSMS = async (otp, number) => {
     const response = await client.messages.create({
       body: `Your OTP is ${otp}`,
       from: twilioPhoneNumber,
-      to: `+91${number}`,
+      to: `+1${number}`,
     });
 
     console.log(response);
