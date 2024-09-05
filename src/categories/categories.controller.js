@@ -40,7 +40,7 @@ const createCategory = async (req, res) => {
 const getAllCategories = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const pageSize = parseInt(req.query.pageSize) || 10;
+    const pageSize = parseInt(req.query.pageSize) || 1000;
 
     const startIndex = (page - 1) * pageSize;
     const endIndex = page * pageSize;
