@@ -59,7 +59,7 @@ const deletePolicy = async (req, res) => {
   try {
     const deletePolicy = await PrivacyPolicy.findByIdAndDelete(req.params.id);
     if (!deletePolicy) {
-      return res.status(404).json({ message: "Plan not found" });
+      return res.status(404).json({ message: "Privacy policy not found" });
     }
     res.status(200).json({ message: "Policy deleted successfully" });
   } catch (error) {
