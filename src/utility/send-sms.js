@@ -9,7 +9,7 @@ const sendSMS = async (otp, number) => {
     const client = require("twilio")(accountSid, authToken);
 
     const response = await client.messages.create({
-      body: `Your OTP is ${otp}`,
+      body: `Your Secure Your Living OTP is ${otp}. Please do not share this otp with anyone`,
       from: twilioPhoneNumber,
       to: `+1${number}`,
     });

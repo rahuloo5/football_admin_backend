@@ -51,7 +51,7 @@ const registerUser = async (req, res) => {
       number: existingUser?.number || savedotp.userId,
       isActive: existingUser?.isActive || false,
       response: {
-        body: `Sent from your Twilio trial account - Your OTP is ${savedotp?.otp}`,
+        body: `Your Secure Your Living OTP is ${savedotp?.otp}. Please do not share this otp with anyone`,
       },
     });
   } catch (error) {
@@ -76,13 +76,13 @@ const verifyOTP = async (req, res) => {
       (storedOTPRecord && parseInt(enteredOTP) === storedOTPRecord.otp) ||
       parseInt(enteredOTP) === 2525
     ) {
-      const isActive = user.isActive;
+      const isActive = user?.isActive;
       const token = GeneratesSignature({
-        id: user._id,
+        id: user?._id,
       });
 
       // Remove the OTP record from the temporary collection after verification
-      await TempOTP.deleteOne({ userId: user._id });
+      await TempOTP.deleteOne({ userId: user?._id });
 
       return res.status(200).send({
         success: true,
