@@ -124,7 +124,7 @@ const getAllDevices = async (req, res) => {
 
     const startIndex = (page - 1) * pageSize;
     const endIndex = page * pageSize;
-    
+
     const query = {};
     if (categoryId) {
       query.category = categoryId;
@@ -141,17 +141,17 @@ const getAllDevices = async (req, res) => {
       .skip(startIndex)
       .limit(pageSize);
 
-      const paginationInfo = {
-        currentPage: page,
-        totalPages: totalPages,
-        pageSize: pageSize,
-        totalDevices: totalDevices,
-      };
-     
+    const paginationInfo = {
+      currentPage: page,
+      totalPages: totalPages,
+      pageSize: pageSize,
+      totalDevices: totalDevices,
+    };
+
     res.status(200).json({
       success: true,
       message: "Devices retrieved successfully",
-      data: { devices, paginationInfo }
+      data: { devices, paginationInfo },
     });
   } catch (error) {
     console.error(error);
