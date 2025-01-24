@@ -21,7 +21,6 @@ const registerUser = async (req, res) => {
     const existingUser = await User.findOne({ number });
     const otp = generateOTP();
     let savedotp;
-
     if (existingUser) {
       savedotp = await TempOTP.findOneAndUpdate(
         { userId: existingUser._id },
@@ -38,10 +37,7 @@ const registerUser = async (req, res) => {
         otp: otp,
       });
     }
-
-    let response = await sendSMS(otp, number, fcm_token);
-
-    // let response = await (otp, number, fcm_token);
+    let response = await sendSMS(otp, number);
 
     res.status(200).json({
       message: existingUser
@@ -51,7 +47,7 @@ const registerUser = async (req, res) => {
       number: existingUser?.number || savedotp.userId,
       isActive: existingUser?.isActive || false,
       response: {
-        body: `Sent from your Twilio trial account - Your OTP is ${savedotp?.otp}`,
+        body: `Your Secure Your Living OTP is ${savedotp?.otp}`,
       },
     });
   } catch (error) {
@@ -163,9 +159,11 @@ const resendOtp = async (req, res) => {
 
 const sendTextMessage = async (req, res) => {
   try {
-    let response = await sendSMS("1234", "434023260");
+    let response = await sendSMS("4620", "8184970687");
+    console.log("response", response);
     res.json(response);
   } catch (error) {
+    console.log("error", error);
     res.status(500).send("User not found");
   }
 };
