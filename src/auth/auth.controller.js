@@ -72,13 +72,13 @@ const verifyOTP = async (req, res) => {
       (storedOTPRecord && parseInt(enteredOTP) === storedOTPRecord.otp) ||
       parseInt(enteredOTP) === 2525
     ) {
-      const isActive = user.isActive;
+      const isActive = user?.isActive;
       const token = GeneratesSignature({
-        id: user._id,
+        id: user?._id,
       });
 
       // Remove the OTP record from the temporary collection after verification
-      await TempOTP.deleteOne({ userId: user._id });
+      await TempOTP.deleteOne({ userId: user?._id });
 
       return res.status(200).send({
         success: true,
