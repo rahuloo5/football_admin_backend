@@ -1,27 +1,87 @@
 const YourModel = require("../../db/config/search.model");
+const Plan = require("../../db/config/plan.model");
 const SchemaValidation = require("./search.dto");
 
 // Create operation
 
 const createItem = async (req, res) => {
   try {
-    const { error, value } = SchemaValidation.validate(req.body);
+    const userId = req.user;
 
-    if (error) {
-      return res.status(400).json({ error: error.details[0].message });
+    // Fetch the current item count and user's subscription plan in parallel
+    const [updatedItem, getPlanByUser] = await Promise.all([
+      YourModel.findOne({ userId }).lean(), // Use lean() for faster query response
+      Plan.findOne({ user: userId })
+        .populate("subscription", "planName numberOfSearchAllowed end_date")
+        .lean(),
+    ]);
+    console.log("getPlanByUser", getPlanByUser);
+    if (!getPlanByUser?.subscription) {
+      return res.status(400).json({
+        success: false,
+        message: "No subscription found for the user",
+      });
     }
 
-    const updatedItem = await YourModel.findOneAndUpdate(
-      { searchText: value.searchText },
-      { $inc: { count: 1 } },
-      { new: true, upsert: true }
-    );
+    const { planName, numberOfSearchAllowed } = getPlanByUser.subscription;
+    const currentDate = new Date();
 
-    res.status(200).json({
-      success: true,
-      message: "Item count updated successfully",
-      data: updatedItem,
-    });
+    if (planName === "Free") {
+      if (updatedItem?.count >= numberOfSearchAllowed) {
+        const plan = {
+          planName,
+          count: 0,
+        };
+        return res.status(200).json({
+          success: true,
+          message: "Maximum usage reached for Free plan",
+          data: plan,
+        });
+      }
+      await YourModel.findOneAndUpdate(
+        { userId },
+        { $inc: { count: 1 }, $setOnInsert: { createdAt: new Date() } },
+        { new: true, upsert: true }
+      );
+      return res.status(200).json({
+        success: true,
+        message: "Item count updated successfully",
+        data: {
+          planName,
+          count: parseInt(numberOfSearchAllowed) - parseInt(updatedItem?.count),
+        },
+      });
+    } else if (planName === "Monthly" || planName === "Yearly") {
+      if (new Date(getPlanByUser?.end_date) < currentDate) {
+        const plan = {
+          planName,
+          count: 0,
+        };
+        return res.status(403).json({
+          success: false,
+          message: `${planName} plan has expired`,
+          data: plan,
+        });
+      }
+      await YourModel.findOneAndUpdate(
+        { userId },
+        { $inc: { count: 1 }, $setOnInsert: { createdAt: new Date() } },
+        { new: true, upsert: true }
+      );
+      const plan = {
+        planName,
+        count: -1,
+      };
+      return res.status(200).json({
+        success: true,
+        message: "Item count updated successfully",
+        data: plan,
+      });
+    } else {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid plan type" });
+    }
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, error: "Internal Server Error" });
