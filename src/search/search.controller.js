@@ -4,7 +4,7 @@ const SchemaValidation = require("./search.dto");
 
 // Create operation
 
-const createItem = async (req, res) => {
+const addCount = async (req, res) => {
   try {
     const userId = req.user;
     const [updatedItem, getPlanByUser] = await Promise.all([
@@ -13,7 +13,6 @@ const createItem = async (req, res) => {
         .populate("subscription", "planName numberOfSearchAllowed end_date")
         .lean(),
     ]);
-    console.log("getPlanByUser", getPlanByUser);
     if (!getPlanByUser?.subscription) {
       return res.status(400).json({
         success: false,
@@ -21,13 +20,14 @@ const createItem = async (req, res) => {
       });
     }
 
-    const { planName, numberOfSearchAllowed } = getPlanByUser.subscription;
+    const { planName, _id, numberOfSearchAllowed } = getPlanByUser.subscription;
     const currentDate = new Date();
 
     if (planName === "Free") {
       if (updatedItem?.count >= numberOfSearchAllowed) {
         const plan = {
           planName,
+          plandId: _id,
           count: 0,
         };
         return res.status(200).json({
@@ -46,13 +46,15 @@ const createItem = async (req, res) => {
         message: "Item count updated successfully",
         data: {
           planName,
-          count: parseInt(numberOfSearchAllowed) - parseInt(updatedItem?.count),
+          plandId: _id,
+          count: parseInt(updatedItem?.count),
         },
       });
     } else if (planName === "Monthly" || planName === "Yearly") {
       if (new Date(getPlanByUser?.end_date) < currentDate) {
         const plan = {
           planName,
+          plandId: _id,
           count: 0,
         };
         return res.status(403).json({
@@ -68,6 +70,7 @@ const createItem = async (req, res) => {
       );
       const plan = {
         planName,
+        planId: _id,
         count: -1,
       };
       return res.status(200).json({
@@ -83,6 +86,98 @@ const createItem = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, error: "Internal Server Error" });
+  }
+};
+
+const getCount = async (req, res) => {
+  try {
+    const userId = req.user;
+
+    const [updatedItem, getPlanByUser] = await Promise.all([
+      YourModel.findOne({ userId }).lean(),
+      Plan.findOne({ user: userId })
+        .populate("subscription", "planName numberOfSearchAllowed end_date")
+        .lean(),
+    ]);
+
+    let currentItem = updatedItem;
+    if (!updatedItem) {
+      currentItem = await YourModel.create({
+        userId,
+        count: 0,
+        createdAt: new Date(),
+      });
+    }
+
+    if (!getPlanByUser?.subscription) {
+      return res.status(400).json({
+        success: false,
+        message: "No subscription found for the user",
+      });
+    }
+
+    const {
+      planName,
+      _id: planId,
+      numberOfSearchAllowed,
+    } = getPlanByUser.subscription;
+    const currentDate = new Date();
+
+    if (planName === "Free") {
+      if (currentItem.count >= numberOfSearchAllowed) {
+        return res.status(200).json({
+          success: true,
+          message: "Maximum usage reached for Free plan",
+          data: {
+            planName,
+            planId,
+            count: 0,
+          },
+        });
+      }
+      return res.status(200).json({
+        success: true,
+        message: "Item count retrieved successfully",
+        data: {
+          planName,
+          planId,
+          count: numberOfSearchAllowed - currentItem.count,
+        },
+      });
+    } else if (planName === "Monthly" || planName === "Yearly") {
+      if (new Date(getPlanByUser.end_date) < currentDate) {
+        return res.status(403).json({
+          success: false,
+          message: `${planName} plan has expired`,
+          data: {
+            planName,
+            planId,
+            count: 0,
+          },
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "Item count retrieved successfully",
+        data: {
+          planName,
+          planId,
+          count: -1, // Unlimited usage (count not restricted)
+        },
+      });
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid plan type",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      error: "Internal Server Error",
+    });
   }
 };
 
@@ -183,7 +278,8 @@ const getItemById = async (req, res) => {
 };
 
 module.exports = {
-  createItem,
+  addCount,
+  getCount,
   getAllItems,
   updateItem,
   deleteItem,
