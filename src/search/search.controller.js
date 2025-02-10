@@ -7,10 +7,8 @@ const SchemaValidation = require("./search.dto");
 const createItem = async (req, res) => {
   try {
     const userId = req.user;
-
-    // Fetch the current item count and user's subscription plan in parallel
     const [updatedItem, getPlanByUser] = await Promise.all([
-      YourModel.findOne({ userId }).lean(), // Use lean() for faster query response
+      YourModel.findOne({ userId }).lean(),
       Plan.findOne({ user: userId })
         .populate("subscription", "planName numberOfSearchAllowed end_date")
         .lean(),
