@@ -1,8 +1,9 @@
 const express = require("express");
 const { authMiddleware } = require("../middleware/authorization.middleware");
 const {
-  createItem,
+  addCount,
   getAllItems,
+  getCount,
   updateItem,
   deleteItem,
   getItemById,
@@ -13,10 +14,13 @@ const router = express.Router();
 //search API
 
 // Create
-router.post("/search", authMiddleware, createItem);
+router.post("/addCount", authMiddleware, addCount);
 
 // Read
-router.get("/search", getAllItems);
+router.get("/getCount", authMiddleware, getCount);
+
+// Read
+router.get("/search", authMiddleware, getAllItems);
 
 // Update
 router.put("/search/:id", authMiddleware, updateItem);
