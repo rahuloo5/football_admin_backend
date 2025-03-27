@@ -1,6 +1,7 @@
 const YourModel = require("../../db/config/search.model");
 const Plan = require("../../db/config/plan.model");
 const SchemaValidation = require("./search.dto");
+const User = require("../../db/config/user.model");
 
 // Create operation
 
@@ -93,9 +94,18 @@ const getCount = async (req, res) => {
   try {
     const userId = req.user;
 
+    const userDetails = await User.findById(userId)
+      .select("subscriptionId")
+      .lean();
+    if (!userDetails?.subscriptionId) {
+      return res.status(400).json({
+        success: false,
+        message: "User subscription not found",
+      });
+    }
     const [updatedItem, getPlanByUser] = await Promise.all([
       YourModel.findOne({ userId }).lean(),
-      Plan.findOne({ user: userId })
+      Plan.findById(userDetails?.subscriptionId)
         .populate("subscription", "planName numberOfSearchAllowed end_date")
         .lean(),
     ]);
@@ -163,7 +173,7 @@ const getCount = async (req, res) => {
         data: {
           planName,
           planId,
-          count: -1, // Unlimited usage (count not restricted)
+          count: -1,
         },
       });
     } else {
