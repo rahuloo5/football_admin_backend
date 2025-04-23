@@ -2,6 +2,7 @@ const User = require("../../db/config/user.model");
 const Plan = require("../../db/config/plan.model")
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const nodemailer = require("nodemailer");
+const bcrypt = require('bcrypt')
 
 const {
   GeneratesSignature,
@@ -44,14 +45,18 @@ const userlogin = async (req, res) => {
     const { email, password } = req.body;
 
     console.log(req.body, "checking login here only");
+    const users = await User.find();
+    // console.log(users,"userss saved")
 
     const user = await User.findOne({ email });
+   
+    console.log(user,"user")
 
     if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
-
-    if (user.password === password) {
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (isMatch) {
       let signature = await GeneratesSignature({
         _id: user._id,
         email: user.email,

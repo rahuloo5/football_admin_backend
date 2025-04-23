@@ -8,11 +8,10 @@ const subscriptionSchema = new mongoose.Schema(
     },
     numberOfSearchAllowed: {
       type: Number,
-      required: true,
+      
     },
     planSubscription: {
       type: String,
-      enum: ["monthly", "annually", "both"],
       required: true,
     },
     planAmount: {

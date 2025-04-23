@@ -20,6 +20,7 @@ const plansubscriptionrouter = require("./plan_subscription/plan_subscription.ro
 const addDevicerouter = require("./device/device.route");
 const twilioRouter = require("./twilio/twilio.route");
 const notificationrouter = require("./push_notification/notification.route");
+const communityRequestRouter = require("./community/community.route");
 
 exports.registerRoutes = (app) => {
   app.use(
@@ -48,6 +49,7 @@ exports.registerRoutes = (app) => {
   app.use(plansubscriptionrouter);
   app.use(addDevicerouter);
   app.use(twilioRouter);
+  app.use(communityRequestRouter);
 
   // app.use(notificationrouter);
 };

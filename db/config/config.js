@@ -10,11 +10,15 @@
 
 const mongoose = require("mongoose");
 require("dotenv").config();
-const MONGODB_URI = process.env.MONGO_URI;
+const MONGODB_URI = process.env.MONGO;
 
 exports.connect = () => {
   mongoose
-    .connect(MONGODB_URI)
+    .connect(MONGODB_URI,{
+            dbName:'footballAdmin',
+              bufferCommands:true,
+            useNewUrlParser: true,
+      })
     .then(() => console.log("Connected to MongoDB"))
     .catch((err) => console.error("MongoDB connection error:", err.message));
 };

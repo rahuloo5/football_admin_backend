@@ -21,7 +21,8 @@ const router = express.Router();
 //Content API
 router.post("/subscriptions", addsubscription);
 router.delete("/subscriptions/:id", authMiddleware, deletesubscription);
-router.patch("/subscriptions/:id", authMiddleware, updatesubscription);
+// router.patch("/subscriptions/:id", authMiddleware, updatesubscription);
+router.patch("/subscriptions/:id", updatesubscription);
 router.get("/subscriptions/:id", authMiddleware, getsubscriptionbyId);
 router.get("/subscriptionss", getAllsubscription);
 router.get("/paidSubscriptions", getPaidUsers);

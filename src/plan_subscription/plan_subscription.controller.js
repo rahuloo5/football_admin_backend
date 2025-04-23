@@ -46,6 +46,7 @@ const getAllsubscription = async (req, res) => {
     const subscriptions = await Subscription.find(filter).sort({
       planAmount: 1,
     });
+   
     let totalAmount = 0;
     let totalSubscriptions = subscriptions.length;
 
@@ -144,7 +145,11 @@ const updatesubscription = async (req, res) => {
       },
       { new: true }
     );
-    res.json(updatedSubscription);
+    res.status(200).json({
+      success: true,
+      message: "Subscription updated successfully",
+      data: updatedSubscription,
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Internal Server Error" });
