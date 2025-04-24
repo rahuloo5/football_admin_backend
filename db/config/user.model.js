@@ -56,10 +56,10 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
-  firstName: {
+  firstname: {
     type: String,
   },
-  lastName: {
+  lastname: {
     type: String,
   },
   email: {
@@ -84,6 +84,55 @@ const userSchema = new mongoose.Schema({
     enum: ["Admin", "User"],
     default: ["User"],
   },
+   gender: { type: String, enum: ["Male", "Female", "Other"] },
+  dob: {
+    type: Date,
+    
+  },
+  level: {
+    type: String,
+    enum: ['Beginner', 'Intermediate', 'Advanced', 'Professional'],
+    
+  },
+  position: {
+    type: String,
+    enum: ['Forward', 'Midfielder', 'Defender', 'Goalkeeper'],
+   
+  },
+  foot: {
+    type: String,
+    enum: ['Right', 'Left', 'Both'],
+  
+  },
+  subscriptionType: {
+    type: String,
+    enum: ['Free', 'Monthly', 'Annually'],
+   
+  },
+  height: {
+    type: Number, // in cm
+   
+  },
+  weight: {
+    type: Number, // in kg
+   
+  },
+  idealPlayer: {
+    type: String,
+   
+  },
+  subStatus: {
+    type: String,
+    enum: ['Pending', 'Approved', 'Rejected'],
+    default: 'Pending',
+  },
+  age:{
+    type:Number,
+  },
+  expiry: {
+    type: Date,
+  
+  }
 });
 
 const User = mongoose.model("User", userSchema);

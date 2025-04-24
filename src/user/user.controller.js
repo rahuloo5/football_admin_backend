@@ -119,75 +119,118 @@ const createuser = async (req, res) => {
 
 // Get all users
 
-const getAllUsers = async (req, res) => {
+// const getAllUsers = async (req, res) => {
+//   try {
+//     const page = parseInt(req.query.page) || 1;
+//     const pageSize = parseInt(req.query.pageSize) || 10;
+//     const { 
+//       email = "", 
+//       firstName = "", 
+//       number = "",
+//       _id = "", 
+//     } = req?.query?.query || {};
+//     const startDate = req.query?.query?.startDate;
+//     const endDate = req.query?.query?.endDate;
+//     const startIndex = (page - 1) * pageSize;
+
+//     let query = {};
+//     if (email) {
+//       query.email = { $regex: email, $options: 'i' };
+//     }
+//     if (firstName) {
+//       query.firstName = { $regex: firstName, $options: 'i' };
+//     }
+//     if (number) {
+//       query.number = { $regex: number, $options: 'i' };
+//     }
+
+//     if (startDate && endDate) {
+//       const range = { $gte: new Date(startDate), $lte: new Date(endDate) };
+//       const matchingPlans = await Plan.find({ createdAt: range }).select("_id");
+//       const planIds = matchingPlans.map(plan => plan._id);
+//       if (planIds.length > 0) {
+//         query.subscriptionId = { $in: planIds };
+//         console.log("subscriptionId", query?.susbscriptionId)
+//       }
+//       console.log("matching plans:", matchingPlans);
+//     }
+
+//     let users = await User.find(query).populate({
+//       path: "subscriptionId",
+//       populate: { path: "subscription" },
+//     });
+
+//     if (_id) {
+//       const regex = new RegExp(_id, 'i');
+//       users = users.filter(user => regex.test(user._id.toString()));
+//     }
+
+//     // Pagination and sorting
+//     const totalUsers = users.length;
+//     const totalPages = Math.ceil(totalUsers / pageSize);
+//     const paginatedUsers = users.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(startIndex, startIndex + pageSize);
+
+//     const paginationInfo = {
+//       currentPage: page,
+//       totalPages: totalPages,
+//       pageSize: pageSize,
+//       totalUsers: totalUsers,
+//     };
+
+//     res.status(200).json({
+//       success: true,
+//       message: "Users retrieved successfully",
+//       data: { users: paginatedUsers, paginationInfo }
+//     });
+//   } catch (error) {
+//     res.status(500).json({ success: false, error: error.message });
+//   }
+// };
+
+const getAllUsers = async (req,res) =>{
   try {
-    const page = parseInt(req.query.page) || 1;
-    const pageSize = parseInt(req.query.pageSize) || 10;
-    const { 
-      email = "", 
-      firstName = "", 
-      number = "",
-      _id = "", 
-    } = req?.query?.query || {};
-    const startDate = req.query?.query?.startDate;
-    const endDate = req.query?.query?.endDate;
-    const startIndex = (page - 1) * pageSize;
-
-    let query = {};
-    if (email) {
-      query.email = { $regex: email, $options: 'i' };
-    }
-    if (firstName) {
-      query.firstName = { $regex: firstName, $options: 'i' };
-    }
-    if (number) {
-      query.number = { $regex: number, $options: 'i' };
-    }
-
-    if (startDate && endDate) {
-      const range = { $gte: new Date(startDate), $lte: new Date(endDate) };
-      const matchingPlans = await Plan.find({ createdAt: range }).select("_id");
-      const planIds = matchingPlans.map(plan => plan._id);
-      if (planIds.length > 0) {
-        query.subscriptionId = { $in: planIds };
-        console.log("subscriptionId", query?.susbscriptionId)
-      }
-      console.log("matching plans:", matchingPlans);
-    }
-
-    let users = await User.find(query).populate({
-      path: "subscriptionId",
-      populate: { path: "subscription" },
+    const users = await User.find({}, {
+      firstname: 1,
+      lastname: 1,
+      email: 1,
+      gender: 1,
+      age: 1,
+      level: 1,
+      position: 1,
+      subscriptionType: 1,
+      subStatus: 1,
+      height: 1,
+      weight: 1,
+      expiry: 1,
+      address: 1,
+      createdAt: 1,
+      foot:1
     });
+console.log(users,"users")
+    // Optional: Combine first and last name
+    const userData = users.map(user => ({
+      id: user._id,
+      name: `${user.firstname} ${user.lastname}`,
+      email: user.email,
+      gender: user.gender,
+      age: user.age,
+      level: user.level,
+      position: user.position,
+      subscriptionType: user.subscriptionType,
+      subStatus: user.subStatus,
+      height: user.height,
+      weight: user.weight,
+      expiry: user.expiry,
+      address: user.address,
+      createdAt: user.createdAt,
+      foot:user.foot
+    }));
 
-    if (_id) {
-      const regex = new RegExp(_id, 'i');
-      users = users.filter(user => regex.test(user._id.toString()));
-    }
-
-    // Pagination and sorting
-    const totalUsers = users.length;
-    const totalPages = Math.ceil(totalUsers / pageSize);
-    const paginatedUsers = users.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(startIndex, startIndex + pageSize);
-
-    const paginationInfo = {
-      currentPage: page,
-      totalPages: totalPages,
-      pageSize: pageSize,
-      totalUsers: totalUsers,
-    };
-
-    res.status(200).json({
-      success: true,
-      message: "Users retrieved successfully",
-      data: { users: paginatedUsers, paginationInfo }
-    });
+    res.json(userData);
   } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    res.status(500).json({ message: "Error fetching users", error });
   }
-};
-
-
+}
 // Get a specific user by ID
 const getUserById = async (req, res) => {
   try {
