@@ -21,6 +21,7 @@ const addDevicerouter = require("./device/device.route");
 const twilioRouter = require("./twilio/twilio.route");
 const notificationrouter = require("./push_notification/notification.route");
 const communityRequestRouter = require("./community/community.route");
+const contentManagementRouter = require('./contentManagement/contentManagement.route');
 
 exports.registerRoutes = (app) => {
   app.use(
@@ -50,6 +51,7 @@ exports.registerRoutes = (app) => {
   app.use(addDevicerouter);
   app.use(twilioRouter);
   app.use(communityRequestRouter);
+  app.use(contentManagementRouter);
 
   // app.use(notificationrouter);
 };

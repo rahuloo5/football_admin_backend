@@ -53,7 +53,7 @@ const mongoose = require("mongoose");
 const userSchema = new mongoose.Schema({
   number: {
     type: String,
-    required: true,
+  
     unique: true,
   },
   firstname: {
@@ -84,29 +84,31 @@ const userSchema = new mongoose.Schema({
     enum: ["Admin", "User"],
     default: ["User"],
   },
-   gender: { type: String, enum: ["Male", "Female", "Other"] },
+   gender: { type: String,
+    //  enum: ["Male", "Female", "Other"] 
+    },
   dob: {
-    type: Date,
+    type: String,
     
   },
   level: {
     type: String,
-    enum: ['Beginner', 'Intermediate', 'Advanced', 'Professional'],
+    // enum: ['Beginner', 'Intermediate', 'Advanced', 'Professional'],
     
   },
   position: {
     type: String,
-    enum: ['Forward', 'Midfielder', 'Defender', 'Goalkeeper'],
+    // enum: ['Forward', 'Midfielder', 'Defender', 'Goalkeeper'],
    
   },
   foot: {
     type: String,
-    enum: ['Right', 'Left', 'Both'],
+    // enum: ['Right', 'Left', 'Both'],
   
   },
   subscriptionType: {
     type: String,
-    enum: ['Free', 'Monthly', 'Annually'],
+    // enum: ['Free', 'Monthly', 'Annually'],
    
   },
   height: {
@@ -123,8 +125,8 @@ const userSchema = new mongoose.Schema({
   },
   subStatus: {
     type: String,
-    enum: ['Pending', 'Approved', 'Rejected'],
-    default: 'Pending',
+    // enum: ['Pending', 'Approved', 'Rejected'],
+    // default: 'Pending',
   },
   age:{
     type:Number,

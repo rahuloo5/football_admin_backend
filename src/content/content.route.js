@@ -13,10 +13,10 @@ const { contentImage } = require("../utility/picture");
 const router = express.Router();
 
 //Content API
-router.post("/content", contentImage, authMiddleware, getaddcontent);
-router.delete("/content/:id", authMiddleware, deleteContent);
-router.patch("/content/:id", contentImage, authMiddleware, updateContent);
-router.get("/content/:id", authMiddleware, getContentById);
-router.get("/content", getAllContent);
+// router.post("/content", contentImage, authMiddleware, getaddcontent);
+// router.delete("/content/:id", authMiddleware, deleteContent);
+// router.patch("/content/:id", contentImage, authMiddleware, updateContent);
+// router.get("/content/:id", authMiddleware, getContentById);
+// router.get("/content", getAllContent);
 
 module.exports = router;

@@ -64,6 +64,7 @@ const userlogin = async (req, res) => {
 
       return res.status(200).json({
         token: signature,
+        email:user.email
       });
     }
 
@@ -445,6 +446,47 @@ const transactionapi = async (req, res) => {
   }
 };
 
+const changePassword = async (req, res) => {
+  try {
+    const { email, oldPassword, newPassword, confirmPassword } = req.body;
+
+    // Check if all fields are provided
+    if (!email || !oldPassword || !newPassword || !confirmPassword) {
+      return res.status(400).json({ message: "All fields are required." });
+    }
+
+    // Check if new passwords match
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ message: "New passwords do not match." });
+    }
+
+    // Find user by email
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    // Compare old password
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Old password is incorrect." });
+    }
+
+    // Hash new password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    // Update password
+    user.password = hashedPassword;
+    await user.save();
+
+    res.status(200).json({ message: "Password updated successfully." });
+  } catch (error) {
+    console.error("Change Password Error:", error);
+    res.status(500).json({ message: "Server Error." });
+  }
+};
+
 module.exports = {
   createsub,
   userSignup,
@@ -456,6 +498,7 @@ module.exports = {
   getUserById,
   createUserplan,
   transactionapi,
+  changePassword,
 
   //mailtrap
   sendNotification,
