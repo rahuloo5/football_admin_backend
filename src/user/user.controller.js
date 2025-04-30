@@ -205,7 +205,8 @@ const getAllUsers = async (req,res) =>{
       expiry: 1,
       address: 1,
       createdAt: 1,
-      foot:1
+      foot:1,
+      idealPlayer:1
     });
 console.log(users,"users")
     // Optional: Combine first and last name
@@ -224,7 +225,8 @@ console.log(users,"users")
       expiry: user.expiry,
       address: user.address,
       createdAt: user.createdAt,
-      foot:user.foot
+      foot:user.foot,
+      idealPlayer:user.idealPlayer
     }));
 
     res.json(userData);
