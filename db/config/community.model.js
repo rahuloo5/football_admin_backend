@@ -1,23 +1,17 @@
 const mongoose = require("mongoose");
+const User = require("./user.model");
 
 const requestSchema = new mongoose.Schema(
   {
-    name: {
-      type: String,
-      required: true,
-    },
+   
     description: {
       type: String,
       default: "",
     },
-    email: {
-      type: String,
-      required: true,
-    },
-    status: {
-      type: String,
-      enum: ["pending", "approved", "rejected"],
-      default: "pending",
+   
+    user:{
+type:mongoose.Schema.Types.ObjectId,
+ref:User,
     },
     date: {
         type: Date,

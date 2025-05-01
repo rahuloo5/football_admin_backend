@@ -47,8 +47,31 @@ const getRequest = async(req,res)=>{
     }
   
     try {
-      const requests = await Community.find({ status });
-      res.status(200).json({communityData:requests});
+      const requests = await Community.find().populate('user');
+      const filtered = requests.filter(c => c.user?.subStatus === status); 
+      // const requests = await Community.find({ subStatus:status });
+      console.log(requests,"requests")
+      let newData = filtered.map(user => ({
+        id: user._id,
+        name: `${user.firstname} ${user.user.lastname}`,
+        email: user.email,
+        gender: user.gender,
+        age: user.age,
+        level: user.level,
+        position: user.position,
+        subscriptionType: user.subscriptionType,
+        subStatus: user.subStatus,
+        height: user.height,
+        weight: user.user.weight,
+        expiry: user.user.expiry,
+        address: user.user.address,
+        createdAt: user.user.createdAt,
+        foot:user.user.foot,
+        idealPlayer:uuser.userser.idealPlayer,
+        description:user.description
+      }));
+      console.log(newData,"newdata")
+      res.status(200).json({communityData:newData});
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch requests" });
     }

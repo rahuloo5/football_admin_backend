@@ -52,6 +52,5 @@ exports.registerRoutes = (app) => {
   app.use(twilioRouter);
   app.use(communityRequestRouter);
   app.use(contentManagementRouter);
-
-  // app.use(notificationrouter);
+  app.use(notificationrouter);
 };
