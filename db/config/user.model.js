@@ -128,6 +128,9 @@ const userSchema = new mongoose.Schema({
     // enum: ['Pending', 'Approved', 'Rejected'],
     // default: 'Pending',
   },
+  description:{
+    type:String,
+  },
   age:{
     type:Number,
   },

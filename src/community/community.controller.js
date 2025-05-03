@@ -1,12 +1,12 @@
 const express = require("express");
-const router = express.Router();
-const Community = require("../../db/config/community.model");
+const Community = require("../../db/config/user.model");
+
 
 // Update request status
 const updateRequest=async(req,res)=>{
 
 
-// router.patch("/requests/:id/status", async (req, res) => {
+
   try {
     console.log(req,"updatecom")
     const { id } = req.params;
@@ -38,7 +38,7 @@ const updateRequest=async(req,res)=>{
 }
 
 const getRequest = async(req,res)=>{
-    // GET /api/requests?status=pending
+   
     const { status } = req.query;
     console.log(status,"status")
   
@@ -47,27 +47,28 @@ const getRequest = async(req,res)=>{
     }
   
     try {
-      const requests = await Community.find().populate('user');
-      const filtered = requests.filter(c => c.user?.subStatus === status); 
-      // const requests = await Community.find({ subStatus:status });
-      console.log(requests,"requests")
-      let newData = filtered.map(user => ({
+     
+    
+      const requests = await Community.find({ subStatus:status });
+      console.log(requests,"req")
+  
+      let newData = requests?.map(user => ({
         id: user._id,
-        name: `${user.firstname} ${user.user.lastname}`,
+        name: `${user.firstname} ${user.lastname}`,
         email: user.email,
         gender: user.gender,
         age: user.age,
         level: user.level,
         position: user.position,
-        subscriptionType: user.subscriptionType,
+        subscriptionType:user.subscriptionType,
         subStatus: user.subStatus,
         height: user.height,
-        weight: user.user.weight,
-        expiry: user.user.expiry,
-        address: user.user.address,
-        createdAt: user.user.createdAt,
-        foot:user.user.foot,
-        idealPlayer:uuser.userser.idealPlayer,
+        weight: user.weight,
+        expiry: user.expiry,
+        address: user.address,
+        createdAt: user.createdAt,
+        foot:user.foot,
+        idealPlayer:user.idealPlayer,
         description:user.description
       }));
       console.log(newData,"newdata")
