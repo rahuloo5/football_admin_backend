@@ -1,12 +1,12 @@
 const express = require("express");
 const {
-  sendNotification
+  sendNotification,getNotification
 } = require("./notification.controller");
 
 const router = express.Router();
 
 router.post("/sendNotification", sendNotification);
-router.post("/notification", sendNotification);
+router.post("/notification", getNotification);
 
 //fake notification
 

@@ -79,7 +79,7 @@ const sendNotification=async (req,res) =>{
 const getNotification = async(req,res) =>{
   try {
     const notifications = await Notification.find()
-      .sort({ dateSent: -1 }); // newest first
+      .sort({ dateSent: -1 }); 
 
     res.status(200).json({ success: true, data: notifications });
   } catch (error) {

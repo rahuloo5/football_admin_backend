@@ -27,7 +27,7 @@ router.post("/change-password", changePassword);
 
 //user API
 router.post("/users", authMiddleware, createuser);
-router.get("/users",authMiddleware, getAllUsers);
+router.get("/users", getAllUsers);
 router.get("/users/:id", authMiddleware, getUserById);
 router.patch("/users/:id", authMiddleware, updateuser);
 router.delete("/users/:id", authMiddleware, deleteUser);
