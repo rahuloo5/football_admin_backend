@@ -1,4 +1,4 @@
-const ContactUs = require("../../db/config/contact_us.model");
+const ContactUs = require("../../db/models/contact_us.model");
 
 // Create feedback
 const createComment = async (req, res) => {

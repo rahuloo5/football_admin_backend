@@ -1,11 +1,12 @@
 require("dotenv").config();
 const express = require("express");
-const { connect } = require("./db/config/config");
+const { connect } = require("./db/config");
 const { registerRoutes } = require("./src/routes");
 const bodyParser = require("body-parser");
 const app = express();
 const path = require("path");
 const cors = require("cors");
+const User = require("./db/models/user.model");
 
 // const multer = require("multer");
 // app.use(multer);
@@ -21,6 +22,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 registerRoutes(app);
 
+// Connect to database
 connect();
 const PORT = process.env.PORT;
 app.listen(PORT, () => {

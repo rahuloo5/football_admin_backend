@@ -1,4 +1,4 @@
-const Terms = require("../../db/config/terms_condition.model");
+const Terms = require("../../db/models/terms_condition.model");
 
 // Create feedback
 const CreateTerms = async (req, res) => {

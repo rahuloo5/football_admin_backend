@@ -1,4 +1,4 @@
-const Screen = require("../../db/config/screen.model");
+const Screen = require("../../db/models/screen.model");
 
 // add scrren
 

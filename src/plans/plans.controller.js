@@ -1,7 +1,7 @@
 const Stripe = require("stripe");
-const Plan = require("../../db/config/plan.model");
+const Plan = require("../../db/models/plan.model");
 const moment = require("moment");
-const User = require("../../db/config/user.model");
+const User = require("../../db/models/user.model");
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
 // Create Plan

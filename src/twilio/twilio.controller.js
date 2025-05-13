@@ -1,4 +1,4 @@
-const TwilioDetails = require("../../db/config/twilio.model");
+const TwilioDetails = require("../../db/models/twilio.model");
 
 const updateTwilio = async (req, res) => {
   try {

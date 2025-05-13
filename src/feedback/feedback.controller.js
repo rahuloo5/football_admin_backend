@@ -1,4 +1,4 @@
-const Feedback = require("../../db/config/feedback.model");
+const Feedback = require("../../db/models/feedback.model");
 
 // Create feedback
 const Createfeedback = async (req, res) => {

@@ -1,6 +1,6 @@
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-const Plan = require("../../db/config/plan.model");
-const User = require("../../db/config/user.model");
+const Plan = require("../../db/models/plan.model");
+const User = require("../../db/models/user.model");
 
 const createpayment = async (req, res) => {
   try {
