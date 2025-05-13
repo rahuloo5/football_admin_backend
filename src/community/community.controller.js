@@ -1,5 +1,5 @@
 const express = require("express");
-const Community = require("../../db/config/user.model");
+const Community = require("../../db/models/user.model");
 
 
 // Update request status

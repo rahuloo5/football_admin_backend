@@ -1,4 +1,4 @@
-const Smtp = require("../../db/config/smtp.model");
+const Smtp = require("../../db/models/smtp.model");
 
 const express = require("express");
 const { smtpSchema } = require("./smtp.dto");

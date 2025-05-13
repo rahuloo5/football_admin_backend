@@ -1,5 +1,5 @@
 const express = require("express");
-const CommentModel = require("../../db/config/service.model");
+const CommentModel = require("../../db/models/service.model");
 const router = express.Router();
 
 const comments = async (req, res) => {

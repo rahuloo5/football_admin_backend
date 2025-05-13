@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
-const Category = require("../../db/config/categories.model");
-const manageDevice = require("../../db/config/devicemanage.model");
+const Category = require("../../db/models/categories.model");
+const manageDevice = require("../../db/models/devicemanage.model");
 
 // create Category
 

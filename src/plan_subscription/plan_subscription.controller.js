@@ -1,6 +1,6 @@
-const Notification = require("../../db/config/notification.model");
-const Subscription = require("../../db/config/plan_subscription.model");
-const User = require("../../db/config/user.model");
+const Notification = require("../../db/models/notification.model");
+const Subscription = require("../../db/models/plan_subscription.model");
+const User = require("../../db/models/user.model");
 const { subscriptionValidationSchema } = require("./plan_subscription.dto");
 
 // Create

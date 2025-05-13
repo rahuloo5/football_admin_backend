@@ -1,7 +1,7 @@
-const YourModel = require("../../db/config/search.model");
-const Plan = require("../../db/config/plan.model");
+const YourModel = require("../../db/models/search.model");
+const Plan = require("../../db/models/plan.model");
 const SchemaValidation = require("./search.dto");
-const User = require("../../db/config/user.model");
+const User = require("../../db/models/user.model");
 
 // Create operation
 

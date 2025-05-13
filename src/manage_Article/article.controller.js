@@ -1,6 +1,6 @@
 const sanitizeHtml = require("sanitize-html");
 
-const Article = require("../../db/config/article.model");
+const Article = require("../../db/models/article.model");
 
 const getaddArticle = async (req, res) => {
   try {

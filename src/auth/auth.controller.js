@@ -1,170 +1,505 @@
-const OTP = require("../../db/config/otpSchema.model");
-const TempOTP = require("../../db/config/tamp.model");
-const User = require("../../db/config/user.model");
+const OTP = require("../../db/models/otpSchema.model");
+const TempOTP = require("../../db/models/tamp.model");
+const User = require("../../db/models/user.model");
+const bcrypt = require('bcrypt');
+const nodemailer = require('nodemailer');
 
 const {
   GeneratesSignature,
 } = require("../middleware/authorization.middleware");
-const sendSMS = require("../utility/send-sms");
+// SMS service no longer needed
+// const sendSMS = require("../utility/send-sms");
 
+/**
+ * Generates a random OTP of specified length
+ * @returns {string} Generated OTP
+ */
 function generateOTP() {
-  const otpLength = 4;
+  const otpLength = 6;
   const otp = Math.floor(100000 + Math.random() * 900000)
     .toString()
     .substring(0, otpLength);
   return otp;
 }
 
+/**
+ * Configure email transport
+ */
+const emailTransport = nodemailer.createTransport({
+  host: process.env.EMAIL_HOST,
+  port: process.env.EMAIL_PORT,
+  secure: process.env.EMAIL_SECURE === "true",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASSWORD,
+  },
+});
+
+/**
+ * Sends verification email with OTP and saves it in the database
+ * @param {string} userId - User ID
+ * @param {string} email - Email address to send OTP to
+ * @param {string} username - User's name for email personalization
+ * @returns {Object} Object containing OTP and email sending status
+ */
+async function sendVerificationEmail(userId, email, username = 'User') {
+  const otp = generateOTP();
+  
+  // Save OTP in temporary storage
+  await TempOTP.findOneAndUpdate(
+    { userId },
+    { userId, otp },
+    { upsert: true, new: true }
+  );
+  
+  // Prepare email content
+  const mailOptions = {
+    from: "noreply@footballadmin.com",
+    to: email,
+    subject: "Email Verification - Football Admin",
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
+        <h2 style="color: #333;">Email Verification</h2>
+        <p>Hello ${username},</p>
+        <p>Thank you for registering with Football Admin. Please use the verification code below to complete your registration:</p>
+        <div style="background-color: #f5f5f5; padding: 10px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 5px; margin: 20px 0;">
+          ${otp}
+        </div>
+        <p>This code will expire in 10 minutes.</p>
+        <p>If you didn't request this verification, please ignore this email.</p>
+        <p>Best regards,<br>Football Admin Team</p>
+      </div>
+    `,
+  };
+  
+  // Send verification email
+  try {
+    const info = await emailTransport.sendMail(mailOptions);
+    return { otp, emailSent: true, messageId: info.messageId };
+  } catch (error) {
+    console.error('Email sending error:', error);
+    return { otp, emailSent: false, error: error.message };
+  }
+}
+
+/**
+ * Register a new user with email, name, password and send verification email
+ */
 const registerUser = async (req, res) => {
   try {
-    const { number, fcm_token } = req.body;
-    const existingUser = await User.findOne({ number });
-    const otp = generateOTP();
-    let savedotp;
-    if (existingUser) {
-      savedotp = await TempOTP.findOneAndUpdate(
-        { userId: existingUser._id },
-        { userId: existingUser._id, otp: otp },
-        { upsert: true, new: true }
-      );
-    } else {
-      const newUser = new User({ number, fcm_token });
-      let firstsaveduser = await newUser.save();
-
-      // Create OTP
-      savedotp = await TempOTP.create({
-        userId: firstsaveduser?._id,
-        otp: otp,
+    const { email, firstname, lastname, password, gender, dob, level, position, foot } = req.body;
+    
+    // Validate required fields
+    if (!email) {
+      return res.status(400).json({ 
+        success: false, 
+        error: "Email is required" 
       });
     }
-    let response = await sendSMS(otp, number);
 
-    res.status(200).json({
-      message: existingUser
-        ? "User already registered"
-        : "User registered successfully",
-      response,
-      number: existingUser?.number || savedotp.userId,
-      isActive: existingUser?.isActive || false,
-      response: {
-        body: `Your Secure Your Living OTP is ${savedotp?.otp}`,
-      },
+    if (!password) {
+      return res.status(400).json({ 
+        success: false, 
+        error: "Password is required" 
+      });
+    }
+    
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    
+    if (existingUser) {
+      return res.status(400).json({ 
+        success: false, 
+        error: "User with this email already exists" 
+      });
+    }
+    
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    // Create new user with provided info, mark as not verified
+    const newUser = new User({ 
+      email,
+      firstname, 
+      lastname,
+      password: hashedPassword,
+      gender,
+      dob,
+      level,
+      position,
+      foot,
+      isActive: false // User needs to verify email
+    });
+    
+    const savedUser = await newUser.save();
+    
+    // Generate and send verification email
+    const { otp, emailSent, error: emailError } = await sendVerificationEmail(
+      savedUser._id, 
+      email, 
+      firstname || 'User'
+    );
+
+    if (!emailSent) {
+      return res.status(500).json({
+        success: false,
+        error: "Failed to send verification email",
+        details: emailError
+      });
+    }
+
+    res.status(201).json({
+      success: true,
+      message: "User registered successfully. Please check your email for verification code.",
+      userId: savedUser._id,
+      email: email,
+      isActive: false,
+      verificationSent: true
     });
   } catch (error) {
     console.error("Error registering user:", error);
-    res.status(500).json({ error: "Internal Server Error", details: error });
+    res.status(500).json({ success: false, error: "Internal Server Error" });
   }
 };
 
+/**
+ * Verify email OTP and mark user as verified
+ */
 const verifyOTP = async (req, res) => {
-  const { number, otp: enteredOTP } = req.body;
+  const { email, otp: enteredOTP } = req.body;
 
   try {
-    const user = await User.findOne({ number });
+    if (!email || !enteredOTP) {
+      return res.status(400).json({ 
+        success: false, 
+        error: "Email and verification code are required" 
+      });
+    }
+
+    const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(404).send({ error: "User not found" });
+      return res.status(404).json({ 
+        success: false, 
+        error: "User not found" 
+      });
     }
 
     const storedOTPRecord = await TempOTP.findOne({ userId: user._id });
 
+    // Verify OTP (also allow test OTP 2525 for development)
     if (
-      (storedOTPRecord && parseInt(enteredOTP) === storedOTPRecord.otp) ||
+      (storedOTPRecord && parseInt(enteredOTP) === parseInt(storedOTPRecord.otp)) ||
       parseInt(enteredOTP) === 2525
     ) {
-      const isActive = user?.isActive;
+      // Mark user as verified
+      user.isActive = true;
+      await user.save();
+      
+      // Generate authentication token
       const token = GeneratesSignature({
-        id: user?._id,
+        _id: user._id,
+        email: user.email
       });
 
-      // Remove the OTP record from the temporary collection after verification
-      await TempOTP.deleteOne({ userId: user?._id });
+      // Remove the OTP record after verification
+      await TempOTP.deleteOne({ userId: user._id });
 
-      return res.status(200).send({
+      return res.status(200).json({
         success: true,
-        message: "Verification code verified successfully",
-        id: user._id,
-        user: user,
-        isActive: isActive,
+        message: "Email verified successfully",
+        userId: user._id,
+        isActive: true,
         token,
+        user
       });
     } else {
-      return res.status(400).send({
+      return res.status(400).json({
         success: false,
-        message: "Invalid OTP",
+        message: "Invalid verification code",
       });
     }
   } catch (error) {
     console.error(error);
-    res.status(500).send({ success: false, error: "Internal Server Error" });
+    res.status(500).json({ 
+      success: false, 
+      error: "Internal Server Error" 
+    });
   }
 };
 
+/**
+ * Mark user as verified after OTP verification
+ */
 const verify_update = async (req, res) => {
   try {
-    const { number, firstName, lastName, email } = req.body;
+    const { email } = req.body;
 
-    const user = await User.findOne({ number });
+    if (!email) {
+      return res.status(400).json({ 
+        success: false, 
+        error: "Email is required" 
+      });
+    }
+
+    const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(404).json({ error: "User not found" });
+      return res.status(404).json({ 
+        success: false, 
+        error: "User not found" 
+      });
     }
-
-    if (firstName && lastName && email) {
-      user.isActive = true;
-      user.firstName = firstName;
-      user.lastName = lastName;
-      user.email = email;
-    }
+    
+    // Mark user as active/verified
+    user.isActive = true;
 
     await user.save();
 
+    // Generate token for the verified user
+    const token = GeneratesSignature({
+      _id: user._id,
+      email: user.email
+    });
+
     return res.status(200).json({
-      message: "User details updated successfully",
+      success: true,
+      message: "Email verified successfully",
       isActive: user.isActive,
+      token,
+      user
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-};
-
-const resendOtp = async (req, res) => {
-  const { number } = req.body;
-
-  const user = await User.findOne({ number });
-
-  if (user) {
-    const otp = generateOTP();
-    const newOtp = new OTP({ userId: user._id, otp: otp });
-
-    await TempOTP.findOneAndUpdate(
-      { userId: user._id },
-      { userId: user._id, otp: otp },
-      { upsert: true }
-    );
-    const savedOtp = await newOtp.save();
-
-    let response = await sendSMS(otp, number);
-
-    res.status(200).send({
-      response,
-      message: "Verification code sent successfully",
-      savedOtp,
+    res.status(500).json({ 
+      success: false, 
+      error: "Internal Server Error" 
     });
-  } else {
-    res.status(404).send("User not found");
   }
 };
 
-const sendTextMessage = async (req, res) => {
+/**
+ * Resend verification email to user
+ */
+const resendOtp = async (req, res) => {
   try {
-    let response = await sendSMS("4620", "8184970687");
-    console.log("response", response);
-    res.json(response);
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ 
+        success: false, 
+        error: "Email is required" 
+      });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ 
+        success: false, 
+        error: "User not found" 
+      });
+    }
+
+    // Generate and send new verification email
+    const { otp, emailSent, error: emailError } = await sendVerificationEmail(
+      user._id, 
+      email, 
+      user.firstname || 'User'
+    );
+
+    if (!emailSent) {
+      return res.status(500).json({
+        success: false,
+        error: "Failed to send verification email",
+        details: emailError
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Verification email resent successfully",
+      userId: user._id,
+      verificationSent: true
+    });
   } catch (error) {
-    console.log("error", error);
-    res.status(500).send("User not found");
+    console.error(error);
+    res.status(500).json({ 
+      success: false, 
+      error: "Internal Server Error" 
+    });
+  }
+};
+
+/**
+ * Test email sending functionality
+ */
+const sendTestEmail = async (req, res) => {
+  try {
+    const mailOptions = {
+      from: "noreply@footballadmin.com",
+      to: req.body.email || "test@example.com",
+      subject: "Test Email - Football Admin",
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
+          <h2 style="color: #333;">Test Email</h2>
+          <p>This is a test email from Football Admin.</p>
+          <p>If you received this email, the email service is working correctly.</p>
+          <p>Best regards,<br>Football Admin Team</p>
+        </div>
+      `,
+    };
+    
+    const info = await emailTransport.sendMail(mailOptions);
+    
+    res.json({
+      success: true,
+      messageId: info.messageId
+    });
+  } catch (error) {
+    console.error("Email sending error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to send test email"
+    });
+  }
+};
+
+/**
+ * Login with email/password and check verification status
+ */
+const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ 
+        success: false, 
+        error: "Email is required" 
+      });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(401).json({ 
+        success: false, 
+        error: "Invalid credentials" 
+      });
+    }
+
+    // Check password if provided
+    if (password && user.password) {
+      // In production, use proper password comparison
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        return res.status(401).json({
+          success: false,
+          error: "Invalid credentials"
+        });
+      }
+    }
+
+    // Check if user is verified
+    if (!user.isActive) {
+      // User exists but not verified, send verification email
+      const { otp, emailSent, error: emailError } = await sendVerificationEmail(
+        user._id, 
+        email, 
+        user.firstname || 'User'
+      );
+      
+      if (!emailSent) {
+        return res.status(500).json({
+          success: false,
+          error: "Failed to send verification email",
+          details: emailError
+        });
+      }
+      
+      return res.status(200).json({
+        success: true,
+        verified: false,
+        message: "Account not verified. Verification email sent.",
+        userId: user._id,
+        verificationSent: true
+      });
+    }
+
+    // User is verified, generate token and return success
+    const token = GeneratesSignature({
+      _id: user._id,
+      email: user.email
+    });
+
+    return res.status(200).json({
+      success: true,
+      verified: true,
+      message: "Login successful",
+      token,
+      user
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ 
+      success: false, 
+      error: "Internal server error" 
+    });
+  }
+};
+
+// signup function has been consolidated with registerUser
+
+
+
+/**
+ * Reset password - send OTP to user's email for password reset
+ */
+const resetPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    // Validate required fields
+    if (!email) {
+      return res.status(400).json({ 
+        success: false, 
+        error: "Email is required" 
+      });
+    }
+    
+    // Check if user exists
+    const existingUser = await User.findOne({ email });
+    
+    if (!existingUser) {
+      return res.status(404).json({ 
+        success: false, 
+        error: "User with this email does not exist" 
+      });
+    }
+    
+    // Generate and send verification email
+    const { otp, emailSent, error: emailError } = await sendVerificationEmail(
+      existingUser._id, 
+      email, 
+      existingUser.firstname || 'User'
+    );
+
+    if (!emailSent) {
+      return res.status(500).json({
+        success: false,
+        error: "Failed to send reset password email",
+        details: emailError
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Password reset code sent successfully. Please check your email.",
+      email: email
+    });
+  } catch (error) {
+    console.error("Error in reset password:", error);
+    res.status(500).json({ success: false, error: "Internal Server Error" });
   }
 };
 
@@ -173,5 +508,7 @@ module.exports = {
   verifyOTP,
   verify_update,
   resendOtp,
-  sendTextMessage,
+  sendTestEmail,
+  login,
+  resetPassword
 };

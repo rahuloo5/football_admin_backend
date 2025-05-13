@@ -1,4 +1,4 @@
-const PrivacyPolicy = require("../../db/config/privacy_policy.model");
+const PrivacyPolicy = require("../../db/models/privacy_policy.model");
 
 // Create feedback
 const CreatePolicy = async (req, res) => {

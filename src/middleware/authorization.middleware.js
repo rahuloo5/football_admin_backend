@@ -26,7 +26,8 @@ function authMiddleware(req, res, next) {
           .status(403)
           .json({ message: "Failed to authenticate token" });
       }
-      req.user = decoded.id;
+      // Set req.user as an object with id property
+      req.user = { id: decoded._id || decoded.id };
       next();
     }
   );

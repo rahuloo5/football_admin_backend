@@ -1,5 +1,5 @@
-const User = require("../../db/config/user.model");
-const Plan = require("../../db/config/plan.model")
+const User = require("../../db/models/user.model");
+const Plan = require("../../db/models/plan.model")
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const nodemailer = require("nodemailer");
 const bcrypt = require('bcrypt')
@@ -7,75 +7,10 @@ const bcrypt = require('bcrypt')
 const {
   GeneratesSignature,
 } = require("../middleware/authorization.middleware");
-const Subscription = require("../../db/config/plan_subscription.model");
+const Subscription = require("../../db/models/plan_subscription.model");
 const mongoose = require("mongoose");
 
-const userSignup = async (req, resp) => {
-  try {
-    const { firstName, lastName, email, number, password } = req.body;
-    console.log(req.body, "checking body is here");
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return resp
-        .status(400)
-        .json({ message: "User with this email already exists" });
-    }
-
-    // Create a new user
-    const newUser = new User({
-      firstName,
-      lastName,
-      email,
-      number,
-      password,
-    });
-
-    // Save the user to the database
-    await newUser.save();
-
-    resp.status(201).json({ message: "User registered successfully" });
-  } catch (error) {
-    console.error(error);
-    resp.status(500).json({ message: "Internal server error" });
-  }
-};
-
-const userlogin = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    console.log(req.body, "checking login here only");
-    const users = await User.find();
-    // console.log(users,"userss saved")
-
-    const user = await User.findOne({ email });
-   
-    console.log(user,"user")
-
-    if (!user) {
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (isMatch) {
-      let signature = await GeneratesSignature({
-        _id: user._id,
-        email: user.email,
-      });
-
-      return res.status(200).json({
-        token: signature,
-        email:user.email
-      });
-    }
-
-    return res.status(401).json({
-      message: "Invalid credentials",
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-};
+// userSignup and userlogin functions have been moved to auth.controller.js
 
 // Create a new user
 
@@ -489,10 +424,76 @@ const changePassword = async (req, res) => {
   }
 };
 
+/**
+ * Create or update user profile
+ */
+const createProfile = async (req, res) => {
+  try {
+    // Get user ID from auth middleware
+    const userId = req.user.id;
+    
+    if (!userId) {
+      return res.status(400).json({ 
+        success: false, 
+        error: "User ID not found in request" 
+      });
+    }
+
+    // Find user by ID
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ 
+        success: false, 
+        error: "User not found" 
+      });
+    }
+
+    // Check if user is verified
+    if (!user.isActive) {
+      return res.status(400).json({
+        success: false,
+        error: "User account is not verified. Please verify your email first."
+      });
+    }
+
+    // Update user profile fields if provided
+    const { firstname, lastname, gender, dob, level, position, foot, phone, address, idealPlayer, height, weight, description, age } = req.body;
+    
+    if (firstname) user.firstname = firstname;
+    if (lastname) user.lastname = lastname;
+    if (gender) user.gender = gender;
+    if (dob) user.dob = dob;
+    if (level) user.level = level;
+    if (position) user.position = position;
+    if (foot) user.foot = foot;
+    if (phone) user.phone = phone;
+    if (address) user.address = address;
+    if (idealPlayer) user.idealPlayer = idealPlayer;
+    if (height) user.height = height;
+    if (weight) user.weight = weight;
+    if (description) user.description = description;
+    if (age) user.age = age;
+
+    // Save updated user
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      user
+    });
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    res.status(500).json({ 
+      success: false, 
+      error: "Internal Server Error" 
+    });
+  }
+};
+
 module.exports = {
   createsub,
-  userSignup,
-  userlogin,
   getAllUsers,
   createuser,
   deleteUser,
@@ -501,7 +502,6 @@ module.exports = {
   createUserplan,
   transactionapi,
   changePassword,
-
-  //mailtrap
+  createProfile,
   sendNotification,
 };

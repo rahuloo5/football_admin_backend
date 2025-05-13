@@ -1,7 +1,7 @@
 // routes/content.js
 const express = require("express");
 const router = express.Router();
-const Content = require("../../db/config/contentManagement.model");
+const Content = require("../../db/models/contentManagement.model");
 
 // 1. GET /api/content?type=position - Get all contents by type
 const getContentData=async(req,res)=>{

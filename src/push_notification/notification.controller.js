@@ -1,8 +1,8 @@
 
 const express = require('express');
-const User = require('../../db/config/user.model');
+const User = require('../../db/models/user.model');
 const nodemailer = require('nodemailer');
-const Notification = require('../../db/config/notification.model')
+const Notification = require('../../db/models/notification.model')
 
 
 const sendNotification=async (req,res) =>{

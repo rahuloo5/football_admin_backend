@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const Category = require("../../db/config/categories.model");
+const Category = require("../../db/models/categories.model");
 const Subcategory = require("../../db/sub_categories.model");
 
 const createSubCategory = async (req, res) => {

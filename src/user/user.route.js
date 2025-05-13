@@ -1,7 +1,5 @@
 const express = require("express");
 const {
-  userSignup,
-  userlogin,
   deleteduser,
   updateuser,
   getUserById,
@@ -10,19 +8,16 @@ const {
   deleteUser,
   createUserplan,
   createsub,
-  mailtrap,
   sendNotification,
   transactionapi,
-  changePassword
-  
+  changePassword,
+  createProfile
 } = require("./user.controller");
 const { authMiddleware } = require("../middleware/authorization.middleware");
 
 const router = express.Router();
 
 //auth API
-router.post("/signup", userSignup);
-router.post("/login", userlogin);
 router.post("/change-password", changePassword);
 
 //user API
@@ -31,6 +26,7 @@ router.get("/users",authMiddleware, getAllUsers);
 router.get("/users/:id", authMiddleware, getUserById);
 router.patch("/users/:id", authMiddleware, updateuser);
 router.delete("/users/:id", authMiddleware, deleteUser);
+router.post("/user/profile", authMiddleware, createProfile); // Create or update user profile
 
 // User plan API
 router.post("/users-plan/:planId", authMiddleware, createUserplan);

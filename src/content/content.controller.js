@@ -1,4 +1,4 @@
-const Content = require("../../db/config/content.model");
+const Content = require("../../db/models/content.model");
 const { contentValidationSchema } = require("./content.dto");
 
 // add content
