@@ -13,7 +13,9 @@ const {
   mailtrap,
   sendNotification,
   transactionapi,
-  changePassword
+  changePassword,
+  sentOTP,
+  resetPassword
   
 } = require("./user.controller");
 const { authMiddleware } = require("../middleware/authorization.middleware");
@@ -24,6 +26,8 @@ const router = express.Router();
 router.post("/signup", userSignup);
 router.post("/login", userlogin);
 router.post("/change-password", changePassword);
+router.post("/send-otp", sentOTP);
+router.post("/reset-password", resetPassword);
 
 //user API
 router.post("/users", authMiddleware, createuser);

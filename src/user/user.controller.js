@@ -118,6 +118,65 @@ const createuser = async (req, res) => {
   }
 };
 
+const sentOTP = async(req,res)=>{
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+  if (!user) return res.status(404).json({ message: 'User not found' });
+
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  const expiry = Date.now() + 10 * 60 * 1000; // 10 min
+
+  user.otp = otp;
+  user.otpExpiry = expiry;
+  await user.save();
+
+  // send OTP via email (use nodemailer or service)
+  const transporter = nodemailer.createTransport({
+    service: 'gmail', // or your email provider
+    auth: {
+      user: process.env.NOTIFICATION_SENDER_EMAIL,
+      pass: process.env.NOTIFICATION_SENDER_ID
+    }
+  });
+  await transporter.sendMail({
+    from: '"YourApp" <noreply@yourapp.com>',
+    to: email,
+    subject: "Your OTP Code",
+    text: `Your OTP is: ${otp}`
+  })
+  res.json({ message: 'OTP sent successfully' });
+}
+
+const resetPassword =async(req,res)=>{
+  const { email, otp, newPassword, confirmPassword } = req.body;
+
+  if (!email || !otp || !newPassword || !confirmPassword) {
+    return res.status(400).json({ message: 'All fields are required' });
+  }
+
+  if (newPassword !== confirmPassword) {
+    return res.status(400).json({ message: 'Passwords do not match' });
+  }
+
+  const user = await User.findOne({ email });
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  if (user.otp !== otp || user.otpExpiry < Date.now()) {
+    return res.status(400).json({ message: 'Invalid or expired OTP' });
+  }
+
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+  user.password = hashedPassword;
+  user.otp = null;
+  user.otpExpiry = null;
+
+  await user.save();
+
+  res.json({ message: 'Password has been reset successfully' });
+}
+
 // Get all users
 
 // const getAllUsers = async (req, res) => {
@@ -504,4 +563,7 @@ module.exports = {
 
   //mailtrap
   sendNotification,
+  sentOTP,
+  resetPassword
+  
 };
