@@ -15,7 +15,7 @@ const MONGODB_URI = process.env.MONGO;
 exports.connect = () => {
   mongoose
     .connect(MONGODB_URI,{
-            dbName:'football',
+            dbName:'footballAdmin',
               bufferCommands:true,
             useNewUrlParser: true,
       })
