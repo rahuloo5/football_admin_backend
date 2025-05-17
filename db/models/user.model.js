@@ -91,6 +91,9 @@ const userSchema = new mongoose.Schema({
     type: String,
     
   },
+ address:{
+  type:String
+ },
   level: {
     type: String,
     // enum: ['Beginner', 'Intermediate', 'Advanced', 'Professional'],
@@ -128,15 +131,17 @@ const userSchema = new mongoose.Schema({
     // enum: ['Pending', 'Approved', 'Rejected'],
     // default: 'Pending',
   },
+  subscriptionExpiry: {
+    type: Date
+  },
   description:{
     type:String,
   },
   age:{
     type:Number,
   },
-  expiry: {
-    type: Date,
-  
+  requestStatus:{
+    type:String
   }
 });
 

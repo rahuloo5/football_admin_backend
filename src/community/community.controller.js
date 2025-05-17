@@ -18,7 +18,7 @@ const updateRequest=async(req,res)=>{
 
     const updatedRequest = await Community.findByIdAndUpdate(
       id,
-      { status },
+      { requestStatus:status },
       { new: true } // Return the updated document
     );
 
@@ -49,7 +49,7 @@ const getRequest = async(req,res)=>{
     try {
      
     
-      const requests = await Community.find({ subStatus:status });
+      const requests = await Community.find({ requestStatus:status });
       console.log(requests,"req")
   
       let newData = requests?.map(user => ({

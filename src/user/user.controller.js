@@ -196,11 +196,14 @@ const getAllUsers = async (req,res) =>{
       subStatus: 1,
       height: 1,
       weight: 1,
-      expiry: 1,
+      subscriptionExpiry: 1,
       address: 1,
       createdAt: 1,
       foot:1,
-      idealPlayer:1
+      idealPlayer:1,
+      dob:1,
+      number:1,
+      address:1
     });
 console.log(users,"users")
     // Optional: Combine first and last name
@@ -216,11 +219,14 @@ console.log(users,"users")
       subStatus: user.subStatus,
       height: user.height,
       weight: user.weight,
-      expiry: user.expiry,
+      expiry: user.subscriptionExpiry,
       address: user.address,
       createdAt: user.createdAt,
       foot:user.foot,
-      idealPlayer:user.idealPlayer
+      idealPlayer:user.idealPlayer,
+      dob:user.dob,
+      number:user.number,
+      address:user.address
     }));
 
     res.json(userData);
