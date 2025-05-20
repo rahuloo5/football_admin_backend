@@ -1,35 +1,35 @@
-name: secureliving_backend
+# name: secureliving_backend
 
-on:
-  push:
-    branches: [ "master" ]
+# on:
+#   push:
+#     branches: [ "master" ]
     
-jobs:
-  secureliving_backend:
+# jobs:
+#   secureliving_backend:
 
-    runs-on: ubuntu-latest
+#     runs-on: ubuntu-latest
 
-    steps:
-    - name: Setup Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '18'  # Specify the Node.js version you need
+#     steps:
+#     - name: Setup Node.js
+#       uses: actions/setup-node@v2
+#       with:
+#         node-version: '18'  # Specify the Node.js version you need
 
-    - name: Checkout
-      uses: actions/checkout@v3
+#     - name: Checkout
+#       uses: actions/checkout@v3
 
-    - name: Deployment
-      uses: appleboy/ssh-action@master
-      with:
-        host: 203.190.153.27
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        username: user
-        port: 22
-        script: |
-          cd /home/user/SecureYourLiving/backend/
-          git pull origin master
-          /home/user/.nvm/versions/node/v18.20.1/bin/yarn install
-          PATH="$PATH:/home/user/.nvm/versions/node/v18.20.1/bin/"
-          #/home/user/.nvm/versions/node/v18.20.1/bin/yarn build || echo "Yarn build failed with exit code $?"
-          /home/user/.nvm/versions/node/v18.20.1/bin/pm2 restart 14 || echo "PM2 restart failed with exit code $?"
-          #/home/user/.nvm/versions/node/v18.20.1/bin/node -v  # Check Node.js version
+#     - name: Deployment
+#       uses: appleboy/ssh-action@master
+#       with:
+#         host: 203.190.153.27
+#         key: ${{ secrets.SSH_PRIVATE_KEY }}
+#         username: user
+#         port: 22
+#         script: |
+#           cd /home/user/SecureYourLiving/backend/
+#           git pull origin master
+#           /home/user/.nvm/versions/node/v18.20.1/bin/yarn install
+#           PATH="$PATH:/home/user/.nvm/versions/node/v18.20.1/bin/"
+#           #/home/user/.nvm/versions/node/v18.20.1/bin/yarn build || echo "Yarn build failed with exit code $?"
+#           /home/user/.nvm/versions/node/v18.20.1/bin/pm2 restart 14 || echo "PM2 restart failed with exit code $?"
+#           #/home/user/.nvm/versions/node/v18.20.1/bin/node -v  # Check Node.js version
