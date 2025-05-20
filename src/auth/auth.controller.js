@@ -380,6 +380,7 @@ const login = async (req, res) => {
     }
 
     const user = await User.findOne({ email });
+    let isAdmin = user.role[0] == "Admin";
 
     if (!user) {
       return res.status(401).json({ 
@@ -401,7 +402,7 @@ const login = async (req, res) => {
     }
 
     // Check if user is verified
-    if (!user.isActive) {
+    if (!user.isActive && !isAdmin) {
       // User exists but not verified, send verification email
       const { otp, emailSent, error: emailError } = await sendVerificationEmail(
         user._id, 

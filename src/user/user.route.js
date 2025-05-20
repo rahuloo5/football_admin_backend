@@ -11,6 +11,9 @@ const {
   sendNotification,
   transactionapi,
   changePassword,
+  sentOTP,
+  resetPassword,
+  
   createProfile
 } = require("./user.controller");
 const { authMiddleware } = require("../middleware/authorization.middleware");
@@ -19,6 +22,8 @@ const router = express.Router();
 
 //auth API
 router.post("/change-password", changePassword);
+router.post("/send-otp", sentOTP);
+router.post("/reset-password", resetPassword);
 
 //user API
 router.post("/users", authMiddleware, createuser);
