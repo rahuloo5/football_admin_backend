@@ -503,6 +503,80 @@ const resetPassword = async (req, res) => {
   }
 };
 
+/**
+ * Update password after verification
+ * Requires authentication token
+ */
+const updatePassword = async (req, res) => {
+  try {
+    console.log('Update password request received:', { body: req.body, user: req.user });
+    
+    const { password } = req.body;
+    
+    // Validate required fields
+    if (!password) {
+      console.log('Password missing in request');
+      return res.status(400).json({ 
+        success: false, 
+        error: "Password is required" 
+      });
+    }
+    
+    // Get user ID from the authenticated token
+    const userId = req.user.id;
+    console.log('User ID from token:', userId);
+    
+    // Check if user exists
+    const existingUser = await User.findById(userId);
+    console.log('User found:', existingUser ? 'Yes' : 'No');
+    
+    if (!existingUser) {
+      console.log('User not found with ID:', userId);
+      return res.status(404).json({ 
+        success: false, 
+        error: "User not found" 
+      });
+    }
+    
+    // Hash the new password
+    console.log('Hashing password...');
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    
+    // Update user's password
+    console.log('Updating user password...');
+    existingUser.password = hashedPassword;
+    await existingUser.save();
+    console.log('Password updated in database');
+    
+    // Generate new token for the user
+    console.log('Generating new token...');
+    const signature = GeneratesSignature({
+      _id: existingUser._id,
+      email: existingUser.email,
+      verified: existingUser.verified
+    });
+    
+    console.log('Sending success response');
+    res.status(200).json({
+      success: true,
+      message: "Password updated successfully",
+      token: signature
+    });
+  } catch (error) {
+    console.error("Error in update password:", error);
+    console.error("Error stack:", error.stack);
+    
+    // Send a more detailed error message to help with debugging
+    res.status(500).json({ 
+      success: false, 
+      error: "Internal Server Error",
+      message: error.message || "Unknown error occurred",
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
+  }
+};
+
 module.exports = {
   registerUser,
   verifyOTP,
@@ -510,5 +584,6 @@ module.exports = {
   resendOtp,
   sendTestEmail,
   login,
-  resetPassword
+  resetPassword,
+  updatePassword
 };

@@ -6,8 +6,10 @@ const {
   resendOtp,
   sendTestEmail,
   login,
-  resetPassword
+  resetPassword,
+  updatePassword
 } = require("./auth.controller");
+const { authMiddleware } = require("../middleware/authorization.middleware");
 const router = express.Router();
 
 // Authentication routes with email verification
@@ -18,5 +20,6 @@ router.post("/resend-verification", resendOtp); // Resend verification email
 router.post("/test-email", sendTestEmail);   // Test email sending
 router.post("/login", login);                // Login with email and password
 router.post("/reset-password", resetPassword);  // Reset password - send OTP to email
+router.post("/update-password", authMiddleware, updatePassword); // Update password after verification - secured with token
 
 module.exports = router;

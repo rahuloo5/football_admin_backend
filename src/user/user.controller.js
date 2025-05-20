@@ -470,8 +470,16 @@ const createProfile = async (req, res) => {
     if (phone) user.phone = phone;
     if (address) user.address = address;
     if (idealPlayer) user.idealPlayer = idealPlayer;
-    if (height) user.height = height;
-    if (weight) user.weight = weight;
+    if (height) {
+      // Extract numeric value if height contains units (e.g., "180 CM")
+      const heightValue = parseFloat(height.toString().split(' ')[0]);
+      user.height = isNaN(heightValue) ? height : heightValue;
+    }
+    if (weight) {
+      // Extract numeric value if weight contains units (e.g., "75 KG")
+      const weightValue = parseFloat(weight.toString().split(' ')[0]);
+      user.weight = isNaN(weightValue) ? weight : weightValue;
+    }
     if (description) user.description = description;
     if (age) user.age = age;
 
