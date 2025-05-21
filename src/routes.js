@@ -22,6 +22,7 @@ const twilioRouter = require("./twilio/twilio.route");
 const notificationrouter = require("./push_notification/notification.route");
 const communityRequestRouter = require("./community/community.route");
 const contentManagementRouter = require('./contentManagement/contentManagement.route');
+const settingMailRouter = require('./setting/setting.route');
 const postRouter = require('./post/post.route');
 
 exports.registerRoutes = (app) => {
@@ -54,5 +55,6 @@ exports.registerRoutes = (app) => {
   app.use(communityRequestRouter);
   app.use(contentManagementRouter);
   app.use(notificationrouter);
+  app.use(settingMailRouter);
   app.use(postRouter);
 };
