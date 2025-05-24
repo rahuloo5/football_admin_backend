@@ -380,7 +380,8 @@ const login = async (req, res) => {
     }
 
     const user = await User.findOne({ email });
-    let isAdmin = user.role[0] == "Admin";
+    // Safely check if user has admin role, handling cases where role might not exist
+    let isAdmin = user?.role && Array.isArray(user.role) && user.role.length > 0 && user.role[0] === "Admin";
 
     if (!user) {
       return res.status(401).json({ 

@@ -523,7 +523,7 @@ const createProfile = async (req, res) => {
     }
 
     // Update user profile fields if provided
-    const { firstname, lastname, gender, dob, level, position, foot, phone, address, idealPlayer, height, weight, description, age } = req.body;
+    const { firstname, lastname, gender, dob, level, position, foot, phone, address, improvementArea, height, weight, description, age } = req.body;
     
     if (firstname) user.firstname = firstname;
     if (lastname) user.lastname = lastname;
@@ -534,7 +534,7 @@ const createProfile = async (req, res) => {
     if (foot) user.foot = foot;
     if (phone) user.phone = phone;
     if (address) user.address = address;
-    if (idealPlayer) user.idealPlayer = idealPlayer;
+    if (improvementArea) user.improvementArea = improvementArea;
     if (height) {
       // Extract numeric value if height contains units (e.g., "180 CM")
       const heightValue = parseFloat(height.toString().split(' ')[0]);

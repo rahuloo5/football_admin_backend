@@ -122,7 +122,7 @@ const userSchema = new mongoose.Schema({
     type: Number, // in kg
    
   },
-  idealPlayer: {
+  improvementArea: {
     type: String,
    
   },
