@@ -25,6 +25,7 @@ const contentManagementRouter = require('./contentManagement/contentManagement.r
 const settingMailRouter = require('./setting/setting.route');
 const postRouter = require('./post/post.route');
 const courseRoutes = require('./courses/index');
+const mediaManagementRouter = require('./mediaManagement/routes');
 
 exports.registerRoutes = (app) => {
   app.use(
@@ -58,6 +59,7 @@ exports.registerRoutes = (app) => {
   app.use(notificationrouter);
   app.use(settingMailRouter);
   app.use(postRouter);
+  app.use(mediaManagementRouter);
   // Register all course module routes
   courseRoutes.forEach(router => app.use(router));
 };
