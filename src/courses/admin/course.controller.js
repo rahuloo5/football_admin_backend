@@ -53,23 +53,24 @@ const createCourse = async (req, res) => {
       chapters
     } = req.body;
 
+    console.log("Creating course with data:", req.body);  
     // Validate required fields
     if (!title || !description || !type || !subtype || !ageGroup || !level || !position) {
       return res.status(400).json({ message: "All required course fields must be provided" });
     }
 
     // Validate chapters if provided
-    if (chapters && chapters.length > 0) {
-      // Validate each chapter has required fields
-      for (const chapter of chapters) {
-        if (!chapter.title || !chapter.description || !chapter.filePath || !chapter.dataType || chapter.order === undefined) {
-          return res.status(400).json({ 
-            message: "All chapter fields must be provided", 
-            requiredFields: ["title", "description", "filePath", "dataType", "order"]
-          });
-        }
-      }
-    }
+    // if (chapters && chapters.length > 0) {
+    //   // Validate each chapter has required fields
+    //   for (const chapter of chapters) {
+    //     if (!chapter.title || !chapter.description || !chapter.filePath || !chapter.dataType || chapter.order === undefined) {
+    //       return res.status(400).json({ 
+    //         message: "All chapter fields must be provided", 
+    //         requiredFields: ["title", "description", "filePath", "dataType", "order"]
+    //       });
+    //     }
+    //   }
+    // }
 
     // Create new course
     const newCourse = new Course({
