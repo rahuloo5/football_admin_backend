@@ -4,7 +4,7 @@ const contentSchema = new mongoose.Schema(
   {
     type: {
       type: String,
-      enum: ["position", "ageGroup", "idealPlayer", "diet","level","content","category"],
+      enum: ["position", "ageGroup", "idealPlayer", "diet","level","content","subcategory","category"],
       required: true,
     },
     label: {
@@ -15,6 +15,13 @@ const contentSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true, // to avoid duplicates like two "midfielder"
+    },
+    subcategory: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ContentManage", // refers to another document of type 'subcategory'
+      required: function () {
+        return this.type === "category";
+      }
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,

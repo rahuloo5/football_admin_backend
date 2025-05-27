@@ -20,9 +20,12 @@ const getContentData=async(req,res)=>{
 const addContentData= async(req,res)=>{
 
   try {
-    const { type, label, value } = req.body;
+    const { type, label, value, subcategory } = req.body;
     console.log("inside content")
     const newContent = new Content({ type, label, value });
+    if (type === "subcategory" && subcategory) {
+      newContent.subcategory = subcategory;
+    }
     await newContent.save();
     res.status(201).json({ message: "Content added successfully", content: newContent });
   } catch (error) {
