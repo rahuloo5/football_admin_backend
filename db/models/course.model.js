@@ -68,11 +68,13 @@ const courseSchema = new mongoose.Schema(
     },
     thumbnail: {
       type: String,
-      default: ""
+      default: "",
+      required: false
     },
     chapters: {
       type: [chapterSchema],
-      default: []
+      default: [],
+      required: false
     },
     isActive: {
       type: Boolean,
