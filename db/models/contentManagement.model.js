@@ -20,7 +20,7 @@ const contentSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "ContentManage", // refers to another document of type 'subcategory'
       required: function () {
-        return this.type === "category";
+        return false;
       }
     },
     createdBy: {
