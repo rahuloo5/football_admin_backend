@@ -28,6 +28,14 @@ const chapterSchema = new mongoose.Schema(
       type: String,
       enum: ["pdf", "video"],
       required: true
+    },
+    pdfPath: {
+      type: String,
+      default: null
+    },
+    hasPdf: {
+      type: Boolean,
+      default: false
     }
   },
   { _id: true }
