@@ -1,539 +1,485 @@
-const mongoose = require("mongoose");
-const Post = require("../../db/models/post.model");
-const User = require("../../db/models/user.model");
+const mongoose = require('mongoose');
+const Post = require('../../db/models/post.model');
+const Comment = require('../../db/models/comment.model');
+const { validationResult } = require('express-validator');
 
-// Create a new post
+// Create a new post with image
 const createPost = async (req, res) => {
   try {
-    const { description, image } = req.body;
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { content, image } = req.body;
     const userId = req.user.id;
 
-    if (!description) {
-      return res.status(400).json({ error: "Description is required" });
-    }
-
+    // Create new post with image data
     const newPost = new Post({
+      content,
       user: userId,
-      content: description,
-      media: image ? [image] : [],
+      image: {
+        data: image.data,
+        mimeType: image.mimeType || 'image/jpeg',
+        width: image.width || 0,
+        height: image.height || 0,
+        aspectRatio: image.aspectRatio || 1,
+        size: image.size || 0
+      }
     });
 
-    const savedPost = await newPost.save();
+    await newPost.save();
     
-    // Populate user information
-    const populatedPost = await Post.findById(savedPost._id)
-      .populate({
-        path: "user",
-        select: "firstname lastname email"
-      });
+    // Populate user data
+    const populatedPost = await Post.findById(newPost._id)
+      .populate('user', 'username avatar')
+      .lean();
 
     res.status(201).json({
-      message: "Post created successfully",
-      data: populatedPost,
+      success: true,
+      data: populatedPost
     });
   } catch (error) {
-    console.error("Error creating post:", error);
-    res.status(500).json({ error: "Internal server error" });
+    console.error('Error creating post:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Server error while creating post'
+    });
   }
 };
 
-// Get all posts (with cursor-based pagination)
+// Get all posts with pagination
 const getAllPosts = async (req, res) => {
   try {
-    const { limit = 10, cursor } = req.query;
-    const parsedLimit = parseInt(limit);
-    const query = {};
-    
-    // If cursor is provided, fetch posts with IDs less than the cursor
-    if (cursor) {
-      query._id = { $lt: cursor };
-    }
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
 
-    // Fetch one extra post to determine if there are more posts
-    const posts = await Post.find(query)
+    const posts = await Post.find({ isActive: true })
       .sort({ createdAt: -1 })
-      .limit(parsedLimit + 1)
+      .skip(skip)
+      .limit(limit)
+      .populate('user', 'username firstname lastname avatar avatarIndex')
       .populate({
-        path: "user",
-        select: "firstname lastname email"
-      });
+        path: 'comments',
+        options: { limit: 2 }, // Show 2 recent comments
+        populate: {
+          path: 'user',
+          select: 'username firstname lastname avatar avatarIndex'
+        }
+      })
+      .lean();
 
-    // Check if there are more posts
-    const hasMore = posts.length > parsedLimit;
-    // Remove the extra post if there are more
-    const results = hasMore ? posts.slice(0, parsedLimit) : posts;
-    // Get the ID of the last post to use as the next cursor
-    const nextCursor = hasMore && results.length > 0 ? results[results.length - 1]._id : null;
+    const total = await Post.countDocuments({ isActive: true });
 
-    res.status(200).json({
-      message: "Posts fetched successfully",
-      data: results,
+    res.json({
+      success: true,
+      data: posts,
       pagination: {
-        nextCursor: nextCursor ? nextCursor.toString() : null,
-        hasMore
-      },
+        currentPage: page,
+        totalPages: Math.ceil(total / limit),
+        totalItems: total
+      }
     });
   } catch (error) {
-    console.error("Error fetching posts:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-};
-
-// Get posts by user ID (with cursor-based pagination)
-const getUserPosts = async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const { limit = 10, cursor } = req.query;
-    const parsedLimit = parseInt(limit);
-    
-    const query = { user: userId };
-    
-    // If cursor is provided, fetch posts with IDs less than the cursor
-    if (cursor) {
-      query._id = { $lt: cursor };
-    }
-
-    // Fetch one extra post to determine if there are more posts
-    const posts = await Post.find(query)
-      .sort({ createdAt: -1 })
-      .limit(parsedLimit + 1)
-      .populate({
-        path: "user",
-        select: "firstname lastname email"
-      });
-
-    // Check if there are more posts
-    const hasMore = posts.length > parsedLimit;
-    // Remove the extra post if there are more
-    const results = hasMore ? posts.slice(0, parsedLimit) : posts;
-    // Get the ID of the last post to use as the next cursor
-    const nextCursor = hasMore && results.length > 0 ? results[results.length - 1]._id : null;
-
-    res.status(200).json({
-      message: "User posts fetched successfully",
-      data: results,
-      pagination: {
-        nextCursor: nextCursor ? nextCursor.toString() : null,
-        hasMore
-      },
+    console.error('Error fetching posts:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Server error while fetching posts'
     });
-  } catch (error) {
-    console.error("Error fetching user posts:", error);
-    res.status(500).json({ error: "Internal server error" });
   }
 };
 
 // Get a single post by ID
 const getPostById = async (req, res) => {
   try {
-    const { postId } = req.params;
-
-    const post = await Post.findById(postId)
+    const post = await Post.findById(req.params.id)
+      .populate('user', 'username avatar')
       .populate({
-        path: "user",
-        select: "firstname lastname email"
-      });
+        path: 'comments',
+        populate: {
+          path: 'user',
+          select: 'username avatar'
+        }
+      })
+      .lean();
 
     if (!post) {
-      return res.status(404).json({ error: "Post not found" });
+      return res.status(404).json({
+        success: false,
+        error: 'Post not found'
+      });
     }
 
-    res.status(200).json({
-      message: "Post fetched successfully",
-      data: post,
+    res.json({
+      success: true,
+      data: post
     });
   } catch (error) {
-    console.error("Error fetching post:", error);
-    res.status(500).json({ error: "Internal server error" });
+    console.error('Error fetching post:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Server error while fetching post'
+    });
   }
 };
 
 // Update a post
 const updatePost = async (req, res) => {
   try {
-    const { postId } = req.params;
-    const { description, image } = req.body;
-    const userId = req.user.id;
-
-    const post = await Post.findById(postId);
+    const { content } = req.body;
+    const post = await Post.findById(req.params.id);
 
     if (!post) {
-      return res.status(404).json({ error: "Post not found" });
+      return res.status(404).json({
+        success: false,
+        error: 'Post not found'
+      });
     }
 
     // Check if the user is the owner of the post
-    if (post.user.toString() !== userId) {
-      return res.status(403).json({ error: "Unauthorized to update this post" });
+    if (post.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        error: 'Not authorized to update this post'
+      });
     }
 
-    const updateData = {};
-    if (description) updateData.content = description;
-    if (image) updateData.media = [image];
+    post.content = content || post.content;
+    await post.save();
 
-    const updatedPost = await Post.findByIdAndUpdate(
-      postId,
-      updateData,
-      { new: true }
-    ).populate({
-      path: "user",
-      select: "firstname lastname email"
-    });
-
-    res.status(200).json({
-      message: "Post updated successfully",
-      data: updatedPost,
+    res.json({
+      success: true,
+      data: post
     });
   } catch (error) {
-    console.error("Error updating post:", error);
-    res.status(500).json({ error: "Internal server error" });
+    console.error('Error updating post:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Server error while updating post'
+    });
   }
 };
 
-// Delete a post
+// Delete a post (soft delete)
 const deletePost = async (req, res) => {
   try {
-    const { postId } = req.params;
-    const userId = req.user.id;
-
-    const post = await Post.findById(postId);
+    const post = await Post.findById(req.params.id);
 
     if (!post) {
-      return res.status(404).json({ error: "Post not found" });
+      return res.status(404).json({
+        success: false,
+        error: 'Post not found'
+      });
     }
 
-    // Check if the user is the owner of the post
-    if (post.user.toString() !== userId) {
-      return res.status(403).json({ error: "Unauthorized to delete this post" });
+    // Check if the user is the owner of the post or an admin
+    if (post.user.toString() !== req.user._id.toString() && !req.user.isAdmin) {
+      return res.status(403).json({
+        success: false,
+        error: 'Not authorized to delete this post'
+      });
     }
 
-    await Post.findByIdAndDelete(postId);
+    // Soft delete
+    post.isActive = false;
+    await post.save();
 
-    res.status(200).json({
-      message: "Post deleted successfully",
+    res.json({
+      success: true,
+      message: 'Post deleted successfully'
     });
   } catch (error) {
-    console.error("Error deleting post:", error);
-    res.status(500).json({ error: "Internal server error" });
+    console.error('Error deleting post:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Server error while deleting post'
+    });
   }
 };
 
-// Add a comment to a post using atomic operations
-const addComment = async (req, res) => {
-  try {
-    const { postId } = req.params;
-    const { content } = req.body;
-    const userId = req.user.id;
-
-    if (!content) {
-      return res.status(400).json({ error: "Comment content is required" });
-    }
-
-    // Check if post exists
-    const postExists = await Post.exists({ _id: postId });
-    if (!postExists) {
-      return res.status(404).json({ error: "Post not found" });
-    }
-
-    const comment = {
-      _id: new mongoose.Types.ObjectId(),
-      user: userId,
-      content,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-
-    // Use atomic operations to add the comment and increment the count
-    const updatedPost = await Post.findByIdAndUpdate(
-      postId,
-      { 
-        $push: { comments: comment },
-        $inc: { commentsCount: 1 }
-      },
-      { new: true }
-    ).populate({
-      path: "user",
-      select: "firstname lastname email"
-    });
-
-    // Get user info for the new comment
-    const user = await User.findById(userId).select("firstname lastname email");
-
-    // Return just the new comment with user info instead of the entire post
-    const commentWithUser = {
-      ...comment.toObject ? comment.toObject() : comment,
-      user
-    };
-
-    res.status(201).json({
-      message: "Comment added successfully",
-      data: commentWithUser,
-      postId: updatedPost._id,
-      commentsCount: updatedPost.commentsCount
-    });
-  } catch (error) {
-    console.error("Error adding comment:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-};
-
-// Delete a comment using atomic operations
-const deleteComment = async (req, res) => {
-  try {
-    const { postId, commentId } = req.params;
-    const userId = req.user.id;
-
-    // First check if the user is authorized to delete the comment
-    const post = await Post.findOne(
-      { _id: postId, "comments._id": commentId },
-      { "comments.$": 1, user: 1 }
-    );
-
-    if (!post) {
-      return res.status(404).json({ error: "Post or comment not found" });
-    }
-
-    const comment = post.comments[0];
-
-    // Check if the user is the owner of the comment or the post
-    if (comment.user.toString() !== userId && post.user.toString() !== userId) {
-      return res.status(403).json({ error: "Unauthorized to delete this comment" });
-    }
-
-    // Use atomic operations to remove the comment and decrement the count
-    await Post.updateOne(
-      { _id: postId },
-      { 
-        $pull: { comments: { _id: commentId } },
-        $inc: { commentsCount: -1 }
-      }
-    );
-
-    res.status(200).json({
-      message: "Comment deleted successfully",
-    });
-  } catch (error) {
-    console.error("Error deleting comment:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-};
-
-// Like a post using atomic operations
+// Like a post
 const likePost = async (req, res) => {
   try {
-    const { postId } = req.params;
-    const userId = req.user.id;
-
-    // Use findOneAndUpdate with atomic operations
-    // This is more efficient than fetching, modifying, and saving
-    const result = await Post.findOneAndUpdate(
-      { 
-        _id: postId,
-        "likes.user": { $ne: userId } // Make sure user hasn't already liked
-      },
-      { 
-        $push: { likes: { user: userId, createdAt: new Date() } },
-        $inc: { likesCount: 1 }
-      },
-      { new: true }
-    );
-
-    if (!result) {
-      // Either post not found or already liked
-      const post = await Post.findById(postId);
-      if (!post) {
-        return res.status(404).json({ error: "Post not found" });
-      }
-      return res.status(400).json({ error: "You have already liked this post" });
+    const post = await Post.findById(req.params.id);
+    
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        error: 'Post not found'
+      });
     }
 
-    res.status(200).json({
-      message: "Post liked successfully",
-      likesCount: result.likesCount,
+    // Ensure req.user._id exists
+    if (!req.user || !req.user.id) {
+      return res.status(400).json({
+        success: false,
+        error: 'User not authenticated'
+      });
+    }
+
+    const userId = req.user.id.toString();
+
+    // Check if the post has already been liked by this user
+    if (post.likes.some(like => like.user && like.user.toString() === userId)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Post already liked'
+      });
+    }
+
+    // Add the like with proper user reference
+    post.likes.unshift({ user: userId });
+    post.likeCount = post.likes.length;
+    
+    await post.save();
+
+    res.json({
+      success: true,
+      data: post.likes
     });
   } catch (error) {
-    console.error("Error liking post:", error);
-    res.status(500).json({ error: "Internal server error" });
+    console.error('Error liking post:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Server error while liking post'
+    });
   }
 };
 
-// Unlike a post using atomic operations
+// Unlike a post
 const unlikePost = async (req, res) => {
   try {
-    const { postId } = req.params;
-    const userId = req.user.id;
-
-    // Use findOneAndUpdate with atomic operations
-    // This is more efficient than fetching, modifying, and saving
-    const result = await Post.findOneAndUpdate(
-      { 
-        _id: postId,
-        "likes.user": userId // Make sure user has liked the post
-      },
-      { 
-        $pull: { likes: { user: userId } },
-        $inc: { likesCount: -1 }
-      },
-      { new: true }
-    );
-
-    if (!result) {
-      // Either post not found or not liked
-      const post = await Post.findById(postId);
-      if (!post) {
-        return res.status(404).json({ error: "Post not found" });
-      }
-      return res.status(400).json({ error: "You have not liked this post" });
+    const post = await Post.findById(req.params.id);
+    
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        error: 'Post not found'
+      });
     }
 
-    res.status(200).json({
-      message: "Post unliked successfully",
-      likesCount: result.likesCount,
+    // Check if the post has been liked
+    if (!post.likes.some(like => like.user && like.user.toString() === req.user.id.toString())) {
+      return res.status(400).json({
+        success: false,
+        error: 'Post has not been liked'
+      });
+    }
+
+    // Remove the like
+    post.likes = post.likes.filter(
+      like => like.user && like.user.toString() !== req.user.id.toString()
+    );
+    post.likeCount = post.likes.length;
+    await post.save();
+
+    res.json({
+      success: true,
+      data: post.likes
     });
   } catch (error) {
-    console.error("Error unliking post:", error);
-    res.status(500).json({ error: "Internal server error" });
+    console.error('Error unliking post:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Server error while unliking post'
+    });
   }
 };
 
-// Get feed for a user (posts from community) with cursor-based pagination
-const getFeed = async (req, res) => {
+// Add a comment to a post
+const addComment = async (req, res) => {
   try {
-    const { limit = 10, cursor } = req.query;
-    const parsedLimit = parseInt(limit);
-    const query = {};
+    const { content } = req.body;
     
-    // If cursor is provided, fetch posts with IDs less than the cursor
-    if (cursor) {
-      query._id = { $lt: cursor };
+    if (!content || content.trim() === '') {
+      return res.status(400).json({
+        success: false,
+        error: 'Comment content is required'
+      });
     }
 
-    // Fetch one extra post to determine if there are more posts
-    const posts = await Post.find(query)
-      .sort({ createdAt: -1 })
-      .limit(parsedLimit + 1)
-      .populate({
-        path: "user",
-        select: "firstname lastname email"
-      })
-      // Don't populate all comments, just return the count
-      // This significantly reduces response payload size
-      .select("-comments");
+    const post = await Post.findById(req.params.id);
+    
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        error: 'Post not found'
+      });
+    }
 
-    // Check if there are more posts
-    const hasMore = posts.length > parsedLimit;
-    // Remove the extra post if there are more
-    const results = hasMore ? posts.slice(0, parsedLimit) : posts;
-    // Get the ID of the last post to use as the next cursor
-    const nextCursor = hasMore && results.length > 0 ? results[results.length - 1]._id : null;
+    const comment = new Comment({
+      content,
+      user: req.user.id,
+      post: post._id
+    });
 
-    res.status(200).json({
-      message: "Feed fetched successfully",
-      data: results,
-      pagination: {
-        nextCursor: nextCursor ? nextCursor.toString() : null,
-        hasMore
-      },
+    await comment.save();
+    
+    // Add comment to post and increment comment count
+    post.comments.push(comment._id);
+    post.commentsCount += 1;
+    await post.save();
+
+    // Populate user data
+    const populatedComment = await Comment.findById(comment._id)
+      .populate('user', 'username avatar');
+
+    res.status(201).json({
+      success: true,
+      data: populatedComment
     });
   } catch (error) {
-    console.error("Error fetching feed:", error);
-    res.status(500).json({ error: "Internal server error" });
+    console.error('Error adding comment:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Server error while adding comment'
+    });
+  }
+};
+
+// Delete a comment
+const deleteComment = async (req, res) => {
+  try {
+    const comment = await Comment.findById(req.params.commentId);
+    
+    if (!comment) {
+      return res.status(404).json({
+        success: false,
+        error: 'Comment not found'
+      });
+    }
+
+    // Check if the user is the owner of the comment or an admin
+    if (comment.user.toString() !== req.user._id.toString() && !req.user.isAdmin) {
+      return res.status(403).json({
+        success: false,
+        error: 'Not authorized to delete this comment'
+      });
+    }
+
+    const post = await Post.findById(comment.post);
+    
+    // Remove comment from post's comments array
+    post.comments = post.comments.filter(
+      commentId => commentId.toString() !== req.params.commentId
+    );
+    post.commentsCount = Math.max(0, post.commentsCount - 1);
+    await post.save();
+    
+    // Delete the comment
+    await Comment.findByIdAndDelete(req.params.commentId);
+
+    res.json({
+      success: true,
+      message: 'Comment deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting comment:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Server error while deleting comment'
+    });
   }
 };
 
 // Get comments for a post with pagination
 const getPostComments = async (req, res) => {
   try {
-    const { postId } = req.params;
-    const { limit = 10, cursor } = req.query;
-    const parsedLimit = parseInt(limit);
+    const { page = 1, limit = 10 } = req.query;
+    const skip = (page - 1) * limit;
 
-    const post = await Post.findById(postId);
-    if (!post) {
-      return res.status(404).json({ error: "Post not found" });
-    }
+    const comments = await Comment.find({ 
+      post: req.params.id,
+      isActive: true 
+    })
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(parseInt(limit))
+    .populate('user', 'username avatar')
+    .lean();
 
-    let comments = [];
-    let hasMore = false;
-    let nextCursor = null;
+    const total = await Comment.countDocuments({ 
+      post: req.params.id,
+      isActive: true 
+    });
 
-    if (post.comments && post.comments.length > 0) {
-      // Sort comments by creation date (newest first)
-      const sortedComments = [...post.comments].sort((a, b) => 
-        b.createdAt - a.createdAt
-      );
-
-      // Apply cursor-based pagination
-      let startIndex = 0;
-      if (cursor) {
-        startIndex = sortedComments.findIndex(comment => 
-          comment._id.toString() === cursor
-        );
-        if (startIndex !== -1) {
-          // Start after the cursor
-          startIndex += 1;
-        } else {
-          startIndex = 0;
-        }
-      }
-
-      // Get comments for the current page
-      const endIndex = startIndex + parsedLimit;
-      const pageComments = sortedComments.slice(startIndex, endIndex + 1);
-      
-      // Check if there are more comments
-      hasMore = pageComments.length > parsedLimit;
-      // Remove the extra comment if there are more
-      comments = hasMore ? pageComments.slice(0, parsedLimit) : pageComments;
-      // Get the ID of the last comment to use as the next cursor
-      nextCursor = hasMore && comments.length > 0 ? comments[comments.length - 1]._id : null;
-
-      // Get user IDs from comments
-      const userIds = comments.map(comment => comment.user);
-      
-      // Fetch user information in a single query
-      const users = await User.find({ _id: { $in: userIds } })
-        .select("firstname lastname email");
-
-      // Create a map of user IDs to user objects
-      const userMap = {};
-      users.forEach(user => {
-        userMap[user._id.toString()] = user;
-      });
-
-      // Add user information to comments
-      comments = comments.map(comment => {
-        const commentObj = comment.toObject();
-        commentObj.user = userMap[comment.user.toString()];
-        return commentObj;
-      });
-    }
-
-    res.status(200).json({
-      message: "Comments fetched successfully",
+    res.json({
+      success: true,
       data: comments,
       pagination: {
-        nextCursor: nextCursor ? nextCursor.toString() : null,
-        hasMore,
-        total: post.commentsCount
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(total / limit),
+        totalItems: total
       }
     });
   } catch (error) {
-    console.error("Error fetching comments:", error);
-    res.status(500).json({ error: "Internal server error" });
+    console.error('Error fetching comments:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Server error while fetching comments'
+    });
+  }
+};
+
+// Get posts by a specific user
+const getUserPosts = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { page = 1, limit = 10 } = req.query;
+    const skip = (page - 1) * limit;
+
+    const posts = await Post.find({ 
+      user: userId,
+      isActive: true 
+    })
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(parseInt(limit))
+    .populate('user', 'username avatar')
+    .populate({
+      path: 'comments',
+      options: { limit: 2 },
+      populate: {
+        path: 'user',
+        select: 'username avatar'
+      }
+    })
+    .lean();
+
+    const total = await Post.countDocuments({ 
+      user: userId,
+      isActive: true 
+    });
+
+    res.json({
+      success: true,
+      data: posts,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(total / limit),
+        totalItems: total
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching user posts:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Server error while fetching user posts'
+    });
   }
 };
 
 module.exports = {
   createPost,
   getAllPosts,
-  getUserPosts,
   getPostById,
   updatePost,
   deletePost,
-  addComment,
-  deleteComment,
   likePost,
   unlikePost,
-  getFeed,
+  addComment,
+  deleteComment,
   getPostComments,
+  getUserPosts
 };

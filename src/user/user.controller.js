@@ -523,7 +523,7 @@ const createProfile = async (req, res) => {
     }
 
     // Update user profile fields if provided
-    const { firstname, lastname, gender, dob, level, position, foot, phone, address, improvementArea, height, weight, description, age } = req.body;
+    const { firstname, lastname, gender, dob, level, position, foot, phone, address, improvementArea, height, weight, description, age,avatarIndex } = req.body;
     
     if (firstname) user.firstname = firstname;
     if (lastname) user.lastname = lastname;
@@ -547,6 +547,7 @@ const createProfile = async (req, res) => {
     }
     if (description) user.description = description;
     if (age) user.age = age;
+    if (avatarIndex) user.avatarIndex = avatarIndex;
 
     // Save updated user
     await user.save();

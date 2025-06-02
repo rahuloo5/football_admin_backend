@@ -10,7 +10,7 @@ const User = require("./db/models/user.model");
 
 // const multer = require("multer");
 // app.use(multer);
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit: '50mb'}));
 app.use(bodyParser.urlencoded({ extended: false }));
 
 
