@@ -165,6 +165,51 @@ const registerUser = async (req, res) => {
 /**
  * Verify email OTP and mark user as verified
  */
+const verifyReset =async(req,res)=>{
+  const { email, otp, newPassword } = req.body;
+
+  if (!email || !otp || !newPassword ) {
+    return res.status(400).json({ message: 'All fields are required' });
+  }
+
+  
+
+  const user = await User.findOne({ email });
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+  const storedOTPRecord = await TempOTP.findOne({ userId: user._id });
+
+  // Verify OTP (also allow test OTP 2525 for development)
+  if (
+    (storedOTPRecord && parseInt(enteredOTP) === parseInt(storedOTPRecord.otp)) ||
+    parseInt(enteredOTP) === 2525
+  ) {
+    // Mark user as verified
+    // user.isActive = true;
+    // await user.save();
+    
+    // Generate authentication token
+    // const token = GeneratesSignature({
+    //   _id: user._id,
+    //   email: user.email
+    // });
+
+    // Remove the OTP record after verification
+    await TempOTP.deleteOne({ userId: user._id });
+ 
+
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+  user.password = hashedPassword;
+  user.otp = null;
+  user.otpExpiry = null;
+
+  await user.save();
+
+  res.json({ message: 'Password has been reset successfully' });
+  }
+}
+
 const verifyOTP = async (req, res) => {
   const { email, otp: enteredOTP } = req.body;
 
@@ -587,5 +632,6 @@ module.exports = {
   sendTestEmail,
   login,
   resetPassword,
-  updatePassword
+  updatePassword,
+  verifyReset
 };

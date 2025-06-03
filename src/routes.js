@@ -27,6 +27,7 @@ const postRouter = require('./post/post.route');
 const courseRoutes = require('./courses/index');
 const mediaManagementRouter = require('./mediaManagement/routes');
 const quizes = require('./quizes/quiz.route');
+const polls = require('./polls/poll.route');
 
 exports.registerRoutes = (app) => {
   app.use(
@@ -62,6 +63,7 @@ exports.registerRoutes = (app) => {
   app.use(postRouter);
   app.use(mediaManagementRouter);
   app.use(quizes);
+  app.use(polls)
   // Register all course module routes
   courseRoutes.forEach(router => app.use(router));
 };
