@@ -182,8 +182,8 @@ const verifyReset =async(req,res)=>{
 
   // Verify OTP (also allow test OTP 2525 for development)
   if (
-    (storedOTPRecord && parseInt(enteredOTP) === parseInt(storedOTPRecord.otp)) ||
-    parseInt(enteredOTP) === 2525
+    (storedOTPRecord && parseInt(otp) === parseInt(storedOTPRecord.otp)) ||
+    parseInt(otp) === 2525
   ) {
     // Mark user as verified
     // user.isActive = true;
