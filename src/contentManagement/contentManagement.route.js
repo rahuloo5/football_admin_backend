@@ -3,7 +3,8 @@ const {
     deleteContentData,
     updateContentData,
     addContentData,
-    getContentData
+    getContentData,
+    getAllContentData,
 } = require("./contentManagement.controller");
 const { authMiddleware } = require("../middleware/authorization.middleware");
 
@@ -17,6 +18,7 @@ router.get("/content", getContentData);
 router.post("/content", addContentData);
 router.put("/content/:id", updateContentData);
 router.delete("/content/:id", deleteContentData);
+router.get("/allcontent", getAllContentData);
 
 
 module.exports = router;

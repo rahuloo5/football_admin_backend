@@ -68,9 +68,19 @@ const deleteContentData=async(req,res)=>{
   }
 };
 
+const getAllContentData =async(req,res)=>{
+  try{
+    const contents = await Content.find({});
+      res.status(200).json({ success: true, data: contents });
+
+  } catch (error) {
+    res.status(500).json({ message: "Failed to delete content", error });
+  }
+}
 module.exports = {
     deleteContentData,
     updateContentData,
     addContentData,
-    getContentData
+    getContentData,
+    getAllContentData,
   };
