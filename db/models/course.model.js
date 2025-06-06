@@ -22,7 +22,7 @@ const chapterSchema = new mongoose.Schema(
     // },
     filePath: {
       type: String,
-      required: true
+      required: false
     },
     dataType: {
       type: String,
