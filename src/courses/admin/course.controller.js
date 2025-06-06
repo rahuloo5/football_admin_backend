@@ -55,7 +55,7 @@ const createCourse = async (req, res) => {
 
     console.log("Creating course with data:", req.body);  
     // Validate required fields
-    if (!title || !description || !type || !subtype || !ageGroup || !level || !position) {
+    if (!title || !description || !type || !ageGroup || !level || !position) {
       return res.status(400).json({ message: "All required course fields must be provided" });
     }
 
