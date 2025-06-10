@@ -66,7 +66,7 @@ const createCourse = async (req, res) => {
         if (!chapter.title || !chapter.description || !chapter.dataType || chapter.order === undefined) {
           return res.status(400).json({ 
             message: "All chapter fields must be provided", 
-            requiredFields: ["title", "description", "filePath", "dataType", "order"]
+            requiredFields: ["title", "description", "dataType", "order"]
           });
         }
       }
@@ -130,10 +130,10 @@ const updateCourse = async (req, res) => {
       // Validate each chapter has required fields
       if (chapters.length > 0) {
         for (const chapter of chapters) {
-          if (!chapter.title || !chapter.description || !chapter.filePath || !chapter.dataType || chapter.order === undefined) {
+          if (!chapter.title || !chapter.description || !chapter.dataType || chapter.order === undefined) {
             return res.status(400).json({ 
               message: "All chapter fields must be provided", 
-              requiredFields: ["title", "description", "filePath", "dataType", "order"]
+              requiredFields: ["title", "description", "dataType", "order"]
             });
           }
         }
