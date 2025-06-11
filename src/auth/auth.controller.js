@@ -33,6 +33,13 @@ const emailTransport = nodemailer.createTransport({
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASSWORD,
   },
+  attachments: [
+    {
+      filename: 'signature.png',
+      path: process.env.EMAIL_SIGNATURE_PATH || 'public/email-assets/signature.png',
+      cid: 'signature-logo'
+    }
+  ]
 });
 
 /**
@@ -56,18 +63,20 @@ async function sendVerificationEmail(userId, email, username = 'User') {
   const mailOptions = {
     from: "noreply@footballadmin.com",
     to: email,
-    subject: "Email Verification - Football Admin",
+    subject: "Welcome to For The Players Academy – Verify Your Email",
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
-        <h2 style="color: #333;">Email Verification</h2>
-        <p>Hello ${username},</p>
-        <p>Thank you for registering with Football Admin. Please use the verification code below to complete your registration:</p>
+        <h2 style="color: #333;">Welcome to the team</h2>
+        <p>We're excited to have you join For The Players Academy.</p>
+        <p>To complete your registration and get started, please enter the verification code below:</p>
         <div style="background-color: #f5f5f5; padding: 10px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 5px; margin: 20px 0;">
-          ${otp}
+          🔐 Your Verification Code: ${otp}
         </div>
-        <p>This code will expire in 10 minutes.</p>
-        <p>If you didn't request this verification, please ignore this email.</p>
-        <p>Best regards,<br>Football Admin Team</p>
+        <p>If you didn't request this, no worries—just ignore this message.</p>
+        <p>Let's kick off something great together!</p>
+        <div style="text-align: center; margin-top: 20px;">
+          <img src="cid:signature-logo" alt="For The Players Academy Logo" style="max-width: 200px;">
+        </div>
       </div>
     `,
   };
@@ -165,6 +174,51 @@ const registerUser = async (req, res) => {
 /**
  * Verify email OTP and mark user as verified
  */
+const verifyReset =async(req,res)=>{
+  const { email, otp, newPassword } = req.body;
+
+  if (!email || !otp || !newPassword ) {
+    return res.status(400).json({ message: 'All fields are required' });
+  }
+
+  
+
+  const user = await User.findOne({ email });
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+  const storedOTPRecord = await TempOTP.findOne({ userId: user._id });
+
+  // Verify OTP (also allow test OTP 2525 for development)
+  if (
+    (storedOTPRecord && parseInt(otp) === parseInt(storedOTPRecord.otp)) ||
+    parseInt(otp) === 2525
+  ) {
+    // Mark user as verified
+    // user.isActive = true;
+    // await user.save();
+    
+    // Generate authentication token
+    // const token = GeneratesSignature({
+    //   _id: user._id,
+    //   email: user.email
+    // });
+
+    // Remove the OTP record after verification
+    await TempOTP.deleteOne({ userId: user._id });
+ 
+
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+  user.password = hashedPassword;
+  user.otp = null;
+  user.otpExpiry = null;
+
+  await user.save();
+
+  res.json({ message: 'Password has been reset successfully' });
+  }
+}
+
 const verifyOTP = async (req, res) => {
   const { email, otp: enteredOTP } = req.body;
 
@@ -587,5 +641,6 @@ module.exports = {
   sendTestEmail,
   login,
   resetPassword,
-  updatePassword
+  updatePassword,
+  verifyReset
 };

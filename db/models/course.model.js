@@ -16,13 +16,13 @@ const chapterSchema = new mongoose.Schema(
       type: Number,
       required: true
     },
-    duration: {
-      type: Number, // Duration in seconds
-      default: 0
-    },
+    // duration: {
+    //   type: Number, // Duration in seconds
+    //   default: 0
+    // },
     filePath: {
       type: String,
-      required: true
+      required: false
     },
     dataType: {
       type: String,
@@ -55,12 +55,12 @@ const courseSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ["training", "nutrition"],
+      enum: ["all", "training", "nutrition"],
       required: true
     },
     subtype: {
       type: String,
-      required: true
+      required: false
     },
     ageGroup: {
       type: String,

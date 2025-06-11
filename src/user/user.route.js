@@ -21,8 +21,8 @@ const router = express.Router();
 
 //auth API
 router.post("/change-password", changePassword);
-router.post("/send-otp", sentOTP);
-router.post("/reset-password", resetPassword);
+// router.post("/send-otp", sentOTP);
+// router.post("/reset-password", resetPassword);
 
 //user API
 router.post("/users", authMiddleware, createuser);
