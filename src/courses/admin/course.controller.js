@@ -117,6 +117,13 @@ const updateCourse = async (req, res) => {
       isActive
     } = req.body;
 
+    // Validate that chapters are provided
+    if (!chapters || chapters.length === 0) {
+      return res.status(400).json({ 
+        message: "Chapters are required and cannot be empty" 
+      });
+    }
+
     // Build update object
     const updateData = {};
     
@@ -131,27 +138,23 @@ const updateCourse = async (req, res) => {
     if (thumbnail !== undefined) updateData.thumbnail = thumbnail;
     if (isActive !== undefined) updateData.isActive = isActive;
     
-    // Handle chapters update if provided
-    if (chapters !== undefined) {
-      // Validate each chapter has required fields
-      if (chapters.length > 0) {
-        for (const chapter of chapters) {
-          if (!chapter.title || !chapter.description || !chapter.dataType || !chapter.path || chapter.order === undefined) {
-            return res.status(400).json({ 
-              message: "All chapter fields must be provided", 
-              requiredFields: ["title", "description", "dataType", "path", "order"]
-            });
-          }
-          // Validate dataType and path combination
-          if (chapter.dataType === 'pdf' && !chapter.path.startsWith('pdf/')) {
-            return res.status(400).json({ 
-              message: "Invalid PDF path format" 
-            });
-          }
-        }
+    // Handle chapters update
+    // Validate each chapter has required fields
+    for (const chapter of chapters) {
+      if (!chapter.title || !chapter.description || !chapter.dataType || !chapter.path || chapter.order === undefined) {
+        return res.status(400).json({ 
+          message: "All chapter fields must be provided", 
+          requiredFields: ["title", "description", "dataType", "path", "order"]
+        });
       }
-      updateData.chapters = chapters;
+      // Validate dataType and path combination
+      if (chapter.dataType === 'pdf' && !chapter.path.startsWith('pdf/')) {
+        return res.status(400).json({ 
+          message: "Invalid PDF path format" 
+        });
+      }
     }
+    updateData.chapters = chapters;
 
     // Find and update the course
     const updatedCourse = await Course.findByIdAndUpdate(
