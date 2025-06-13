@@ -16,26 +16,14 @@ const chapterSchema = new mongoose.Schema(
       type: Number,
       required: true
     },
-    // duration: {
-    //   type: Number, // Duration in seconds
-    //   default: 0
-    // },
-    filePath: {
+    path: {
       type: String,
-      required: false
+      required: true
     },
     dataType: {
       type: String,
       enum: ["pdf", "video"],
       required: true
-    },
-    pdfPath: {
-      type: String,
-      default: null
-    },
-    hasPdf: {
-      type: Boolean,
-      default: false
     }
   },
   { _id: true }

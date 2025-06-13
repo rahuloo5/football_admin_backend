@@ -63,10 +63,16 @@ const createCourse = async (req, res) => {
     if (chapters && chapters.length > 0) {
       // Validate each chapter has required fields
       for (const chapter of chapters) {
-        if (!chapter.title || !chapter.description || !chapter.dataType || chapter.order === undefined) {
+        if (!chapter.title || !chapter.description || !chapter.dataType || !chapter.path || chapter.order === undefined) {
           return res.status(400).json({ 
             message: "All chapter fields must be provided", 
-            requiredFields: ["title", "description", "dataType", "order"]
+            requiredFields: ["title", "description", "dataType", "path", "order"]
+          });
+        }
+        // Validate dataType and path combination
+        if (chapter.dataType === 'pdf' && !chapter.path.startsWith('pdf/')) {
+          return res.status(400).json({ 
+            message: "Invalid PDF path format" 
           });
         }
       }
@@ -130,10 +136,16 @@ const updateCourse = async (req, res) => {
       // Validate each chapter has required fields
       if (chapters.length > 0) {
         for (const chapter of chapters) {
-          if (!chapter.title || !chapter.description || !chapter.dataType || chapter.order === undefined) {
+          if (!chapter.title || !chapter.description || !chapter.dataType || !chapter.path || chapter.order === undefined) {
             return res.status(400).json({ 
               message: "All chapter fields must be provided", 
-              requiredFields: ["title", "description", "dataType", "order"]
+              requiredFields: ["title", "description", "dataType", "path", "order"]
+            });
+          }
+          // Validate dataType and path combination
+          if (chapter.dataType === 'pdf' && !chapter.path.startsWith('pdf/')) {
+            return res.status(400).json({ 
+              message: "Invalid PDF path format" 
             });
           }
         }
