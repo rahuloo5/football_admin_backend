@@ -43,7 +43,6 @@ const courseSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ["all", "training", "nutrition"],
       required: true
     },
     subtype: {
